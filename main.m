@@ -46,8 +46,10 @@ display(dis);
     
 prompt = 'Which probe sets would you like to analyze? (format common string)';
 str_ind = input(prompt);
-index  = strfind(dis,str_ind);
-pr_ind = find(~cellfun(@isempty,index));
+%  The following two lines were replaced with the one line further below in order to allow to user to enter a subject's name by parts and thus be able to look it up when this name appears split in the dataset's record.
+%  index  = strfind(dis,str_ind);
+%  pr_ind = find(~cellfun(@isempty,index));
+pr_ind = ExtractSubjects(str_ind, dis);
 display(dis(pr_ind));
 
 %Get Data for that condtion
