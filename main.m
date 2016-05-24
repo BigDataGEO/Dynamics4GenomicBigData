@@ -4,10 +4,12 @@ clear;
 
 %Modify the paths for your computer
 path = '/home/jramirez/Documents/Dynamics4GenomicBigData/';
+%path = '/Users/michellecarey/Dropbox/Dynamics4GenomicBigData/';
 
 %if first time running on computerrun line 9 and 10 
 %cd([path,'SBEToolbox-1.3.3\'])
 %install
+
 
 %Add Paths
 addpath(path)
@@ -27,7 +29,7 @@ Preprocessing_technique = 'Default';
 % -----------------------------------------------------------------
 
 %Retrieve Data From GEO
-[Data_GEO,gid,title,Info,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
+[Data_GEO,gid,titles,Info,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
 %Some data sets have more than one condition. By default the Pipeline will
 %analyze the first condtion only. If you would like to specify another
@@ -38,7 +40,7 @@ no_iter = 0;
 while cont == 1
     
 %Ask which condition to analyze
-tb = tabulate(title);
+tb = tabulate(titles);
 dis = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
 display(dis);    
     
@@ -121,5 +123,4 @@ publish('Paper_dum.m',options)
 google(GEO_number,'scholar');
 
 end
-
 
