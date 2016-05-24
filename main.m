@@ -3,7 +3,7 @@ clc;
 clear;
 
 %Modify the paths for your computer
-path = '/home/jramirez/Documents/Dynamics4GenomicBigData/';
+path = '/home/jramirez/Dynamics4GenomicBigData/';
 %path = '/Users/michellecarey/Dropbox/Dynamics4GenomicBigData/';
 
 %if first time running on computerrun line 9 and 10 
@@ -23,6 +23,9 @@ for i = 1:size(GEO_num,1)
 %User Inputs/options
 GEO_number              = char(GEO_num(i));
 Preprocessing_technique = 'Default';
+%  Preprocessing_technique = 'RMA';
+%  Preprocessing_technique = 'MAS5';
+%  Preprocessing_technique = 'GCRMA';
 
 % -----------------------------------------------------------------------
 %  Data Preprocessing
