@@ -9,12 +9,17 @@
 %% Materials and Methods
 
 %% Expermental Design
-for i = 1:size(geoStruct.Header.Samples.description,1)
-    wraptext(geoStruct.Header.Samples.description{pr_ind(cont)},60);
+if ~isempty(geoStruct.Header.Samples.description)
+for i = 1:length(cond)
+    wraptext(geoStruct.Header.Samples.description{pr_ind(cond(i))},60);
     fprintf('%\n');
 end
+end
 
-wraptext(geoStruct.Header.Samples.label_protocol_ch1{pr_ind(cont)},60)
+%  if ~isempty(geoStruct.Header.Samples.label_protocol_ch1)
+if(isfield(geoStruct.Header.Samples,'label_protocol_ch1'))
+wraptext(geoStruct.Header.Samples.label_protocol_ch1{pr_ind(cond)},60)
+end
 
 %% Step 3. Detect the Dynamic Response Genes (DRGs)
 %
@@ -36,13 +41,37 @@ wraptext(geoStruct.Header.Samples.label_protocol_ch1{pr_ind(cont)},60)
 %
 % The majority of the genes have a relatively flat expression levels over time thus estimating the regularity parameter $\lambda$ using all of the genes together is not ideal as it will tend select a $\lambda$ that is too large in order to minimize the prediction error for the majority of the unresponsive genes. As we are interested in obtaining an appropriate amount of regularity for the responsive gene we apply an approach similar to \cite{yao2005functional} and \cite{wu2013more} we choose a subset of the genes that exhibit time course patterns that have relatively smooth trajectories that do not fluctuate widely. Then we rank these genes by their interquartile range and select the top genes for our subset. The regularity parameter is estimated by minimizing the generalized cross validation (the prediction error) of the responsive genes in our estimation subset. 
 %
+% tmp2 = zeros(length(cond),4);
+% myVars = {'dfgenens','gcvgenens','lambdagenes','STDERR'};
+% for i = 1:length(cond)
+%     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
+%     tmp2(i,:) = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
+% end
+% 
+% colLab = {'Df','GCV','log10(\lambda)','Std Error'};
+% rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, cond, 'UniformOutput', false))');
+% Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing'; 
+% Label = 'fit1';
+% Generate_Latex_Tabels(tmp,rowLab,colLab,Caption,Label);
 
-colLab = {'Df','GCV','log10(\lambda)','Std Error'};
-rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, 1:N, 'UniformOutput', false))');
-tmp = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
-Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing'; 
-Label = 'fit1';
-Generate_Latex_Tabels(tmp,rowLab,colLab,Caption,Label)
+% ind= 0 ;
+% for i = 1:length(cond)
+%     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
+% for sub = 1:N
+%     surf(yhat{sub}','FaceColor','interp','EdgeColor','none')
+%     xlim([Time{sub}(1),length(Time{sub})])
+%     set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+%     ylim([1,size(yhat{sub},2)])
+%     zlim([min(min(yhat{sub})),max(max(yhat{sub}))])
+%     xlabel('Time')
+%     ylabel('Probe Set')
+%     zlabel('Probe Set Expression Level')
+%     title([char(Subject_name),' smooth gene expresion curves'])
+%     snapnow
+% end
+% end
+
+
  
 %%
 % DRGs can be defined as genes with expressions that change significantly with respect to time. We use the following hypothesis to detect the DRGs,

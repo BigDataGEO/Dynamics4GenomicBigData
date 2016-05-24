@@ -29,7 +29,7 @@ Preprocessing_technique = 'Default';
 % -----------------------------------------------------------------
 
 %Retrieve Data From GEO
-[Data_GEO,gid,titles,Info,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
+[Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
 %Some data sets have more than one condition. By default the Pipeline will
 %analyze the first condtion only. If you would like to specify another
@@ -53,52 +53,142 @@ display(dis(pr_ind));
 %Get Data for that condtion
 Data     = Data_GEO(:,pr_ind);
 
-if(no_iter==0)
-%Display the Characteristics of the GEO series
-display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
+if not(isempty(Info))
+  if(no_iter==0)
+  %Display the Characteristics of the GEO series
+  display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
 
-%Find out where the time is
-prompt = 'Which row has the time indicator in it? (format [1,2,3])';
-tm_ind = input(prompt);
-Pos    = {Info{tm_ind,pr_ind}};
-if ~isempty(cell2mat(strfind(Pos,'Baseline')))
-    Pos = strrep(Pos, 'Baseline', '0');
-    Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
+  %Find out where the time is
+  prompt = 'Which row has the time indicator in it? (format [1,2,3])';
+  tm_ind = input(prompt);
+  Pos    = {Info{tm_ind,pr_ind}};
+  if ~isempty(cell2mat(strfind(Pos,'Baseline')))
+      Pos = strrep(Pos, 'Baseline', '0');
+  end
+  Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
+
+  display(Pos);
+  prompt = 'These are time values are they right?';
+  sane_check = input(prompt);
+  if(sane_check==0)
+      display('email/hipchat carey or michelle with your GSE number')
+  end
+
+  %% Find out where the subject is
+  prompt = 'Which row has the subject/condition indicator in it? (format [1,2,3] or all)';
+  su_ind = input(prompt);
+  [Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
+  end
+
+  display(Subject);
+  prompt = 'These are subject values are they right?';
+  sane_check = input(prompt);
+  if(sane_check==0)
+      display('email/hipchat carey or michelle with your GSE number')
+  end
+
+  no_iter = no_iter+1;
+
+  %% Set up Directory of Folders
+  [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
+  con = strrep(con,' ','_');
+  flder = strcat(path,'Results/',GEO_number,'/',con);
+  mkdir(flder)
+  cd(flder)
+
+  conditions_analyzed{cont} = con;
+
+  %% Run Pipeline steps
+
+  %Run pipeline each subject at a time
+  options = struct('format','html','outputDir',flder,'showCode',true);
+  publish('Paper.m',options)
+  web('Paper.html', '-browser')
+
+  save(strcat(GEO_number,con,date))
+
+  prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';
+  cont   = input(prompt);
+
+  close all;
+  
+  
+  
+  
+  
+else
+%    if(no_iter==0)
+%    %Display the Characteristics of the GEO series
+%    display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
+
+  %Find out where the time is
+%    prompt = 'Which row has the time indicator in it? (format [1,2,3])';
+%    tm_ind = input(prompt);
+%    Pos    = {Info{tm_ind,pr_ind}};
+%    if ~isempty(cell2mat(strfind(Pos,'Baseline')))
+%        Pos = strrep(Pos, 'Baseline', '0');
+%    end
+%    Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
+
+%    Pos = ExtractTimePoints(titles);
+  Pos = ExtractTimePoints(dis(pr_ind));
+  display(Pos);
+  prompt = 'These are time values are they right?';
+  sane_check = input(prompt);
+  if(sane_check==0)
+      display('email/hipchat carey or michelle with your GSE number')
+  end
+
+  %% Find out where the subject is
+%    prompt = 'Which row has the subject/condition indicator in it? (format [1,2,3] or all)';
+%    su_ind = input(prompt);
+%    [Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
+%    end
+
+  Subject_name = str_ind;
+  Subject = repmat(1, 1, size(Pos,2));
+
+  display(Subject);
+  prompt = 'These are subject values are they right?';
+  sane_check = input(prompt);
+  if(sane_check==0)
+      display('email/hipchat carey or michelle with your GSE number')
+  end
+
+  no_iter = no_iter+1;
+
+  %% Set up Directory of Folders
+  [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
+  con = strrep(con,' ','_');
+  con = strrep(con,'/','_');
+  flder = strcat(path,'Results/',GEO_number,'/',con);
+  mkdir(flder)
+  cd(flder)
+
+  conditions_analyzed{cont} = con;
+
+  %% Run Pipeline steps
+
+  %Run pipeline each subject at a time
+  options = struct('format','html','outputDir',flder,'showCode',true);
+  publish('Paper.m',options)
+  web('Paper.html', '-browser')
+
+%    disp(['I am saving the following: ', GEO_number, ', ', con,', ', date]);
+  save(strcat(GEO_number,con,date))
+
+  prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';
+  cont   = input(prompt);
+
+  close all;
+
 end
-
-%% Find out where the subject is
-prompt = 'Which row has the subject/condition indicator in it? (format [1,2,3] or all)';
-su_ind = input(prompt);
-[Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
-end
-
-no_iter = no_iter+1;
-
-%% Set up Directory of Folders
-[~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
-con = strrep(con,' ','_');
-flder = strcat(path,'Results/',GEO_number,'/',con);
-mkdir(flder)
-cd(flder)
-
-conditions_analyzed{cont} = con;
-
-%% Run Pipeline steps
-
-%Run pipeline each subject at a time
-Paper
-
-save(strcat(GEO_number,con,date))
-
-prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';
-cont   = input(prompt);
-
 end
 
 %% Create Manuscript
 
 prompt = 'Which condtions would you like the manuscript to include ? (format [1,2,3])';
-cont   = input(prompt);
+cond   = input(prompt);
 
 
 % ind = pr_ind(1);
@@ -108,10 +198,6 @@ cont   = input(prompt);
 % display([title_string,geoStruct.Header.Samples.organism_ch1(ind)])
 % prompt = 'What words would you like to search in pubmed? (format common string in cell {...})';
 % wrd_ind = input(prompt);
-
-options = struct('format','html','outputDir',flder,'showCode',true);
-publish('Paper.m',options)
-web('html/Paper.html')
 
 %% Create latex document
 options = struct('format','latex','showCode',false,'outputDir',flder,...

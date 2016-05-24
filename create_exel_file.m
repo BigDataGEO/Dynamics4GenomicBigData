@@ -7,6 +7,13 @@ elseif nargin < 4
     startRange = '';
 end
 
+[r,c] = size(xlsData);
+
+if(r>65535)
+    display(['The data your trying to save to file',fileName,'has too many rows to be able to save to excel file'])
+    return
+end
+
 if(ispc)
 [success,theMessage] = xlswrite(fileName,xlsData,sheetName,startRange);
 else

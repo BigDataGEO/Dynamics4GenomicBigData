@@ -1,4 +1,4 @@
-function [dat,gid,title,Info,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique)
+function [dat,gid,title,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique)
 
 %% Read Data from the GEO website and if cell files are avaiable perform RMA normalisation
 
@@ -18,30 +18,28 @@ sam_id = colnames(geoStruct.Data);  %Sample Id
 
 Data_type = unique(geoStruct.Header.Samples.type);  %Data Type 
 
-%  2016-05-16 (JCRI): Added a conditional block to check first if the information obtained from the GEO database includes the normalisation technique used for the queried dataset.
-if isfield(geoStruct.Header.Samples,'data_processing')
-  Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique
-else
-  Normalisation_technique = 'N/A'; %Normalisation technique
+Normalisation_technique = [];
+if(isfield(geoStruct.Header.Samples,'data_processing'))
+Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique 
 end
 
+Organism = [];
+if(isfield(geoStruct.Header.Samples,'organism_ch1'))
 Organism = unique(geoStruct.Header.Samples.organism_ch1); %Organism
+end
 
-PInfo = [Data_type,Normalisation_technique,Organism];
+PInfo = {Data_type,Normalisation_technique,Organism};
 
 %  2016-05-16 (JCRI): Added a conditional block to check first if the information obtained from the GEO database includes the data characteristics of the queried dataset.
 if isfield(geoStruct.Header.Samples,'characteristics_ch1')
   Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
 else
-  Info = 'N/A'; %Obtain the Charateristics of the Data
+  Info = []; %Obtain the Charateristics of the Data
 end
 
-Chara = zeros(size(Info,1),size(Info,2));
-subject = [];
-time =[];
-condition_ind =[];
+if(isfield(geoStruct.Header.Samples,'title'))
 title = geoStruct.Header.Samples.title;
-
+end
 % for i = 1:size(Info,1)
 %     %if(length(unique(Info(i,:)))==1)
 %     %    Info_DC(k,1) = unique(Info(i,:));
