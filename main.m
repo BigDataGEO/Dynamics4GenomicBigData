@@ -3,8 +3,7 @@ clc;
 clear;
 
 %Modify the paths for your computer
-%path = '/home/jramirez/Documents/Dynamics4GenomicBigData/';
-path = '/Users/michellecarey/Dropbox/Dynamics4GenomicBigData/';
+path = '/home/jramirez/Dynamics4GenomicBigData/';
 
 %if first time running on computerrun line 9 and 10 
 %cd([path,'SBEToolbox-1.3.3\'])

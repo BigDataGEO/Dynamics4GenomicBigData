@@ -17,12 +17,25 @@ sam_id = colnames(geoStruct.Data);  %Sample Id
 %cell_file          = strfind(Supplementary_file,'.tar'); %Are the supplementary_files cell files
 
 Data_type = unique(geoStruct.Header.Samples.type);  %Data Type 
-Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique 
+
+%  2016-05-16 (JCRI): Added a conditional block to check first if the information obtained from the GEO database includes the normalisation technique used for the queried dataset.
+if isfield(geoStruct.Header.Samples,'data_processing')
+  Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique
+else
+  Normalisation_technique = 'N/A'; %Normalisation technique
+end
+
 Organism = unique(geoStruct.Header.Samples.organism_ch1); %Organism
 
 PInfo = [Data_type,Normalisation_technique,Organism];
 
-Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
+%  2016-05-16 (JCRI): Added a conditional block to check first if the information obtained from the GEO database includes the data characteristics of the queried dataset.
+if isfield(geoStruct.Header.Samples,'characteristics_ch1')
+  Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
+else
+  Info = 'N/A'; %Obtain the Charateristics of the Data
+end
+
 Chara = zeros(size(Info,1),size(Info,2));
 subject = [];
 time =[];
