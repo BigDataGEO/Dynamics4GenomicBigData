@@ -55,7 +55,10 @@ display(dis(pr_ind));
 %Get Data for that condtion
 Data     = Data_GEO(:,pr_ind);
 
-if not(isempty(Info))
+timePointsAreinTitleField = not(isnan(ExtractTimePoints(dis(pr_ind))));
+
+%  if not(isempty(Info))
+if not(timePointsAreinTitleField)
   if(no_iter==0)
   %Display the Characteristics of the GEO series
   display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
@@ -94,6 +97,9 @@ if not(isempty(Info))
   %% Set up Directory of Folders
   [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
   con = strrep(con,' ','_');
+  % JCR
+  con = strrep(con,'/','_');
+  con = strrep(con,'.','_');
   flder = strcat(path,'Results/',GEO_number,'/',con);
   mkdir(flder)
   cd(flder)
@@ -161,8 +167,10 @@ else
 
   %% Set up Directory of Folders
   [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
+  % JCR
   con = strrep(con,' ','_');
   con = strrep(con,'/','_');
+  con = strrep(con,'.','_');
   flder = strcat(path,'Results/',GEO_number,'/',con);
   mkdir(flder)
   cd(flder)
@@ -176,7 +184,6 @@ else
   publish('Paper.m',options)
   web('Paper.html', '-browser')
 
-%    disp(['I am saving the following: ', GEO_number, ', ', con,', ', date]);
   save(strcat(GEO_number,con,date))
 
   prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';

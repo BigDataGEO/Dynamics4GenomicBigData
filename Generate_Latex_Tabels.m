@@ -7,11 +7,17 @@ if nargin<5 Label =[]; end
 if nargin<6 filename =[]; end     
 
 % Now use this table as input in our input struct:
-input.tableData = par_opts;
+% JCR: Corrected the name of the struct from tableData to data, as expected by functin latexTable further below.
+%  input.tableData = par_opts;
+input.data = par_opts;
  
 % Set the row format of the data values (in this example we want to use
 % integers only
-input.tableRowLabels     = cellstr(arrayfun(@num2str, rowLab, 'UniformOutput', false));
+if isnumeric(rowLab)
+  input.tableRowLabels     = cellstr(arrayfun(@num2str, rowLab, 'UniformOutput', false));
+else
+  input.tableRowLabels     = rowLab;
+end
 input.tableCloumnHeaders = cellstr(colLab);
 input.tableDataRowFormat = {'%.3f',length(rowLab)};
  
@@ -31,7 +37,9 @@ input.tableCaption = Caption;
 input.tableLabel = Label;
 
 % Now call the function to generate LaTex code:
-latex = latexTable(input);
+% JCR: TMP
+%  latex = latexTable(input);
+latex = {''};
 
 if(~isempty(filename))
 file = fopen(filename,'w');

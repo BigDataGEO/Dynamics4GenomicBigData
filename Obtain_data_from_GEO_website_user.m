@@ -7,8 +7,14 @@ function [dat,gid,title,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_use
 %GEO_number = input(prompt);
 
 %Obtain information from the GEO website 
+try
 geoStruct = getgeodata(GEO_number);
-
+catch
+    prompt    = 'Provide full path to GSE... .soft file downloaded from GEO website';
+    str_ind   = input(prompt);
+    geoStruct = geosoftread(str_ind);
+end    
+    
 %Extract the required information on the Study
 gid    = rownames(geoStruct.Data);  %Gene Id
 sam_id = colnames(geoStruct.Data);  %Sample Id
@@ -30,13 +36,25 @@ end
 
 PInfo = {Data_type,Normalisation_technique,Organism};
 
-%  2016-05-16 (JCRI): Added a conditional block to check first if the information obtained from the GEO database includes the data characteristics of the queried dataset.
-if isfield(geoStruct.Header.Samples,'characteristics_ch1')
-  Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
-else
-  Info = []; %Obtain the Charateristics of the Data
+Info = [];
+names = fieldnames(geoStruct.Header.Samples);
+index = find(~cellfun(@isempty,strfind(names,'ch')));
+index2 = find(~cellfun(@isempty,strfind(names,'description')));
+
+if(isfield(geoStruct.Header.Samples,'characteristics_ch1'))
+Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
+elseif(~isempty(index))
+tmp   = struct2cell(geoStruct.Header.Samples);
+tmp   = tmp(index);
+Info  = vertcat(tmp{:});
+if(~isempty(index2))
+    tmp   = struct2cell(geoStruct.Header.Samples);
+    tmp   = tmp(index2);
+    Info  = [Info;vertcat(tmp{:})];
+end
 end
 
+title =[];
 if(isfield(geoStruct.Header.Samples,'title'))
 title = geoStruct.Header.Samples.title;
 end
