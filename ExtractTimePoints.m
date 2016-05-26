@@ -1,34 +1,32 @@
+% This function expects a column vector of strings.
+
+% The function finds time points as long as they appear as numeric values followed by a delimiter and then by either 'hr' or 'min'. The numeric value must also be preceded by a delimiter.
+
+% The list of delimiters used is given by the variable of the same name.
+
 function timePoints = ExtractTimePoints(Matrix)
-  
-  
-  delimiters = {' ', ',', '_'};
+
+  timePoints = [];
   
   [numberOfRows,numberOfColumns] = size(Matrix);
   
-  timePoints    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Matrix, 'UniformOutput', false));
-  
-  if(length(timePoints)~=numberOfRows)
-  
-  timePoints = [];    
+  delimiters = {' ', ',', '_'};
       
   for i=1:numberOfRows
-      for j=1:numberOfColumns
-          stringToSearch = Matrix{i,j};
-          splitString = strsplit(stringToSearch, delimiters);
-          indexWhereHourIndicatorIsLocated = find(strcmp([splitString], 'hr'));
-          indexWhereMinIndicatorIsLocated  = find(strcmp([splitString], 'min'));
-          if not(isempty(indexWhereHourIndicatorIsLocated))
-              timePoint = splitString{indexWhereHourIndicatorIsLocated-1};
-              timePoints = cat(2, timePoints, {timePoint});
-          end
-          if not(isempty(indexWhereMinIndicatorIsLocated))
-              timePoint = splitString{indexWhereMinIndicatorIsLocated-1};
-              timePoints = cat(2, timePoints, {timePoint});
-          end
+    for j=1:numberOfColumns
+      stringToSearch = Matrix{i,j};
+      splitString = strsplit(stringToSearch, delimiters);
+      indexWhereHourIndicatorIsLocated = find(strcmp([splitString], 'hr'));
+      indexWhereMinIndicatorIsLocated  = find(strcmp([splitString], 'min'));
+      if not(isempty(indexWhereHourIndicatorIsLocated))
+	timePoint = splitString{indexWhereHourIndicatorIsLocated-1};
+	timePoints = cat(2, timePoints, {timePoint});
+      elseif not(isempty(indexWhereMinIndicatorIsLocated))
+	% This time point is in minutes and needs to be changed to hours.
+	timePoint = num2str(str2num(splitString{indexWhereMinIndicatorIsLocated-1}) / 60);
+	timePoints = cat(2, timePoints, {timePoint});
       end
+    end
   end
-  timePoints = (str2double(unique(timePoints)));
-  end
-  
-  
+  timePoints = (str2double(timePoints));  
 end

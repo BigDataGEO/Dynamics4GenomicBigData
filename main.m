@@ -76,7 +76,8 @@ if not(timePointsAreinTitleField)
   prompt = 'These are time values are they right?';
   sane_check = input(prompt);
   if(sane_check==0)
-      display('email/hipchat carey or michelle with your GSE number')
+      display('email/hipchat carey or michelle with your GSE number');
+      Pos = InputTimePointsManually();
   end
 
   %% Find out where the subject is
@@ -144,7 +145,8 @@ else
   prompt = 'These are time values are they right?';
   sane_check = input(prompt);
   if(sane_check==0)
-      display('email/hipchat carey or michelle with your GSE number')
+      display('email/hipchat carey or michelle with your GSE number');
+      Pos = InputTimePointsManually();
   end
 
   %% Find out where the subject is
