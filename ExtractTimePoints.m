@@ -11,7 +11,9 @@ function timePoints = ExtractTimePoints(Matrix)
   [numberOfRows,numberOfColumns] = size(Matrix);
   
   delimiters = {' ', ',', '_'};
-      
+
+  format bank;
+  
   for i=1:numberOfRows
     for j=1:numberOfColumns
       stringToSearch = Matrix{i,j};
