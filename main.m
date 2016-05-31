@@ -2,7 +2,9 @@ close all;
 clc;
 clear;
 
-path = strcat(pwd,'/');
+if not(exist(path))
+  path = strcat(pwd,'/');
+end
 
 %if first time running on computerrun line 9 and 10 
 %cd([path,'SBEToolbox-1.3.3\'])
@@ -33,7 +35,6 @@ for i = 1:size(GEO_num,1)
   %condition which you would like to run the pipeline please specify condtion below
   conditions_analyzed = cell(20);
   cont = 1;
-  no_iter = 0;
   while cont == 1
       
     %Ask which condition to analyze
@@ -41,7 +42,7 @@ for i = 1:size(GEO_num,1)
     dis = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
     display(dis);    
 	
-    prompt = 'Which probe sets would you like to analyze? (format common string)';
+    prompt = 'Which probe sets would you like to analyze? (format common string) ';
     str_ind = input(prompt);
     %  The following two lines were replaced with the one line further below in order to allow to user to enter a subject's name by parts and thus be able to look it up when this name appears split in the dataset's record.
     %  index  = strfind(dis,str_ind);
@@ -51,49 +52,38 @@ for i = 1:size(GEO_num,1)
 
     %Get Data for that condtion
     Data     = Data_GEO(:,pr_ind);
+    
+    %Display the Characteristics of the GEO series
+    display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
 
-    timePointsAreinTitleField = not(isnan(ExtractTimePoints(dis(pr_ind))));
+    %Find out where the time is
+    prompt = 'Which row has the time indicator in it? (Enter -1 if none): ';
+    tm_ind = input(prompt);
+	
+	
+    if tm_ind > 0
+      % Traditional case: time points can be read from characteristics matrix.
+      Pos    = {Info{tm_ind,pr_ind}};
+      if ~isempty(cell2mat(strfind(Pos,'Baseline')))
+	Pos = strrep(Pos, 'Baseline', '0');
+      end
+      Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
 
-    %  if not(isempty(Info))
-    if not(timePointsAreinTitleField)
-      if(no_iter==0)
-	%Display the Characteristics of the GEO series
-	display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
-
-	%Find out where the time is
-	prompt = 'Which row has the time indicator in it? (format [1,2,3])';
-	tm_ind = input(prompt);
-	Pos    = {Info{tm_ind,pr_ind}};
-	if ~isempty(cell2mat(strfind(Pos,'Baseline')))
-	    Pos = strrep(Pos, 'Baseline', '0');
+      sane_check = 0;
+      while sane_check == 0
+	display(Pos);
+	prompt = 'These are all the time values measured in hours. Are they correct? (Enter 1 for "Yes" or 0 for "No") ';
+	sane_check = input(prompt);
+	if sane_check ~= 0
+	  break;
 	end
-	Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
-
-	sane_check = 0;
-	while sane_check == 0
-	  display(Pos);
-	  prompt = 'These are all the time values measured in hours. Are they correct?';
-	  sane_check = input(prompt);
-	  if sane_check ~= 0
-	    break;
-	  end
-	  Pos = InputTimePointsManually();
-	end
-
-	%% Find out where the subject is
-	prompt = 'Which row has the subject/condition indicator in it? (format [1,2,3] or all)';
-	su_ind = input(prompt);
-	[Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
+	Pos = InputTimePointsManually();
       end
 
-%        display(Subject);
-%        prompt = 'These are subject values are they right?';
-%        sane_check = input(prompt);
-%        if(sane_check==0)
-%  	  display('email/hipchat carey or michelle with your GSE number')
-%        end
-
-      no_iter = no_iter+1;
+      %% Find out where the subject is
+      prompt = 'Which row has the subject/condition indicator in it? (format [1,2,3] or all) ';
+      su_ind = input(prompt);
+      [Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
 
       %% Set up Directory of Folders
       [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
@@ -116,19 +106,20 @@ for i = 1:size(GEO_num,1)
 
       save(strcat(GEO_number,con,date))
 
-      prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';
+      prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"]) ';
       cont   = input(prompt);
 
       close all;
-
-    else %if not(timePointsAreinTitleField)
-
+	
+	
+    else
+      % New case where time points must be read from title field or somewhere else.
       Pos = ExtractTimePoints(dis(pr_ind));
       
       sane_check = 0;
       while sane_check == 0
 	display(Pos);
-	prompt = 'These are all the time values measured in hours. Are they correct?';
+	prompt = 'These are all the time values measured in hours. Are they correct? (Enter 1 for "Yes" or 0 for "No") ';
 	sane_check = input(prompt);
 	if sane_check ~= 0
 	  break;
@@ -136,7 +127,7 @@ for i = 1:size(GEO_num,1)
 	Pos = InputTimePointsManually();
       end
 
-      Subject_name = str_ind;
+      Subject_name = strjoin(str_ind, '_');
       Subject = repmat(1, 1, size(Pos,2));
 
 %        display(Subject);
@@ -146,7 +137,7 @@ for i = 1:size(GEO_num,1)
 %  	  display('email/hipchat carey or michelle with your GSE number')
 %        end
 
-      no_iter = no_iter+1;
+%        no_iter = no_iter+1;
 
       %% Set up Directory of Folders
       [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
@@ -169,17 +160,16 @@ for i = 1:size(GEO_num,1)
 
       save(strcat(GEO_number,con,date))
 
-      prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"])';
+      prompt = 'Would you like to continue to the next subject/condition? ([1 "yes", 0 "no"]) ';
       cont   = input(prompt);
 
       close all;
-
-    end %if not(timePointsAreinTitleField) & else
+    end
   end %while cont == 1
 
   %% Create Manuscript
 
-  prompt = 'Which condtions would you like the manuscript to include ? (format [1,2,3])';
+  prompt = 'Which condtions would you like the manuscript to include ? (format [1,2,3]) ';
   cond   = input(prompt);
 
 
