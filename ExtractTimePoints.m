@@ -103,11 +103,12 @@ function numericValueBeforeTimeLabel = ExtractNumericValueBeforeTimeLabel(string
     indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart - 1;
     
     if indexWhereNumericValueShouldStart <= 0
+      indexWhereNumericValueShouldStart = 1; % The substring must start at least at the first position.
       break;
     end
     
-    if not(isempty(str2num(strcat('0',str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd))))))
-      if isempty(str2num(strcat('0',str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart)))))
+    if not(isempty(str2num(strcat('0',num2str(str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)))))))
+      if isempty(str2num(strcat('0',num2str(str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart))))))
 	indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart + 1;
 	break;
       end
@@ -120,7 +121,7 @@ function numericValueBeforeTimeLabel = ExtractNumericValueBeforeTimeLabel(string
     end
   end
   
-  numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));  
+  numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));
 end
 
 

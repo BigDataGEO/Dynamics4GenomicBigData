@@ -127,7 +127,11 @@ for i = 1:size(GEO_num,1)
 	Pos = InputTimePointsManually();
       end
 
-      Subject_name = strjoin(str_ind, '_');
+      if iscellstr(str_ind)
+	Subject_name = strjoin(str_ind, '_');
+      else
+	Subject_name = str_ind;
+      end
       Subject = repmat(1, 1, size(Pos,2));
 
 %        display(Subject);
