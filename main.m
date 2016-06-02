@@ -2,13 +2,7 @@ close all;
 clc;
 clear;
 
-if not(exist('rootPath'))
-  rootPath = strcat(pwd,'/');
-end
-
-cd(rootPath);
-
-path = rootPath;
+path = strcat(pwd,'/');
 
 %if first time running on computerrun line 9 and 10 
 %cd([path,'SBEToolbox-1.3.3\'])
@@ -198,6 +192,6 @@ for i = 1:size(GEO_num,1)
   %these papers.
   google(GEO_number,'scholar');
 
-  cd(rootPath);
+  cd(path);
 end
 

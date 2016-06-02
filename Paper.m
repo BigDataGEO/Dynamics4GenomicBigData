@@ -833,11 +833,11 @@ for i=1:N
         h8=figure(b);
         
         % JCR: The following five lines were added in order to expand the size of the output plot.
-%          set(gcf, 'PaperPositionMode', 'manual');
-%  	set(gcf, 'PaperUnits', 'centimeters');
-%  	set(gcf, 'PaperPosition', [0 0 50 40]);
-%  	set(gcf, 'PaperUnits', 'centimeters');
-%  	set(gcf, 'PaperSize', [50 40]);
+        set(gcf, 'PaperPositionMode', 'manual');
+	set(gcf, 'PaperUnits', 'centimeters');
+	set(gcf, 'PaperPosition', [0 0 50 40]);
+	set(gcf, 'PaperUnits', 'centimeters');
+	set(gcf, 'PaperSize', [50 40]);
 
         for gen = 1:30
 

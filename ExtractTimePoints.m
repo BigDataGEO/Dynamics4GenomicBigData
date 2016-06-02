@@ -100,23 +100,26 @@ function numericValueBeforeTimeLabel = ExtractNumericValueBeforeTimeLabel(string
   indexWhereNumericValueShouldStart = indexWhereNumericValueShouldEnd;
   
   while true
-    indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart - 1;
     
-    if indexWhereNumericValueShouldStart <= 0
-      indexWhereNumericValueShouldStart = 1; % The substring must start at least at the first position.
-      break;
-    end
+    numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));
     
-    if not(isempty(str2num(strcat('0',num2str(str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)))))))
-      if isempty(str2num(strcat('0',num2str(str2num(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart))))))
+    % This condition checks if the numeric value read so far is indeed numeric.
+    % If true, then the value is numeric. False, otherwise.
+    if not(isempty(numericValueBeforeTimeLabel))
+      
+      % This condition checks if the character immediately before the numeric value that has been read so far is not numeric.
+      % If true, then the character is not numeric and the numeric value read so far is THE numeric value.
+      % If false, then the character is also numeric and must be added to the numeric value being read.
+      if isempty(str2num(strcat('0',stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart))))
 	indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart + 1;
 	break;
       end
     end
     
-    numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));
-    if isempty(numericValueBeforeTimeLabel)
-      indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart + 1;
+    indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart - 1;
+    
+    if indexWhereNumericValueShouldStart <= 0
+      indexWhereNumericValueShouldStart = 1; % The substring must start at least at the first position.
       break;
     end
   end
@@ -135,27 +138,3 @@ function trimmedString = TrimString(stringToTrim)
     trimmedString=strrep(trimmedString, charactersToRemove{i}, '');
   end  
 end
-
-%  function timePoint = ExtractTimePoint(stringToSearch)
-%    delimiters = {' ', ',', '_'};
-%    splitString = strsplit(stringToSearch, delimiters);
-%        
-%    % The following lines attempt to find the time point measured in hours. The time units may appears as 'hr' or 'hours', for instance.
-%    indexWhereHourIndicatorIsLocated = find(strcmp([splitString], 'hr'));
-%    if isempty(indexWhereHourIndicatorIsLocated)
-%      indexWhereHourIndicatorIsLocated = find(strcmp([splitString], 'hour'));
-%    end
-%    if isempty(indexWhereHourIndicatorIsLocated)
-%      indexWhereHourIndicatorIsLocated = find(strcmp([splitString], 'hours'));
-%    end
-%  
-%    % The following line attempts to find the time point measured in minutes.
-%    indexWhereMinIndicatorIsLocated  = find(strcmp([splitString], 'min'));
-%  
-%    if not(isempty(indexWhereHourIndicatorIsLocated))
-%      timePoint = splitString{indexWhereHourIndicatorIsLocated-1};
-%    elseif not(isempty(indexWhereMinIndicatorIsLocated))
-%      % The time point found is in minutes and needs to be changed to hours.
-%      timePoint = num2str(str2num(splitString{indexWhereMinIndicatorIsLocated-1}) / 60);
-%    end
-%  end
