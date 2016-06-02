@@ -43,6 +43,7 @@ for i = 1:N
         %  --------------- Sort the Genes by IQR Largest-Smallest  ---------------
         [SCR{i},IND{i,k}] = sort(IQR{i},'descend');
         ngenes = length(IND{i,k});%min(50,length(IND{i}));
+%          ngenes = min(50,length(IND{i,k}));
         pool_count = 0;
         for g=1:ngenes
             %  --------------- Obtain the lambda for the genes with k no of corssings  ---------------
