@@ -61,6 +61,7 @@ for i = 1:size(GEO_num,1)
 	
     if tm_ind > 0
       % Traditional case: time points can be read from characteristics matrix.
+      format bank;
       Pos    = {Info{tm_ind,pr_ind}};
       if ~isempty(cell2mat(strfind(Pos,'Baseline')))
 	Pos = strrep(Pos, 'Baseline', '0');

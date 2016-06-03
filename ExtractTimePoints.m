@@ -103,25 +103,25 @@ function numericValueBeforeTimeLabel = ExtractNumericValueBeforeTimeLabel(string
     
     numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));
     
-    % This condition checks if the numeric value read so far is indeed numeric.
-    % If true, then the value is numeric. False, otherwise.
-    if not(isempty(numericValueBeforeTimeLabel))
-      
-      % This condition checks if the character immediately before the numeric value that has been read so far is not numeric.
-      % If true, then the character is not numeric and the numeric value read so far is THE numeric value.
-      % If false, then the character is also numeric and must be added to the numeric value being read.
-      if isempty(str2num(strcat('0',stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart))))
-	indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart + 1;
-	break;
-      end
-    end
-    
     indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart - 1;
     
     if indexWhereNumericValueShouldStart <= 0
       indexWhereNumericValueShouldStart = 1; % The substring must start at least at the first position.
       break;
     end
+    
+    % This condition checks if the numeric value read so far is indeed numeric.
+    % If true, then the value is numeric. False, otherwise.
+    if not(isempty(numericValueBeforeTimeLabel))
+      
+      % This condition checks if the character immediately before the numeric value that has been read so far is not numeric.
+      % If true, then this character is not numeric and the numeric value read so far is THE numeric value.
+      % If false, then this character is also numeric and must be added to the numeric value being read.
+      if isempty(str2num(strcat('0',strrep(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldStart), ' ', '_'))))
+	indexWhereNumericValueShouldStart = indexWhereNumericValueShouldStart + 1;
+	break;
+      end
+    end    
   end
   
   numericValueBeforeTimeLabel = str2num(TrimString(stringToSearch(indexWhereNumericValueShouldStart:indexWhereNumericValueShouldEnd)));
@@ -138,3 +138,5 @@ function trimmedString = TrimString(stringToTrim)
     trimmedString=strrep(trimmedString, charactersToRemove{i}, '');
   end  
 end
+
+
