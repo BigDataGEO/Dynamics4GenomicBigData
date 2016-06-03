@@ -109,8 +109,7 @@ for i = 1:size(GEO_num,1)
       cont   = input(prompt);
 
       close all;
-	
-	
+      cd(path);
     else
       % New case where time points must be read from title field or somewhere else.
       Pos = ExtractTimePoints(dis(pr_ind));
@@ -167,6 +166,7 @@ for i = 1:size(GEO_num,1)
       cont   = input(prompt);
 
       close all;
+      cd(path);
     end
   end %while cont == 1
 
@@ -185,14 +185,11 @@ for i = 1:size(GEO_num,1)
   % wrd_ind = input(prompt);
 
   %% Create latex document
-  options = struct('format','latex','showCode',false,'outputDir',flder,...
-      'stylesheet','document.xsl');
+  options = struct('format','latex','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
   publish('Paper_dum.m',options)
 
   %opens your web browser and looks for papers related to your data set. Read
   %these papers.
   google(GEO_number,'scholar');
-
-  cd(path);
 end
 
