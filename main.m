@@ -82,7 +82,7 @@ for i = 1:size(GEO_num,1)
 	timeUnit = 'N/A';
 	
 	if not(isempty(timePointsMatrix))
-	  Pos = cell2mat(timePointsMatrix(:,1));
+	  Pos = cell2mat(timePointsMatrix(:,1))';
 	  timeUnit = timePointsMatrix(1,2);
 	end
       end
@@ -126,7 +126,7 @@ for i = 1:size(GEO_num,1)
       timeUnit = 'N/A';
       
       if not(isempty(timePointsMatrix))
-	Pos = cell2mat(timePointsMatrix(:,1));
+	Pos = cell2mat(timePointsMatrix(:,1))';
 	timeUnit = timePointsMatrix(1,2);
       end
 	
@@ -145,7 +145,7 @@ for i = 1:size(GEO_num,1)
 	timeUnit = 'N/A';
 	
 	if not(isempty(timePointsMatrix))
-	  Pos = cell2mat(timePointsMatrix(:,1));
+	  Pos = cell2mat(timePointsMatrix(:,1))';
 	  timeUnit = timePointsMatrix(1,2);
 	end
       end
