@@ -76,7 +76,15 @@ for i = 1:size(GEO_num,1)
 	if sane_check ~= 0
 	  break;
 	end
-	Pos = InputTimePointsManually();
+	timePointsMatrix = InputTimePointsManually();
+	
+	Pos = [];
+	timeUnit = 'N/A';
+	
+	if not(isempty(timePointsMatrix))
+	  Pos = cell2mat(timePointsMatrix(:,1));
+	  timeUnit = timePointsMatrix(1,2);
+	end
       end
 
       %% Find out where the subject is
@@ -111,18 +119,35 @@ for i = 1:size(GEO_num,1)
       close all;
       cd(path);
     else
-      % New case where time points must be read from title field or somewhere else.
-      Pos = ExtractTimePoints(dis(pr_ind));
+      % New case where time points must be read from title field or somewhere else.      
+      timePointsMatrix = ExtractTimePoints(dis(pr_ind));
+      
+      Pos = [];
+      timeUnit = 'N/A';
+      
+      if not(isempty(timePointsMatrix))
+	Pos = cell2mat(timePointsMatrix(:,1));
+	timeUnit = timePointsMatrix(1,2);
+      end
+	
       
       sane_check = 0;
       while sane_check == 0
 	display(Pos);
-	prompt = 'These are all the time values measured in hours. Are they correct? (Enter 1 for "Yes" or 0 for "No") ';
+	prompt = ['These are all the time values measured in ' timeUnit{1} '. Are they correct? (Enter 1 for "Yes" or 0 for "No") '];
 	sane_check = input(prompt);
 	if sane_check ~= 0
 	  break;
 	end
-	Pos = InputTimePointsManually();
+	timePointsMatrix = InputTimePointsManually();
+	
+	Pos = [];
+	timeUnit = 'N/A';
+	
+	if not(isempty(timePointsMatrix))
+	  Pos = cell2mat(timePointsMatrix(:,1));
+	  timeUnit = timePointsMatrix(1,2);
+	end
       end
 
       if iscellstr(str_ind)

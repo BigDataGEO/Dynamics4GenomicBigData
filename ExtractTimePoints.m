@@ -1,53 +1,47 @@
 % This function expects a column vector of strings.
 
+% This function returns a Nx2 matrix, where N is the number of time points found (under normal circumstances N should be the number of rows of the input vector). In each row the first column contains the time value (numeric, e.g., 5) as a cell value and the second column contains the time unit used (string, e.g., 'days').
+
+% The returned time points are converted to the most common time unit in the matrix provided.
+
 % The function finds time points as long as they appear as numeric values followed by a delimiter and then by either 'hr' or 'min', for instance.
 % The complete list of accepted labels for time units appears in function ExtractTimePoint further below.
 
 % Example input:
-% Matrix={'AAAAA_BBB_CCC_25.3hrs_DDD_XXXX', 'AAAAA_BBB_CCC_3435.3min_DDD_XXXX', 'AAAAA_BBB_CCC_65.3hrs_DDD_XXXX'}'
+% Matrix={'AAAAA_BBB_CCC_25.3hrs_DDD_XXXX', 'AAAAA_BBB_CCC_3435.3min_DDD_XXXX', 'AAAAA_BBB_CCC_65.3hrs_DDD_XXXX', 'AAAAA_BBB_CCC_656.3hrs_DDD_XXXX','AAAAA_BBB_CCC_965.3hrs_DDD_XXXX'}'
 
 % Example output:
-% [25.3, 57.26, 65.3]
+%      [ 25.30]    'hours'
+%      [ 57.26]    'hours'
+%      [ 65.30]    'hours'
+%      [656.30]    'hours'
+%      [965.30]    'hours'
 
 function timePoints = ExtractTimePoints(Matrix)
 
-  timePoints = ExtractTimePointsInHours(Matrix);
-  
-  timePoints = UniformizeTimePoints(timePoints);
-end
-
-
-% This function expects a column vector of strings.
-
-% The function finds time points as long as they appear as numeric values followed by a delimiter and then by either 'hr' or 'min', for instance.
-% The complete list of accepted labels for time units appears in function ExtractTimePoint further below.
-
-% Example input:
-% Matrix={'AAAAA_BBB_CCC_25.3hrs_DDD_XXXX', 'AAAAA_BBB_CCC_3435.3min_DDD_XXXX', 'AAAAA_BBB_CCC_65.3hrs_DDD_XXXX'}'
-
-% Example output:
-% [25.3, 57.26, 65.3]
-
-function timePointsInHours = ExtractTimePointsInHours(Matrix)
-
-  timePointsInHours = [];
+  timePoints = [];
   
   [numberOfRows,numberOfColumns] = size(Matrix);
 
   format bank;
   
-  % The following block of nested for loops simply goes through the matrix cells looking for the time points and saving them in variable timePointsInHours. In the ends, all values stored in timePointsInHours are measured in hours.
+  % The following block of nested for loops simply goes through the matrix cells looking for the time points and saving them in variable timePoints. In the ends, all values stored in timePoints are measured in hours.
   for i=1:numberOfRows
     for j=1:numberOfColumns
       stringToSearch = Matrix{i,j};
-      timePoint = ExtractTimePoint(stringToSearch);
-      timePoint = num2str(timePoint);
-      timePointsInHours = cat(2, timePointsInHours, {timePoint});
+      [timePoint, timeUnit] = ExtractTimePoint(stringToSearch);
+      timePointValueAndUnit=cell(1,2);
+      timePointValueAndUnit{1} = timePoint;
+      timePointValueAndUnit{2} = timeUnit;
+      timePoints = [timePoints; timePointValueAndUnit];
     end
   end
-  timePointsInHours = (str2double(timePointsInHours));  
+  
+  if not(isempty(timePoints)) & sum(sum(cellfun(@isempty, timePoints))) == 0
+    mostUsedTimeUnit = findMostUsedTimeUnit(timePoints);
+    timePoints = changeAllTimePointsToTimeUnit(timePoints, mostUsedTimeUnit);
+  end
 end
-
 
 % The following are a few examples that illustrate what this function receives as arguments and what it returns.
 
@@ -67,9 +61,10 @@ end
 % stringToSearch = 'AAAAA_BBB_CCC_25.3 mins_DDD_XXXX'
 % timeLabelUsed = 'mins'
 
-function timePoint = ExtractTimePoint(stringToSearch)
+function [timePoint, timeUnit] = ExtractTimePoint(stringToSearch)
 
   timePoint = [];
+  timeUnit = [];
 
   % The time point may be in days and the units may appear written as 'days' or 'day', for instance. The following section searches the input string to determine whether the time appears in days and the label used.
   dayLabelUsed = '';
@@ -104,15 +99,15 @@ function timePoint = ExtractTimePoint(stringToSearch)
     end
   end
   
-
   if not(isempty(dayLabelUsed))
     timePoint = ExtractNumericValueBeforeOrAfterTimeLabel(stringToSearch, dayLabelUsed);
-    timePoint = timePoint * 24;
+    timeUnit = 'days';
   elseif not(isempty(hourLabelUsed))
     timePoint = ExtractNumericValueBeforeOrAfterTimeLabel(stringToSearch, hourLabelUsed);
+    timeUnit = 'hours';
   elseif not(isempty(minuteLabelUsed))
     timePoint = ExtractNumericValueBeforeOrAfterTimeLabel(stringToSearch, minuteLabelUsed);
-    timePoint = timePoint / 60;
+    timeUnit = 'minutes';
   end
 end
 
@@ -137,7 +132,6 @@ function numericValueBeforeOrAfterTimeLabel = ExtractNumericValueBeforeOrAfterTi
     numericValueBeforeOrAfterTimeLabel = ExtractNumericValueAfterTimeLabel(stringToSearch, timeLabelUsed);
   end
 end
-
 
 % The following are a few examples that illustrate what this function receives as arguments and what it returns.
 
@@ -217,6 +211,48 @@ function numericValueAfterTimeLabel = ExtractNumericValueAfterTimeLabel(stringTo
 end
 
 
+function mostUsedTimeUnit = findMostUsedTimeUnit(timePoints)
+
+  timeLabelsUsed=unique(timePoints(:,2),'stable');
+  numberOfTimesEachTimeLabelIsUsed=cellfun(@(x) sum(ismember(timePoints(:,2),x)),timeLabelsUsed,'un',0);
+  
+  numberOfTimesEachTimeLabelIsUsedAsMatrix= cat(1, numberOfTimesEachTimeLabelIsUsed{:});
+
+  [num] = max(numberOfTimesEachTimeLabelIsUsedAsMatrix(:));
+  [x y] = ind2sub(size(numberOfTimesEachTimeLabelIsUsedAsMatrix),find(numberOfTimesEachTimeLabelIsUsedAsMatrix==num));
+  
+  mostUsedTimeUnit = timeLabelsUsed{x};
+end
+
+
+function updatedTimePoints = changeAllTimePointsToTimeUnit(timePoints, newTimeUnit)
+
+  keySet =   {'hours-to-minutes', 'hours-to-days',
+	      'minutes-to-hours', 'minutes-to-days',
+	      'days-to-minutes',  'days-to-hours'};
+  valueSet = [60, 1/24,
+	      1/60, (1/60)*(1/24),
+	      24*60, 24];
+  mapObj = containers.Map(keySet,valueSet);
+
+  updatedTimePoints = timePoints;
+  
+  [numberOfRows,numberOfColumns] = size(updatedTimePoints);
+
+  format bank;
+  
+  for i=1:numberOfRows
+    timePoint = updatedTimePoints{i,1};
+    oldTimeUnit = updatedTimePoints{i,2};
+    if not(strcmp(oldTimeUnit, newTimeUnit))
+      keyString = strcat(oldTimeUnit, '-to-', newTimeUnit);
+      updatedTimePoints{i,1} = timePoint*mapObj(keyString);
+      updatedTimePoints{i,2} = newTimeUnit;
+    end
+  end
+end
+
+
 function trimmedString = TrimString(stringToTrim)
   
   charactersToRemove = {'_', ' ', '-', '/'};
@@ -226,9 +262,4 @@ function trimmedString = TrimString(stringToTrim)
   for i=1:length(charactersToRemove)
     trimmedString=strrep(trimmedString, charactersToRemove{i}, '');
   end  
-end
-
-function uniformizedTimePoints = UniformizeTimePoints(timePoints)
-
-  uniformizedTimePoints = timePoints;
 end
