@@ -70,7 +70,7 @@ for i = 1:size(GEO_num,1)
 
       sane_check = 0;
       while sane_check == 0
-	display(Pos);
+	display(Pos');
 	prompt = 'These are all the time values measured in hours. Are they correct? (Enter 1 for "Yes" or 0 for "No") ';
 	sane_check = input(prompt);
 	if sane_check ~= 0
@@ -133,7 +133,7 @@ for i = 1:size(GEO_num,1)
       
       sane_check = 0;
       while sane_check == 0
-	display(Pos);
+	display(Pos');
 	prompt = ['These are all the time values measured in ' timeUnit{1} '. Are they correct? (Enter 1 for "Yes" or 0 for "No") '];
 	sane_check = input(prompt);
 	if sane_check ~= 0
