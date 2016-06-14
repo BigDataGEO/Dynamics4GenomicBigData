@@ -15,6 +15,8 @@ addpath(genpath([path,'SBEToolbox-1.3.3/']))
 
 [~,GEO_num] = xlsread('GEO_list.xlsx');
 
+py.importlib.import_module('DAVIDWS')
+
 for i = 1:size(GEO_num,1)
 
   %User Inputs/options

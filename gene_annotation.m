@@ -4,6 +4,31 @@ if nargin<2
     idType = 'AFFYMETRIX_3PRIME_IVT_ID';
 end
 
+inputIds = py.str(strjoin(inputIds',', '));
+idType = py.str(idType)
+listName = py.str('Annotation')
+listType = py.int(0)
+thd = py.float(0.05)
+count = py.int(2)
+
+speciesPy = py.DAVIDWS.getSpecies(inputIds, idType, listName, listType)
+
+Species = char(speciesPy)
+
+chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count)
+
+chartReport = char(chartReportPy)
+
+SummaryReport = [];
+tableReport = [];
+ClusterReport = [];
+
+function[tableReport,chartReport,ClusterReport] = gene_annotation_OLD(inputIds,idType)
+
+if nargin<2
+    idType = 'AFFYMETRIX_3PRIME_IVT_ID';
+end
+
 %For explantion of the Reports results see: http://david.abcc.ncifcrf.gov/content.jsp?file=functional_annotation.html
 
 obj = DAVIDWebService;
@@ -33,6 +58,3 @@ chartReport = getChartReport(obj,0.05,2);
 %% Functional Annotation Clustering Report
 %  overlap 4, initialSeed 4, finalSeed 4, linkage .50, kappa .35
 ClusterReport = [];%getTermClusterReport(obj,4,4,4,0.50,1);
-
-
-
