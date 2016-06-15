@@ -688,29 +688,27 @@ end
 
    
 
-%   for  i = 1:N  
+ for  i = 1:N  
 
-%     [tableReport{i},chartReport{i},ClusterReport{i}] = gene_annotation(GID_DRG{i});
+   [tableReport{i},chartReport{i},ClusterReport{i}] = gene_annotation(GID_DRG{i});
 
-%   end
+ end
 
 
 
-% if(ispc)
+%  if(ispc)
 
-% for i = 1:N
+for i = 1:N
+  create_exel_file('Annotation.xls',chartReport{i},i,[],path);
+end
 
-%     struc2xls('Annotation',chartReport{i},'Sheet',i)
 
-% end
 
-% 
+disp(strcat('This is a link to the Annotation <a href="',flder,'/Annotation.xls">Annotation</a>.'))
 
-% disp(strcat('This is a link to the Annotation <a href="',flder,'/Annotation.xls">Annotation</a>.'))
 
-% 
 
-% end
+%  end
 
 % 
 

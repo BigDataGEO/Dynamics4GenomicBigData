@@ -5,23 +5,43 @@ if nargin<2
 end
 
 inputIds = py.str(strjoin(inputIds',', '));
-idType = py.str(idType)
-listName = py.str('Annotation')
-listType = py.int(0)
-thd = py.float(0.05)
-count = py.int(2)
+idType = py.str(idType);
+listName = py.str('Annotation');
+listType = py.int(0);
+thd = py.float(0.05);
+count = py.int(2);
 
-speciesPy = py.DAVIDWS.getSpecies(inputIds, idType, listName, listType)
+speciesPy = py.DAVIDWS.getSpecies(inputIds, idType, listName, listType);
 
-Species = char(speciesPy)
+Species = char(speciesPy);
 
-chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count)
+chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count);
 
-chartReport = char(chartReportPy)
+%  chartReport = char(chartReportPy)
+chartReport = convertPythonList(chartReportPy);
 
 SummaryReport = [];
 tableReport = [];
 ClusterReport = [];
+
+
+function[matlabMatrix] = convertPythonList(pythonList)
+
+  matlabMatrix = [];
+
+  for i=1:length(pythonList)
+    pythonRecord = pythonList{i};
+    newRow = cellstr([num2str(pythonRecord.EASEBonferroni); num2str(pythonRecord.afdr); num2str(pythonRecord.benjamini); num2str(pythonRecord.bonferroni); {char(pythonRecord.categoryName)}; num2str(pythonRecord.ease); num2str(pythonRecord.fisher); num2str(pythonRecord.foldEnrichment); {char(pythonRecord.geneIds)}; num2str(pythonRecord.id); num2str(pythonRecord.listHits); {char(pythonRecord.listName)}; num2str(pythonRecord.listTotals); num2str(pythonRecord.percent); num2str(pythonRecord.popHits); num2str(pythonRecord.popTotals); num2str(pythonRecord.rfdr); {''}; {char(pythonRecord.termName)}])';
+    matlabMatrix = [matlabMatrix; newRow];
+  end
+  
+%    matlabMatrix = array2table(matlabMatrix,...
+%      'VariableNames',{'EASEBonferroni', 'afdr', 'benjamini', 'bonferroni', 'categoryName', 'ease', 'fisher', 'foldEnrichment', 'geneIds', 'id', 'listHits', 'listName', 'listTotals', 'percent', 'popHits', 'popTotals', 'rfdr', 'scores', 'termName'});
+  
+  labels = {'EASEBonferroni', 'afdr', 'benjamini', 'bonferroni', 'categoryName', 'ease', 'fisher', 'foldEnrichment', 'geneIds', 'id', 'listHits', 'listName', 'listTotals', 'percent', 'popHits', 'popTotals', 'rfdr', 'scores', 'termName'};
+  
+  matlabMatrix = [labels; matlabMatrix];
+
 
 function[tableReport,chartReport,ClusterReport] = gene_annotation_OLD(inputIds,idType)
 
