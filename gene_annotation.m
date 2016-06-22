@@ -15,10 +15,14 @@ speciesPy = py.DAVIDWS.getSpecies(inputIds, idType, listName, listType);
 
 Species = char(speciesPy);
 
-chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count);
+chartReport = [];
 
-%  chartReport = char(chartReportPy)
-chartReport = convertPythonList(chartReportPy);
+if not(strcmp(Species, 'None'))
+  chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count);
+
+  %  chartReport = char(chartReportPy)
+  chartReport = convertPythonList(chartReportPy);
+end
 
 SummaryReport = [];
 tableReport = [];

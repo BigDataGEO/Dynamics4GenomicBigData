@@ -686,7 +686,6 @@ end
 
 % annotations share, the higher chance they will be grouped together.
 
-   
 
  for  i = 1:N  
 
@@ -699,7 +698,9 @@ end
 %  if(ispc)
 
 for i = 1:N
-  create_exel_file('Annotation.xls',chartReport{i},i,[],path);
+  if not(isempty(chartReport{i}))
+    create_exel_file('Annotation.xls',chartReport{i},i,[],path);
+  end
 end
 
 
