@@ -170,7 +170,8 @@ for sub = 1:N
 
     ylabel('Probe Set')
 
-    zlabel('Mean Expression Level')
+%      zlabel('Mean Expression Level')
+    zlabel('Expression Level')
 
     title([char(Subject_name),' all genes measured'])
 
@@ -594,8 +595,6 @@ disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_
 
 %  ---------------  Surfaces of Top Genes from F-test  ------------------------
 
-
-
 h=figure(4);
 
 ind= 0 ;
@@ -613,6 +612,13 @@ for sub = 1:N
     zlim([min(min(yhat{sub}(:,IND_DRG{i}))),max(max(yhat{sub}(:,IND_DRG{i})))])
 
     hold on;
+    
+    ylabel('Time')
+
+    xlabel('Top ranking genes')
+
+%      zlabel('Mean Expression Level')
+    zlabel('Surface')
 
     title([char(Subject_name),' Dynamic Response Genes'])
 
@@ -831,7 +837,6 @@ for i=1:N
 
         h8=figure(b);
         
-        % JCR: The following five lines were added in order to expand the size of the output plot.
         set(gcf, 'PaperPositionMode', 'manual');
 	set(gcf, 'PaperUnits', 'centimeters');
 	set(gcf, 'PaperPosition', [0 0 50 40]);
@@ -926,11 +931,15 @@ for k=1:N
 
 end
 
+GRMFigure = figure(floor(size(mean_clusters_mat{i},1)./30)+1);
 
+set(gcf, 'PaperPositionMode', 'manual');
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperPosition', [0 0 50 40]);
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperSize', [50 40]);
 
-figure(floor(size(mean_clusters_mat{i},1)./30)+1);
-
-subplot(2,2,1)
+Figure1 = subplot(2,2,1)
 
 if(~isempty(lrg_ts{1}))
 
@@ -950,7 +959,7 @@ title('LSM')
 
 end
 
-subplot(2,2,2)
+Figure2 = subplot(2,2,2)
 
 ribbon(med_ts{1}');
 
@@ -966,7 +975,7 @@ xlabel('ith Cluster Center')
 
 title('MSM')
 
-subplot(2,2,3)
+Figure3 = subplot(2,2,3)
 
 ribbon(smal_ts{1}');
 
@@ -982,7 +991,7 @@ xlabel('ith Cluster Center')
 
 title('SSM')
 
-subplot(2,2,4)
+Figure4 = subplot(2,2,4)
 
 ribbon(sin_ts{1}');
 
@@ -998,7 +1007,7 @@ xlabel('ith Cluster Center')
 
 title('SGM')
 
-
+print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
 
 % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
@@ -1009,8 +1018,6 @@ row_hed = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, 1:N, 'Unifo
 tmp = round2(vertcat(sizes{:}));
 
 makeHtmlTable(tmp,[],row_hed,col_hed);
-
-
 
 % Caption = 'The number of clusters for each subject and the number of clusters in each category.'; 
 
