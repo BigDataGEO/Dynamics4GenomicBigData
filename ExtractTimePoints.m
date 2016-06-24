@@ -65,6 +65,17 @@ function [timePoint, timeUnit] = ExtractTimePoint(stringToSearch)
 
   timePoint = [];
   timeUnit = [];
+  
+  % The time point may be in weeks and the units may appear written as 'weeks' or 'week', for instance. The following section searches the input string to determine whether the time appears in weeks and the label used.
+  weekLabelUsed = '';
+  possibleWeekLabels = {'week', 'weeks', 'wk'};
+  for i=1:length(possibleWeekLabels)
+    indexOfWeekLabelInString=strfind(stringToSearch, possibleWeekLabels{i});
+    if not(isempty(indexOfWeekLabelInString))
+      weekLabelUsed = possibleWeekLabels{i};
+      break;
+    end
+  end
 
   % The time point may be in days and the units may appear written as 'days' or 'day', for instance. The following section searches the input string to determine whether the time appears in days and the label used.
   dayLabelUsed = '';
@@ -99,7 +110,10 @@ function [timePoint, timeUnit] = ExtractTimePoint(stringToSearch)
     end
   end
   
-  if not(isempty(dayLabelUsed))
+  if not(isempty(weekLabelUsed))
+    timePoint = ExtractNumericValueBeforeOrAfterTimeLabel(stringToSearch, weekLabelUsed);
+    timeUnit = 'weeks';
+  elseif not(isempty(dayLabelUsed))
     timePoint = ExtractNumericValueBeforeOrAfterTimeLabel(stringToSearch, dayLabelUsed);
     timeUnit = 'days';
   elseif not(isempty(hourLabelUsed))
@@ -146,6 +160,9 @@ end
 function numericValueBeforeTimeLabel = ExtractNumericValueBeforeTimeLabel(stringToSearch, timeLabelUsed)
 
   indexWhereNumericValueShouldEnd = strfind(stringToSearch, timeLabelUsed) - 1;
+  if(indexWhereNumericValueShouldEnd<1)
+    indexWhereNumericValueShouldEnd = 1;
+  end
   indexWhereNumericValueShouldStart = indexWhereNumericValueShouldEnd;
   
   while true
@@ -227,12 +244,14 @@ end
 
 function updatedTimePoints = changeAllTimePointsToTimeUnit(timePoints, newTimeUnit)
 
-  keySet =   {'hours-to-minutes', 'hours-to-days',
-	      'minutes-to-hours', 'minutes-to-days',
-	      'days-to-minutes',  'days-to-hours'};
-  valueSet = [60, 1/24,
-	      1/60, (1/60)*(1/24),
-	      24*60, 24];
+  keySet =   {'hours-to-minutes', 'hours-to-days', 'hours-to-weeks',
+	      'minutes-to-hours', 'minutes-to-days', 'minutes-to-weeks',
+	      'days-to-minutes',  'days-to-hours', 'days-to-weeks',
+	      'weeks-to-days', 'weeks-to-hours', 'weeks-to-minutes'};
+  valueSet = [60, 1/24, (1/24)*(1/7),
+	      1/60, (1/60)*(1/24), (1/60)*(1/24)*(1/7),
+	      24*60, 24, (1/7),
+	      7, 7*24, 7*24*60];
   mapObj = containers.Map(keySet,valueSet);
 
   updatedTimePoints = timePoints;
