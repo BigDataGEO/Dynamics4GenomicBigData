@@ -25,3 +25,5 @@ chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, 
 
 chartReport = char(chartReportPy)
 
+py.DAVIDWS.getConversionTypes()
+
