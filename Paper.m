@@ -693,8 +693,8 @@ end
 % annotations share, the higher chance they will be grouped together.
 
 
- for  i = 1:N  
-
+ for  i = 1:N
+   create_exel_file('GeneList.xls', GID_DRG{i},i,[],path);
    [tableReport{i},chartReport{i},ClusterReport{i}] = gene_annotation(GID_DRG{i});
 
  end
