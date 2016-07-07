@@ -1,7 +1,6 @@
 
 %% Author Summary
 
-
 %% Introduction
 %
 % Read the papers opened in google scholar to help with introduction.
@@ -134,8 +133,8 @@ disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
 %
 % (a) Model Selection
 % 
-% The two-stage smoothing-based estimation method (\cite{voit2004decoupling,liang2008parameter}, decouples the system of
-% differential equations in (\ref{ODE}) into a set of pseudo-regression models.  This method significantly reduces the computational cost, avoids numerically solving the differential equations directly and does not require initial conditions $M_{q,j}$. The two-stage method is outlined below,
+% The two-stage smoothing-based estimation method (\cite{voit2004decoupling,liang2008parameter}), decouples the system of
+% differential equations into a set of pseudo-regression models.  This method significantly reduces the computational cost, avoids numerically solving the differential equations directly and does not require initial conditions $M_{q,j}$. The two-stage method is outlined below,
 % Let $D \hat{M}_{q,j}=\sum_{l=1}^{L} \hat{c}_{i,j,l}DB_{i,j,l}(t)$, where $DB_{i,j,l}(t)$ are the derivatives of the basis functions and $\hat{c}_{i,j,l}$ are the corresponding coefficients.
 % The corresponding set of pseudo linear regression models are
 %	$$D\hat{M}_{q,j} = \beta_{0,q,j} + \sum_{p=1}^{Q} \beta_{p,q,j}\hat{M}_{p,j} + \epsilon_{p,j}$$
@@ -198,3 +197,7 @@ disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
 %% Conclusion
 
 %% Supporting Information
+
+%%
+% \bibliography{bibliography}
+%

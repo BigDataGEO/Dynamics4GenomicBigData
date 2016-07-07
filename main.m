@@ -4,7 +4,7 @@ clear;
 
 path = strcat(pwd,'/');
 
-%if first time running on computerrun line 9 and 10 
+%if first time running on computer run line 9 and 10 
 %cd([path,'SBEToolbox-1.3.3\'])
 %install
 
@@ -199,7 +199,7 @@ for i = 1:size(GEO_num,1)
 
   %% Create Manuscript
 
-  prompt = 'Which condtions would you like the manuscript to include ? (format [1,2,3]) ';
+  prompt = 'Which conditions would you like the manuscript to include? (format [1,2,3]) ';
   cond   = input(prompt);
 
 
@@ -211,9 +211,18 @@ for i = 1:size(GEO_num,1)
   % prompt = 'What words would you like to search in pubmed? (format common string in cell {...})';
   % wrd_ind = input(prompt);
 
-  %% Create latex document
+  %% Create document
+
+  % If running on Windows.
+  % options = struct('format','doc','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
+  
+  % If not running on Windows.
   options = struct('format','latex','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
-  publish('Paper_dum.m',options)
+  
+  publish('Paper_dum.m',options);
+  
+  copyfile('bibliography.bib', flder);
+  copyfile('plos2015.bst', flder);
 
   %opens your web browser and looks for papers related to your data set. Read
   %these papers.

@@ -39,7 +39,7 @@ idTypes = {
 	    'ZFIN_ID'};
 	    
 if nargin<2
-    idType = idTypes{9};
+    idType = idTypes{1};
 end
 
 inputIds = py.str(strjoin(inputIds',', '));
