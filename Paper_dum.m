@@ -59,15 +59,31 @@ myVars = {'yhat','Time'};
 for i = 1:length(cond)
     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
     for sub = 1:N
-        surf(yhat{sub}','FaceColor','interp','EdgeColor','none')
-        xlim([Time{sub}(1),length(Time{sub})])
+        surf(yhat{sub}','FaceColor','interp','EdgeColor','none');
+        
+        axisLabelFontSize = 30;
+        
+        set(gcf, 'units', 'centimeters');
+        set(gcf, 'position', [0, 0, 30, 24]);
+        
+        set(gcf, 'PaperPositionMode', 'manual');
+	set(gcf, 'PaperUnits', 'centimeters');
+	set(gcf, 'PaperPosition', [0 0 30 24]);
+	set(gcf, 'PaperUnits', 'centimeters');
+	set(gcf, 'PaperSize', [30 24]);        
+        
         set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+        set(gca,'FontSize',11);
+        
+        xlim([Time{sub}(1),length(Time{sub})])
         ylim([1,size(yhat{sub},2)])
         zlim([min(min(yhat{sub})),max(max(yhat{sub}))])
-        xlabel('Time')
-        ylabel('Probe Set')
-        zlabel('Probe Set Expression Level')
-        title([char(Subject_name),' smooth gene expresion curves'])
+        
+        xlabel('Time', 'FontSize', axisLabelFontSize)
+        ylabel('Probe Set', 'FontSize', axisLabelFontSize)
+        zlabel('Probe Set Expression Level', 'FontSize', axisLabelFontSize)
+        
+        title([char(Subject_name),' smooth gene expresion curves'], 'FontSize', axisLabelFontSize)
     end
 end
 

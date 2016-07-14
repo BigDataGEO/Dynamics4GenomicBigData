@@ -44,9 +44,6 @@ for i = 1:size(GEO_num,1)
 	
     prompt = 'Which probe sets would you like to analyze? (format common string) ';
     str_ind = input(prompt);
-    %  The following two lines were replaced with the one line further below in order to allow to user to enter a subject's name by parts and thus be able to look it up when this name appears split in the dataset's record.
-    %  index  = strfind(dis,str_ind);
-    %  pr_ind = find(~cellfun(@isempty,index));
     pr_ind = ExtractSubjects(str_ind, dis);
     display(dis(pr_ind));
 
@@ -97,7 +94,6 @@ for i = 1:size(GEO_num,1)
       %% Set up Directory of Folders
       [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
       con = strrep(con,' ','_');
-      % JCR
       con = strrep(con,'/','_');
       con = strrep(con,'.','_');
       flder = strcat(path,'Results/',GEO_number,'/',con);
@@ -170,7 +166,6 @@ for i = 1:size(GEO_num,1)
 
       %% Set up Directory of Folders
       [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
-      % JCR
       con = strrep(con,' ','_');
       con = strrep(con,'/','_');
       con = strrep(con,'.','_');
@@ -211,18 +206,23 @@ for i = 1:size(GEO_num,1)
   % prompt = 'What words would you like to search in pubmed? (format common string in cell {...})';
   % wrd_ind = input(prompt);
 
-  %% Create document
-
-  % If running on Windows.
-  % options = struct('format','doc','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
+  %% The paper draft is created in the following conditional block.
   
-  % If not running on Windows.
-  options = struct('format','latex','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
-  
-  publish('Paper_dum.m',options);
-  
-  copyfile('bibliography.bib', flder);
-  copyfile('plos2015.bst', flder);
+  % If running on Windows.  
+  if ispc()
+    options = struct('format','doc','showCode',false,'outputDir',flder,'stylesheet','document.xsl');
+    publish('Paper_dum.m',options);
+  % elseif isunix() % If running on Unix/Linux.
+  else
+    options = struct('format','latex','showCode',false,'outputDir',flder,'stylesheet','document.xsl', 'imageFormat', 'pdf');
+    publish('Paper_dum.m',options);
+    copyfile('latex/bibliography.bib', flder);
+    copyfile('latex/plos2015.bst', flder);
+    
+    % The following line compiles the .tex file into a .pdf.
+    % Two output arguments (x and y) are used simply to prevent the output from being printed onscreen.
+    [x, y]=system(['./latex/compile.sh ' flder]);
+  end
 
   %opens your web browser and looks for papers related to your data set. Read
   %these papers.

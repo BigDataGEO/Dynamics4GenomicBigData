@@ -32,8 +32,8 @@
 
 % and summarization at the probe set level (combine probe intensities across arrays to obtain a measure of the expression level of corresponding mRNA).
 
-% The Pipeline allows the user to select from the following popular preprocessing techniques: Microarray suite 5 (MAS5), Robust Multi-array Average (RMA) and Guanine Cytosine Robust Multi-Array Analysis (GCRMA).
-
+% The Pipeline allows the user to select from the following popular preprocessing techniques: Microarray suite 5 (MAS5), Robust Multi-array Average (RMA)
+% and Guanine Cytosine Robust Multi-Array Analysis (GCRMA).
 
 
 
@@ -67,10 +67,9 @@ gexp2 = cell(1,N);
 Time  = cell(1,N);
 
 for i = 1:N
-
-    %Get Subject
-
-    ind = 1:length(Subject);
+  
+  %Get Subject
+  ind = 1:length(Subject);
 
     %Get time
 
@@ -146,40 +145,47 @@ end
 
 % variance $\sigma^{2}$. Figure (1) provides an illustration the time course gene expression measurements over time for each subject.
 
+h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
+clear title;
 
-figure(1);
-
-clear title
+set(gcf, 'PaperPositionMode', 'manual');
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperPosition', [0 0 30 24]);
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperSize', [30 24]);
+axisLabelFontSize = 30;
 
 ind= 0;
 
 for sub = 1:N
 
-    surf(gexp2{i},'FaceColor','interp','EdgeColor','none')
+    surf(gexp2{i},'FaceColor','interp','EdgeColor','none');
 
-    xlim([Time{sub}(1),length(Time{sub})])
+    xlim([Time{sub}(1),length(Time{sub})]);
 
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
+    set(gca,'FontSize',11);
 
-    ylim([1,n])
+    ylim([1,n]);
 
-    zlim([min(min(gexp2{i})),max(max(gexp2{i}))])
+    zlim([min(min(gexp2{i})),max(max(gexp2{i}))]);
 
-    xlabel('Time')
+    xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set')
+    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
 
-%      zlabel('Mean Expression Level')
-    zlabel('Expression Level')
+    zlabel('Expression Level', 'FontSize', axisLabelFontSize);
 
-    title([char(Subject_name),' all genes measured'])
+    title([char(Subject_name),' all genes measured'], 'FontSize', axisLabelFontSize);
 
     hold on;
 
     hold off;
 
 end
+
+print('Paper_01.pdf','-dpdf');
 
 
 
@@ -245,43 +251,49 @@ end
 
 %  -----------------------------------------------------------------------
 
-
-
 yCR = Est_Sub_Sel(Time,gexp2,N);
 
+h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
+clear title;
 
-h=figure(2);
+set(gcf, 'PaperPositionMode', 'manual');
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperPosition', [0 0 30 24]);
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperSize', [30 24]);
+axisLabelFontSize = 30;
 
 ind= 0 ;
 
 for sub = 1:N
 
-    surf(yCR{sub},'FaceColor','interp','EdgeColor','none')
+    surf(yCR{sub},'FaceColor','interp','EdgeColor','none');
 
-    xlim([Time{sub}(1),length(Time{sub})])
+    xlim([Time{sub}(1),length(Time{sub})]);
 
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
+    set(gca,'FontSize',11);
 
-    ylim([1,size(yCR{sub},1)])
+    ylim([1,size(yCR{sub},1)]);
 
-    zlim([min(min(yCR{sub})),max(max(yCR{sub}))])
+    zlim([min(min(yCR{sub})),max(max(yCR{sub}))]);
 
-    xlabel('Time')
+    xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set')
+    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
 
-    zlabel('Probe Set Expression Level')
+    zlabel('Probe Set Expression Level', 'FontSize', axisLabelFontSize);
 
     hold on;
 
-     title([char(Subject_name),' subset of genes with smooth', ' trajectories with dof<5'])
-
-    set(gcf,'PaperPosition',[0 0 8.5 11]);
+    title([char(Subject_name),' subset of genes with smooth', ' trajectories with dof<5'], 'FontSize', 20);
 
     hold off;
 
 end
+
+print('Paper_02.pdf','-dpdf');
 
 
 
@@ -367,39 +379,47 @@ for i = 1:N
 
 end
 
+h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
+clear title;
 
-h=figure(3);
+set(gcf, 'PaperPositionMode', 'manual');
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperPosition', [0 0 30 24]);
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperSize', [30 24]);
+axisLabelFontSize = 30;
 
 ind= 0 ;
 
 for sub = 1:N
 
-    surf(yhat{sub}','FaceColor','interp','EdgeColor','none')
+    surf(yhat{sub}','FaceColor','interp','EdgeColor','none');
 
-    xlim([Time{sub}(1),length(Time{sub})])
+    xlim([Time{sub}(1),length(Time{sub})]);
 
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
+    set(gca,'FontSize',11);
 
-    ylim([1,size(yhat{sub},2)])
+    ylim([1,size(yhat{sub},2)]);
 
-    zlim([min(min(yhat{sub})),max(max(yhat{sub}))])
+    zlim([min(min(yhat{sub})),max(max(yhat{sub}))]);
 
-    xlabel('Time')
+    xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set')
+    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
 
-    zlabel('Probe Set Expression Level')
+    zlabel('Probe Set Expression Level', 'FontSize', axisLabelFontSize);
 
     hold on;
 
-     title([char(Subject_name),' smooth gene expresion curves'])
-
-    set(gcf,'PaperPosition',[0 0 8.5 11]);
+    title([char(Subject_name),' smooth gene expresion curves'], 'FontSize', 20);
 
     hold off;
 
 end
+
+print('Paper_03.pdf','-dpdf');
 
 
 
@@ -527,11 +547,9 @@ end
 
 %the DRGs and the time-course expresion level for the DRGs.
 
-
-
 for i = 1:N
 
-        cutoff =3000;
+        cutoff = 4000;
 
         IND_DRG{i} = INDF{i}(1:cutoff);
 
@@ -591,44 +609,40 @@ disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_
 
 % These genes are shown in Figure 3.
 
-
-
 %  ---------------  Surfaces of Top Genes from F-test  ------------------------
 
-h=figure(4);
+h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
 ind= 0 ;
 
 for sub = 1:N
 
-    surf(yhat{sub}(:,IND_DRG{i}),'FaceColor','interp','EdgeColor','none')
+    surf(yhat{sub}(:,IND_DRG{i}),'FaceColor','interp','EdgeColor','none');
 
-    ylim([1,length(Time{sub})])
+    ylim([1,length(Time{sub})]);
 
-    set(gca,'YTick',1:length(Time{sub}),'Yticklabel',Time{sub})
+    set(gca,'YTick',1:length(Time{sub}),'Yticklabel',Time{sub});
+    set(gca,'FontSize',11);
 
-    xlim([1,cutoff])
+    xlim([1,cutoff]);
 
-    zlim([min(min(yhat{sub}(:,IND_DRG{i}))),max(max(yhat{sub}(:,IND_DRG{i})))])
+    zlim([min(min(yhat{sub}(:,IND_DRG{i}))),max(max(yhat{sub}(:,IND_DRG{i})))]);
 
     hold on;
     
-    ylabel('Time')
+    ylabel('Time', 'FontSize', axisLabelFontSize);
 
-    xlabel('Top ranking genes')
+    xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
 
-%      zlabel('Mean Expression Level')
-    zlabel('Surface')
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-    title([char(Subject_name),' Dynamic Response Genes'])
-
-    set(gcf,'PaperPosition',[0 0 8.5 11]);
+    title([char(Subject_name),' Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
 
     hold off;
 
 end
 
-
+print('Paper_04.pdf','-dpdf');
 
 
 
@@ -712,37 +726,15 @@ end
 
  end
 
-
-
-%  if(ispc)
-
 for i = 1:N
   if not(isempty(chartReport{i}))
-    create_exel_file('Annotation.xls',chartReport{i},i,[],path);
+    create_exel_file('Annotation.xls',cellfun(@trimStringForExcelOutput, chartReport{i}, 'UniformOutput', 0),i,[],path);
   end
 end
 
 
 
-disp(strcat('This is a link to the Annotation <a href="',flder,'/Annotation.xls">Annotation</a>.'))
-
-
-
-%  end
-
-% 
-
-% end
-
-%  
-
-% %%
-
-% % *WARNING: DAVID has resource limits so if the gene lists are large it may be very slow. Try again after traffic peak time (10 am - 5 pm EST).*
-
-
-
-% https://urldefense.proofpoint.com/v2/url?u=https-3A__ashokragavendran.wordpress.com_2015_10_09_fixing-2Drdavidwebservice-2Don-2Dyosemite_&d=CwIGAg&c=6vgNTiRn9_pqCD9hKx9JgXN1VapJQ8JVoF8oWH1AgfQ&r=Ij_Ly18HaMnvorM1QNd3XtVS-RVOGq_w7qgttfPxQYL4KI-hVjF97TOwJ3vEdbYQ&m=7r6ZOynjzOHIJEs_DnsAizJkbLU1fDuSqJQ-nk8lJaI&s=EcvTMJ94tP8Tigaw6t70adcWU-wEXf4BXjnPlXlAYs4&e= 
+disp(strcat('This is a link to the Annotation <a href="',flder,'/Annotation.xls">Annotation</a>.'));
 
 
 
@@ -836,11 +828,7 @@ end
 
     
 
-disp(strcat('This is a link to the Cluster Indexs <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'))
-
-
-
-
+disp(strcat('This is a link to the Cluster Indexs <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
 
 for i=1:N
 
@@ -848,13 +836,14 @@ for i=1:N
 
     for b = 1:floor(size(mean_clusters_mat{i},1)./30)
 
-        h8=figure(b);
+        h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
+        axisLabelFontSize = 9;
         
         set(gcf, 'PaperPositionMode', 'manual');
 	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperPosition', [0 0 50 40]);
+	set(gcf, 'PaperPosition', [0 0 75 50]);
 	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperSize', [50 40]);
+	set(gcf, 'PaperSize', [85 50]);
 
         for gen = 1:30
 
@@ -864,9 +853,9 @@ for i=1:N
 
             plot(clusters{i}{ind2}','-*b')
 
-            xlabel('Time')
+            xlabel('Time', 'FontSize', axisLabelFontSize)
 
-            ylabel('Probe Set Expression Level')
+            ylabel('Expression', 'FontSize', axisLabelFontSize)
 
             hold on;
 
@@ -944,81 +933,88 @@ for k=1:N
 
 end
 
-GRMFigure = figure(floor(size(mean_clusters_mat{i},1)./30)+1);
+GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
+
+axisLabelFontSize = 30;
 
 set(gcf, 'PaperPositionMode', 'manual');
 set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperPosition', [0 0 50 40]);
+set(gcf, 'PaperPosition', [0 -2 50 40]);
 set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperSize', [50 40]);
+set(gcf, 'PaperSize', [65 40]);
+set(gca,'FontSize',11);
 
-Figure1 = subplot(2,2,1)
+Figure1 = subplot(2,2,1);
+set(gca,'FontSize',11);
 
-if(~isempty(lrg_ts{1}))
+if(~isempty(lrg_ts{1}));
 
 ribbon(lrg_ts{1}');
 
-ylim([1,size(lrg_ts{1},2)])
+ylim([1,size(lrg_ts{1},2)]);
 
-xlim([1,size(lrg_ts{1},1)])
+xlim([1,size(lrg_ts{1},1)]);
 
-zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))])
+zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))]);
 
-ylabel('Time (hours)')
+ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-xlabel('ith Cluster Center')
+xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-title('LSM')
+title('LSM');
 
 end
 
-Figure2 = subplot(2,2,2)
+Figure2 = subplot(2,2,2);
+set(gca,'FontSize',11);
 
 ribbon(med_ts{1}');
 
-ylim([1,size(med_ts{1},2)])
+ylim([1,size(med_ts{1},2)]);
 
-xlim([1,size(med_ts{1},1)])
+xlim([1,size(med_ts{1},1)]);
 
-zlim([min(min(med_ts{1})),max(max(med_ts{1}))])
+zlim([min(min(med_ts{1})),max(max(med_ts{1}))]);
 
-ylabel('Time (hours)')
+ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-xlabel('ith Cluster Center')
+xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-title('MSM')
+title('MSM');
 
-Figure3 = subplot(2,2,3)
+Figure3 = subplot(2,2,3);
+set(gca,'FontSize',11);
 
 ribbon(smal_ts{1}');
 
-ylim([1,size(smal_ts{1},2)])
+ylim([1,size(smal_ts{1},2)]);
 
-xlim([1,size(smal_ts{1},1)])
+xlim([1,size(smal_ts{1},1)]);
 
-zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))])
+zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))]);
 
-ylabel('Time (hours)')
+ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-xlabel('ith Cluster Center')
+xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-title('SSM')
+title('SSM');
 
-Figure4 = subplot(2,2,4)
+Figure4 = subplot(2,2,4);
+set(gca,'FontSize',11);
 
 ribbon(sin_ts{1}');
 
-ylim([1,size(sin_ts{1},2)])
+ylim([1,size(sin_ts{1},2)]);
 
-xlim([1,size(sin_ts{1},1)])
+xlim([1,size(sin_ts{1},1)]);
 
-zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))])
+zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))]);
 
-ylabel('Time (hours)')
+ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-xlabel('ith Cluster Center')
+xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-title('SGM')
+title('SGM');
 
 print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
 
@@ -1268,7 +1264,7 @@ end
 
 
 
-disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'))
+disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'));
 
 
 
@@ -1364,15 +1360,10 @@ end
 
 
 
- for i = 1:N
+for i = 1:N
+  create_exel_file('Node Statistics.xls',GS,i,[],path);
+end
 
-create_exel_file('Node Statistics.xls',GS,i,[],path);
-
-end 
-
-  
-
- 
 
 % % % %   Visualization
 
@@ -1398,35 +1389,13 @@ end
 
 %View network in a plot
 
-% options.sym = 1;
+options.sym = 1;
 
-% h=figure(13);
-
-% ind= 0 ;
-
-% for sub = 1:N
-
-%     if(sub>9)
-
-%         h1=figure(14);
-
-%         ind=9;
-
-%     end
-
-%     if(sub>18)
-
-%         h2=figure(15);
-
-%         ind=18;
-
-%     end
-
-%     cytoscaperun(G{1},reshape(EAS{1},[size(EAS{1},1).*size(EAS{1},1),1]))
-
-%     title([char(Subject_name),' GRN'])
-
-% end
-
-% % 
-
+sbeG = G{1};
+sbeNode = strtrim(cellstr(num2str(reshape(EAS{1},[size(EAS{1},1).*size(EAS{1},1),1]))));
+   
+writesbe2sif(sbeG,sbeNode,'Network.sif');
+   
+disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
+   
+cytoscaperun(sbeG, sbeNode);
