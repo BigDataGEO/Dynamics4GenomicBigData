@@ -25,6 +25,11 @@ def getChartReport(inputIds, idType, listName, listType, thd, count):
   client.service.addList(inputIds, idType, listName, listType)
   return client.service.getChartReport(thd, count)
 
+def getTableReport(inputIds, idType, listName, listType):
+  client = getClient()
+  client.service.addList(inputIds, idType, listName, listType)
+  return client.service.getTableReport()
+
 def getConversionTypes():
   client = getClient()
   return client.service.getConversionTypes()

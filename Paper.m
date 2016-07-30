@@ -2,41 +2,25 @@
 
 % M. Carey, S. Wu and H. Wu
 
-%
-
-% Here we present a pipeline for high-dimensional time course gene
-
-% expression data. This pipeline utilizes functional data analysis (FDA)
-
-% techniques in order to study the dynamics of gene networks.
-
-%
+% Here we present a pipeline for high-dimensional time course gene expression data. This pipeline
+% utilizes functional data analysis (FDA) techniques in order to study the dynamics of gene
+% networks.
 
 % The pipeline includes:
 
-
-
 %% Preprocessing
 
-%
-
-% Affymetrix Genechip arrays are currently among the most widely used high-throughput technologies for the genome-wide measurement
-
-% of expression profiles. To minimize mis- and cross-hybridization problems, this technology includes both perfect match (PM) and
-
-% mismatch (MM) probe pairs as well as multiple probes per gene (Lipshutz et al., 1999). As a result, significant preprocessing is
-
-% required before an absolute expression level for a specific gene may be accurately assessed. In general, preprocessing probe-level
-
-% expression data consists of three steps: background adjustment (remove local artifacts and ``noise"), normalization (remove array effects),
-
-% and summarization at the probe set level (combine probe intensities across arrays to obtain a measure of the expression level of corresponding mRNA).
-
-% The Pipeline allows the user to select from the following popular preprocessing techniques: Microarray suite 5 (MAS5), Robust Multi-array Average (RMA)
-% and Guanine Cytosine Robust Multi-Array Analysis (GCRMA).
-
-
-
+% Affymetrix Genechip arrays are currently among the most widely used high-throughput technologies
+% for the genome-wide measurement of expression profiles. To minimize mis- and cross-hybridization
+% problems, this technology includes both perfect match (PM) and mismatch (MM) probe pairs as well
+% as multiple probes per gene (Lipshutz et al., 1999). As a result, significant preprocessing is
+% required before an absolute expression level for a specific gene may be accurately assessed. In
+% general, preprocessing probe-level expression data consists of three steps: background adjustment
+% (remove local artifacts and ``noise"), normalization (remove array effects), and summarization at
+% the probe set level (combine probe intensities across arrays to obtain a measure of the
+% expression level of corresponding mRNA). The Pipeline allows the user to select from the following
+% popular preprocessing techniques: Microarray suite 5 (MAS5), Robust Multi-array Average (RMA) and
+% Guanine Cytosine Robust Multi-Array Analysis (GCRMA).
 
 % -----------------------------------------------------------------------
 
@@ -45,105 +29,67 @@
 % -----------------------------------------------------------------
 
 % No. of Subjects
-
 N = 1;
 
-
-
 % No. of Probe sets
-
 n = size(Data,1);
 
-
-
 %Obtain the log 2 centered gene expression data for each subject.
-
 gexp = cell(1,N);
 
 %Centered Gene Expression
-
 gexp2 = cell(1,N);
-
 Time  = cell(1,N);
 
 for i = 1:N
-  
   %Get Subject
   ind = 1:length(Subject);
 
-    %Get time
+  %Get time
+  [tmp,ix] = sort(Pos(ind));
 
-    [tmp,ix] = sort(Pos(ind));
+  %Check time > -1
+  tmp = tmp(tmp>-1);
 
-    %Check time > -1
+  %Check for replicates
+  tb       = tabulate(tmp);
+  Time{i}  = tb(tb(:,2)>0,1);
+  nt       = length(Time{i});
 
-    tmp = tmp(tmp>-1);
+  if(max(tb(:,2))>1)
+    gexp_wr{i} = zeros(n,max(tb(:,2)),nt);
 
-    %Check for replicates
+    for j = 1:nt
 
-    tb       = tabulate(tmp);
+      %gexp2 time gene
+      idx = find(tb(j,1)==tmp);
 
-    Time{i}  = tb(tb(:,2)>0,1);
-
-    nt       = length(Time{i});
-
-    if(max(tb(:,2))>1)
-
-        gexp_wr{i}        = zeros(n,max(tb(:,2)),nt);
-
-        for j = 1:nt
-
-            %gexp2 time gene
-
-            idx               = find(tb(j,1)==tmp);
-
-            if(any(Data(:,ind(ix(idx)))<0))
-
-                gexp_wr{i}(:,1:tb(j,2),j) = (Data(:,ind(ix(idx))));
-
-                gexp{i}(:,j)      = nanmean((Data(:,ind(ix(idx)))),2);
-
-            else
-
-                gexp_wr{i}(:,1:tb(j,2),j) = log2(Data(:,ind(ix(idx))));
-
-                gexp{i}(:,j)      = nanmean(log2(Data(:,ind(ix(idx)))),2);
-
-            end
-
-        end
-
-    else
-
-    gexp{i}  = Data(:,ind(ix));
-
+      if(any(Data(:,ind(ix(idx)))<0))
+	gexp_wr{i}(:,1:tb(j,2),j) = (Data(:,ind(ix(idx))));
+	gexp{i}(:,j)      = nanmean((Data(:,ind(ix(idx)))),2);
+      else
+	gexp_wr{i}(:,1:tb(j,2),j) = log2(Data(:,ind(ix(idx))));
+	gexp{i}(:,j)      = nanmean(log2(Data(:,ind(ix(idx)))),2);
+      end
     end
-
-    gexp2{i} = gexp{i} - repmat(nanmean(gexp{i},2),1,nt);
-
+  else
+    gexp{i}  = Data(:,ind(ix));
+  end
+  gexp2{i} = gexp{i} - repmat(nanmean(gexp{i},2),1,nt);
 end
-
-
 
 %%
 
-%
-
-% Lets assume that the centred expression profile of the $i^{th}$ gene, belonging to subject $j$, $X_{i,j}(t)$,
-
-% is a smooth function over time and that the time course gene expression measurements are discrete observations
-
-% from this smooth function, which have been distorted by noise, i.e.,
-
-% $Y_{i,j}(t_{k}) -\mu_{i,j} =X_{i,j}(t_{k})+\epsilon_{i,j}(t_{k})$, for $i=1,\ldots,n,$ $j=1,\ldots,N$ and $k=1,\ldots,K_{i,j},$
-
-% where $n$ is the number of genes, $N$ is the number of subjects, and $K_{i,j}$ is the number of time points observed for
-
-% the $i^{th}$ gene, belonging to subject $j$. The noise denoted by $\epsilon_{i,j}(t_{k})$ is assumed to be an independently
-
-% identically distributed (i.i.d.) random variable with mean $0$ and
-
-% variance $\sigma^{2}$. Figure (1) provides an illustration the time course gene expression measurements over time for each subject.
+% Lets assume that the centred expression profile of the $i^{th}$ gene, belonging to subject $j$,
+% $X_{i,j}(t)$, is a smooth function over time and that the time course gene expression
+% measurements are discrete observations from this smooth function, which have been distorted by
+% noise, i.e., $Y_{i,j}(t_{k}) -\mu_{i,j} =X_{i,j}(t_{k})+\epsilon_{i,j}(t_{k})$, for
+% $i=1,\ldots,n,$ $j=1,\ldots,N$ and $k=1,\ldots,K_{i,j},$ where $n$ is the number of genes, $N$ is
+% the number of subjects, and $K_{i,j}$ is the number of time points observed for the $i^{th}$
+% gene, belonging to subject $j$. The noise denoted by $\epsilon_{i,j}(t_{k})$ is assumed to be an
+% independently identically distributed (i.i.d.) random variable with mean $0$ and variance
+% $\sigma^{2}$. Figure (1) provides an illustration the time course gene expression measurements
+% over time for each subject.
 
 h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
@@ -186,10 +132,6 @@ for sub = 1:N
 end
 
 print('Paper_01.pdf','-dpdf');
-
-
-
-
 
 %%
 
@@ -294,8 +236,6 @@ for sub = 1:N
 end
 
 print('Paper_02.pdf','-dpdf');
-
-
 
 %%
 
@@ -431,8 +371,6 @@ tmp = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lam
 
 makeHtmlTable(tmp,[],row_hed,col_hed);
 
-
-
 % Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing'; 
 
 % Label = 'fit1';
@@ -543,65 +481,31 @@ end
 
 
 
-%Create Excel Files with the F-values, Index for Ranking of the F-values, Probe set IDs for
-
-%the DRGs and the time-course expresion level for the DRGs.
-
+% Create Excel Files with the F-values, Index for Ranking of the F-values, Probe set IDs for the
+% DRGs and the time-course expresion level for the DRGs.
 for i = 1:N
-
-        cutoff = 4000;
-
-        IND_DRG{i} = INDF{i}(1:cutoff);
-
-        GID_DRG{i} = gid(IND_DRG{i});
-
-        DRG{i}= gexp2{i}(IND_DRG{i},:)';
-
+  cutoff = 3000;
+  IND_DRG{i} = INDF{i}(1:cutoff);
+  GID_DRG{i} = gid(IND_DRG{i});
+  DRG{i}= gexp2{i}(IND_DRG{i},:)';
 end
-
-
 
 Col = 'A':'X';
 
-    for i = 1:N
+for i = 1:N
+  xlRange = [Col(i) '1'];
+  create_exel_file('F_value.xls',F{i},1,xlRange,path);
+  create_exel_file('Index_Ftest.xls',INDF{i},1,xlRange,path);
+  create_exel_file('Index_Ftest_DRG.xls',IND_DRG{i},1,xlRange,path);
+  create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG{i},1,xlRange,path);
+  create_exel_file('DRG.xls',DRG{i}',i,[],path);
+end
 
-        xlRange = [Col(i) '1'];
-
-        create_exel_file('F_value.xls',F{i},1,xlRange,path);
-
-        create_exel_file('Index_Ftest.xls',INDF{i},1,xlRange,path);
-
-        create_exel_file('Index_Ftest_DRG.xls',IND_DRG{i},1,xlRange,path);
-
-        create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG{i},1,xlRange,path);
-
-        create_exel_file('DRG.xls',DRG{i}',i,[],path);
-
-    end
-
-    
-
-disp(strcat('This is a link to the F statistics <a href="',flder,'/F_value.xls">F_value</a>.'))
-
-
-
-disp(strcat('This is a link to the Index F statistics <a href="',flder,'/Index_Ftest.xls">Index_Ftest</a>.'))
-
-
-
-disp(strcat('This is a link to the Index of the DRGs <a href="',flder,'/Index_Ftest_DRG.xls">Index_DRGs</a>.'))
-
-
-
-disp(strcat('This is a link to the Probe set Ids for TRGs <a href="',flder,'/Probe_set_ID_Ftest_DRG.xls">Probe_sets_DRGs</a>.'))
-
-
-
-disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_DRG</a>.'))
-
-
-
-
+disp(strcat('This is a link to the F statistics <a href="',flder,'/F_value.xls">F_value</a>.'));
+disp(strcat('This is a link to the Index F statistics <a href="',flder,'/Index_Ftest.xls">Index_Ftest</a>.'));
+disp(strcat('This is a link to the Index of the DRGs <a href="',flder,'/Index_Ftest_DRG.xls">Index_DRGs</a>.'));
+disp(strcat('This is a link to the Probe set Ids for TRGs <a href="',flder,'/Probe_set_ID_Ftest_DRG.xls">Probe_sets_DRGs</a>.'));
+disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_DRG</a>.'));
 
 %%
 
@@ -644,98 +548,11 @@ end
 
 print('Paper_04.pdf','-dpdf');
 
-
-
 %%
 
 % _*Figure 3* The Log 2 Centered Gene Expression Level for each probe set
 
 % contained in the TRG list across all timepoints for each subject._
-
-
-
-
-
-%% Functional Annotation of the genes in the temporal gene response modules
-
-%
-
-% Using the DAVID Functional Annotation Tool devloped by (Da Wei Huang and
-
-% Lempicki, 2008) we produce the following four annotaion reports.
-
-%
-
-% # Table Report
-
-% # Chart Report
-
-% # Cluster Report
-
-%
-
-% These Cluster Report provides the gene-enrichment analysis, pathway mapping, gene/term similarity search, homologue match, ID translation, etc.;
-
-%
-
-% _Table Report_ provides the ID,Gene Name,Species,BBID,BIOCARTA,COG_ONTOLOGY,GOTERM_BP_FAT,GOTERM_CC_FAT,GOTERM_MF_FAT,INTERPRO,KEGG_PATHWAY,OMIM_DISEASE,PIR_SUPERFAMILY,SMART
-
-% and SP_PIR_KEYWORDS for all the genes inputed.
-
-%
-
-% _Chart Report_
-
-% is an annotation-term-focused view which lists annotation terms and their associated genes under study.
-
-% The threshold of EASE Score, a modified Fisher Exact P-Value, for gene-enrichment analysis. It ranges from 0 to 1.
-
-% Fisher Exact P-Value = 0 represents perfect enrichment. Usually P-Value is equal or smaller than 0.05 to be considered strongly enriched in the annotation categories. Default is 0.1.
-
-%
-
-% _Cluster Report_
-
-% To reduce the redundancy, the Functional Annotation Clustering report groups/displays similar annotations together which makes the biology clearer and more
-
-% focused to be read vs. traditional chart report. The grouping algorithm is based on the hypothesis that similar annotations should have similar gene members.
-
-% The Functional Annotation Clustering integrates the same techniques of  Kappa statistics to measure the degree of the common genes between two annotations, and
-
-% fuzzy heuristic clustering (used in Gene Functional Classification Tool ) to classify the groups of similar annotations according kappa values. In this sense, the more common genes
-
-% annotations share, the higher chance they will be grouped together.
-
-
-
-for  i = 1:N
-  create_exel_file('GeneList.xls', GID_DRG{i},i,[],path);
-  fid = fopen('GeneList.txt','w');
-  for row = 1:size(GID_DRG{i},1)
-    fprintf(fid, repmat('%s\t',1,size(GID_DRG{i},2)-1), GID_DRG{i}{row,1:end-1});
-    fprintf(fid, '%s\n', GID_DRG{i}{row,end});
-  end
-  fclose(fid);
-  [tableReport{i},chartReport{i},ClusterReport{i}] = gene_annotation(GID_DRG{i});
-end
-
-
- for  i = 1:N
-   create_exel_file('GeneList.xls', GID_DRG{i},i,[],path);
-   [tableReport{i},chartReport{i},ClusterReport{i}] = gene_annotation(GID_DRG{i});
-
- end
-
-for i = 1:N
-  if not(isempty(chartReport{i}))
-    create_exel_file('Annotation.xls',cellfun(@trimStringForExcelOutput, chartReport{i}, 'UniformOutput', 0),i,[],path);
-  end
-end
-
-
-
-disp(strcat('This is a link to the Annotation <a href="',flder,'/Annotation.xls">Annotation</a>.'));
-
 
 
 %% Cluster the DRG's into temporal gene response modules
@@ -828,7 +645,7 @@ end
 
     
 
-disp(strcat('This is a link to the Cluster Indexs <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
+disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
 
 for i=1:N
 
@@ -887,9 +704,7 @@ end
 
 % following file:
 
-disp(strcat('This is a link to the Cluster Plots <a href="',flder,'/Cluster.ps">Cluster_Plots</a>.'))
-
-    
+disp(strcat('This is a link to the Cluster Plots <a href="',flder,'/Cluster.ps">Cluster_Plots</a>.'));
 
 %%
 
@@ -953,7 +768,9 @@ ribbon(lrg_ts{1}');
 
 ylim([1,size(lrg_ts{1},2)]);
 
-xlim([1,size(lrg_ts{1},1)]);
+if size(lrg_ts{1},1) > 1
+  xlim([1,size(lrg_ts{1},1)]);
+end
 
 zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))]);
 
@@ -972,8 +789,9 @@ ribbon(med_ts{1}');
 
 ylim([1,size(med_ts{1},2)]);
 
-xlim([1,size(med_ts{1},1)]);
-
+if size(med_ts{1},1) > 1
+  xlim([1,size(med_ts{1},1)]);
+end
 zlim([min(min(med_ts{1})),max(max(med_ts{1}))]);
 
 ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
@@ -1038,13 +856,67 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 
 
 
+%% Functional Annotation of the genes in the temporal gene response modules
+
+%
+
+% Using the DAVID Functional Annotation Tool devloped by (Da Wei Huang and
+
+% Lempicki, 2008) we produce the following four annotaion reports.
+
+%
+
+% # Table Report
+
+% # Chart Report
+
+% # Cluster Report
+
+%
+
+% These Cluster Report provides the gene-enrichment analysis, pathway mapping, gene/term similarity search, homologue match, ID translation, etc.;
+
+%
+
+% _Table Report_ provides the ID,Gene Name,Species,BBID,BIOCARTA,COG_ONTOLOGY,GOTERM_BP_FAT,GOTERM_CC_FAT,GOTERM_MF_FAT,INTERPRO,KEGG_PATHWAY,OMIM_DISEASE,PIR_SUPERFAMILY,SMART
+
+% and SP_PIR_KEYWORDS for all the genes inputed.
+
+%
+
+% _Chart Report_
+
+% is an annotation-term-focused view which lists annotation terms and their associated genes under study.
+
+% The threshold of EASE Score, a modified Fisher Exact P-Value, for gene-enrichment analysis. It ranges from 0 to 1.
+
+% Fisher Exact P-Value = 0 represents perfect enrichment. Usually P-Value is equal or smaller than 0.05 to be considered strongly enriched in the annotation categories. Default is 0.1.
+
+%
+
+% _Cluster Report_
+
+% To reduce the redundancy, the Functional Annotation Clustering report groups/displays similar annotations together which makes the biology clearer and more
+
+% focused to be read vs. traditional chart report. The grouping algorithm is based on the hypothesis that similar annotations should have similar gene members.
+
+% The Functional Annotation Clustering integrates the same techniques of  Kappa statistics to measure the degree of the common genes between two annotations, and
+
+% fuzzy heuristic clustering (used in Gene Functional Classification Tool ) to classify the groups of similar annotations according kappa values. In this sense, the more common genes
+
+% annotations share, the higher chance they will be grouped together.
+
+
+gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, true);
+
+
 %%
 
 % %% Construct high-dimensional gene regulation networks (GRNs) using differential equation models
 
 % %
 
-% % Here we utizie the ordinary differential equation (ODE) modeling approach in order to reconstruct the high-dimensional gene regulation networks (GRN).
+% % Here we use the ordinary differential equation (ODE) modelling approach in order to reconstruct the high-dimensional gene regulation networks (GRN).
 
 % % In ODE network models, gene regulations are modeled by rate equations, which quantify the rate of change (derivative) of the expression level
 
@@ -1196,44 +1068,26 @@ end
 
 
 
-%Obtain LASSO estimate of the parameters.
-
+% Obtain LASSO estimate of the parameters.
 EAS   = cell(N);
-
 Stats = cell(N);
 
 for i = 1:N
-
-for j = 1:size(dyhatEx{i},2)
-
- [EAS{i}(:,j),Stats{i}{j}]     = lasso(yhatEx{i},dyhatEx{i}(:,j));
-
-end       
-
-G{i}     = (EAS{i}~=0); 
-
-A0{i}    = EAS{i}(G{i});
-
+  for j = 1:size(dyhatEx{i},2)
+    [EAS{i}(:,j),Stats{i}{j}] = lasso(yhatEx{i},dyhatEx{i}(:,j));
+  end       
+  G{i} = (EAS{i}~=0); 
+  A0{i} = EAS{i}(G{i});
 end
-
-
 
 for i = 1:N
-
-tmp_ind = find(EAS{i}'); 
-
-A_tmp   = EAS{i}';
-
-create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-
+  tmp_ind = find(EAS{i}');
+  A_tmp   = EAS{i}';
+  create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
+  create_exel_file('Networks_matrix.xls',EAS{i},i,[],path);
 end
-
-
-
-disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'))
-
-
-
+disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
+disp(strcat('This is the full matrix of parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks_matrix.xls">Network</a>.'));
 
 
 % Obtain Refined estimates of the parameters.
@@ -1242,31 +1096,20 @@ disp(strcat('This is the parameters of the ODE obtained by two-stage method <a h
 
 % % 
 
- A = cell(N);
-
- for i = 1:N 
-
+A = cell(N);
+for i = 1:N 
   A{i} = EAS{i};%lsqnonlin(@rss_sp,A0{i},[],[],optim_options,TimeEx{i},yhatEx{i},G{i});
-
- end 
-
-
-
-for i = 1:N
-
-tmp_ind = find(A{i}'); 
-
-A_tmp   = A{i}';    
-
-create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-
 end
 
-
+for i = 1:N
+  tmp_ind = find(A{i}');
+  A_tmp   = A{i}';
+  create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
+  create_exel_file('Networks_Refined_matrix.xls',A{i},i,[],path);
+end
 
 disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'));
-
-
+disp(strcat('This is the matrix with the estimated parameters of the ODE <a href="',flder,'/Networks_Refined_matrix.xls">Parameters</a>.'));
 
 % %% Obtain Network Analysis of the gene regulation networks (GRNs).
 
@@ -1301,8 +1144,6 @@ for i = 1:N
 create_exel_file('Graph Statistics.xls',GS,i,[],path);
 
 end
-
- 
 
 % %   Node Statistics
 
@@ -1364,7 +1205,6 @@ for i = 1:N
   create_exel_file('Node Statistics.xls',GS,i,[],path);
 end
 
-
 % % % %   Visualization
 
 % % % %   -------------
@@ -1389,13 +1229,34 @@ end
 
 %View network in a plot
 
-options.sym = 1;
+tgfFile = fopen('Network.tgf','w');
+sifFile = fopen('Network.sif','w');
 
-sbeG = G{1};
-sbeNode = strtrim(cellstr(num2str(reshape(EAS{1},[size(EAS{1},1).*size(EAS{1},1),1]))));
-   
-writesbe2sif(sbeG,sbeNode,'Network.sif');
-   
+i = 1;
+for u = 1:length(EAS{i})
+  for v = 1:length(EAS{i})
+    if(EAS{i}(u,v) ~= 0)
+      fprintf(tgfFile,'"Cluster %1.1i"	"Cluster %1.1i"\n',u,v);
+      fprintf(sifFile,'"Cluster %1.1i"	pp	"Cluster %1.1i"\n',u,v);
+    end
+  end
+end
+
+fclose(tgfFile);
+fclose(sifFile);
+
 disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
-   
-cytoscaperun(sbeG, sbeNode);
+disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into BioLayout Express 3D.'));
+
+
+
+%  options.sym = 1;
+%  
+%  sbeG = G{1};
+%  sbeNode = strtrim(cellstr(num2str(reshape(EAS{1},[size(EAS{1},1).*size(EAS{1},1),1]))));
+%     
+%  writesbe2sif(sbeG,sbeNode,'Network.sif');
+%     
+%  disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
+%     
+%  cytoscaperun(sbeG, sbeNode);
