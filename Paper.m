@@ -907,7 +907,7 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 % annotations share, the higher chance they will be grouped together.
 
 
-gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, true);
+gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, false);
 
 
 %%
@@ -1084,7 +1084,8 @@ for i = 1:N
   tmp_ind = find(EAS{i}');
   A_tmp   = EAS{i}';
   create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-  create_exel_file('Networks_matrix.xls',EAS{i},i,[],path);
+  create_exel_file('Network_matrix.xls',EAS{i},i,[],path);
+  csvwrite('Network_matrix.csv',EAS{i});
 end
 disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
 disp(strcat('This is the full matrix of parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks_matrix.xls">Network</a>.'));
@@ -1248,15 +1249,4 @@ fclose(sifFile);
 disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
 disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into BioLayout Express 3D.'));
 
-
-
-%  options.sym = 1;
-%  
-%  sbeG = G{1};
-%  sbeNode = strtrim(cellstr(num2str(reshape(EAS{1},[size(EAS{1},1).*size(EAS{1},1),1]))));
-%     
-%  writesbe2sif(sbeG,sbeNode,'Network.sif');
-%     
-%  disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
-%     
-%  cytoscaperun(sbeG, sbeNode);
+[x, y]=system(['Rscript ', path, 'plot_network.R', ' Network_matrix.csv']);
