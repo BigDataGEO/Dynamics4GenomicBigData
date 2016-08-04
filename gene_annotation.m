@@ -62,7 +62,13 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
     end
 
     % The following lines (down to the end of the while loop) are in preparation for the table report.
+    % These lines do the query to the DAVID WS.
+    % DAVID is limited in the number of genes it can handle in each single call, thus the gene
+    % list is sent in (relatively) small chunks.
     if(includeTableReport)
+      % This is the maximum number of gene IDs sent in each call to DAVID. If the number of genes
+      % to annotate is larger than this, then several calls will be made inside the while loop
+      % that follows.
       maximum_number_of_genes_per_ws_call = 1000;
       number_of_genes_processed = 0;
       while number_of_genes_processed < length(gene_ids)
@@ -141,7 +147,18 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
     if includeChartReport && ~isempty(chartReport)
       [number_of_entries_in_chart_report_of_current_cluster uselessVariable] = size(chart_report_of_current_cluster);
       if number_of_entries_in_chart_report_of_current_cluster > 1
-	create_exel_file(strcat('Annotation_of_cluster_', num2str(cluster_iteration_ID),'.xls'),cellfun(@trimStringForExcelOutput, chart_report_of_current_cluster, 'UniformOutput', 0),i,[],path);
+%  	create_exel_file(strcat('Annotation_of_cluster_', num2str(cluster_iteration_ID),'.xls'),cellfun(@trimStringForExcelOutput, chart_report_of_current_cluster, 'UniformOutput', 0),i,[],path);
+%  	[number_of_rows useless] = size(chartReport);
+  
+	fileFieldSeparator=',';
+	withinFieldSeparator = ';';
+	
+	fid = fopen(strcat('Chart_report_of_cluster_', num2str(cluster_iteration_ID),'.csv'), 'w') ;
+		for row=1:number_of_entries_in_chart_report_of_current_cluster
+	  fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n', strrep(chart_report_of_current_cluster{row, 1}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 2}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 3}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 4}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 5}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 6}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 7}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 8}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 9}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 10}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 11}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 12}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 13}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 14}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 15}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 16}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 17}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 18}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 19}, fileFieldSeparator, withinFieldSeparator));
+	end
+	
+	fclose(fid);
       end
     end
       

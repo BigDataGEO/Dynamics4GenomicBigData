@@ -906,7 +906,6 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 
 % annotations share, the higher chance they will be grouped together.
 
-
 gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, true);
 
 
