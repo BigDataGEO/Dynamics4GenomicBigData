@@ -1207,28 +1207,45 @@ end
 
 % % % %   Visualization
 
-% % % %   -------------
+adjacency_matrix = EAS{i};
 
-% % % %
+%  adjacency_matrix = [1 1 1;  0 1 1; 1 0 0]; % example
 
-% % % %       plotnet                  - View network in a plot.
+[number_of_rows number_of_columns] = size(adjacency_matrix);
 
-% % % %       plotnet_edgewidth        - View network in a plot with defined edge width.
+dependency_matrix = repmat({''}, [number_of_rows 2]);
 
-% % % %       plotnet_curve            - View network in a plot with curved edges.
+module_name_preffix = 'M';
+withinFieldSeparator = ';';
+betweenFieldSeparator = ',';
 
-% % % %       plotnet_treering         - View network in a treering plot.
+row_labels = repmat({''}, [number_of_rows 1]);
+column_labels = {'' 'Out' 'In'};
 
-% % % %       viewnetsvg               - View network using SVG.
+for u=1:number_of_rows
+  row_labels{u} = strcat(module_name_preffix, num2str(u));
+  for v=1:number_of_columns
+    if adjacency_matrix(u,v) ~= 0
+      if strcmp(dependency_matrix{u, 2}, '')
+	dependency_matrix{u, 2} = strcat(module_name_preffix, num2str(v));
+      else
+	dependency_matrix{u, 2} = strcat(dependency_matrix{u, 2}, withinFieldSeparator, module_name_preffix, num2str(v));
+      end
+      if strcmp(dependency_matrix{v, 1}, '')
+	dependency_matrix{v, 1} = strcat(module_name_preffix, num2str(u));
+      else
+	dependency_matrix{v, 1} = strcat(dependency_matrix{v, 1}, withinFieldSeparator, module_name_preffix, num2str(u));
+      end
+    end
+  end
+end
 
-% % % %       powerlawplot             - Plot relationship between degree and number of nodes.
+matrix_to_save = [column_labels; [row_labels dependency_matrix]];
 
-% % % %       sbe_layout               - Gateway function for layout methods.
+create_exel_file('Dependency_matrix.xls',matrix_to_save,i,[],path);
+disp(strcat('This is the matrix listing the <a href="',flder,'/Dependency_matrix.xls">dependencies between GRMs</a>.'));
 
-
-
-%View network in a plot
-
+% View network in a plot
 tgfFile = fopen('Network.tgf','w');
 sifFile = fopen('Network.sif','w');
 
