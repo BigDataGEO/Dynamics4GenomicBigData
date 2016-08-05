@@ -896,17 +896,19 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 
 % _Cluster Report_
 
-% To reduce the redundancy, the Functional Annotation Clustering report groups/displays similar annotations together which makes the biology clearer and more
+% To reduce redundancy, the Functional Annotation Clustering report groups/displays similar
+% annotations together which makes the biology clearer and more focused to be read vs.
+% the traditional chart report. The grouping algorithm is based on the hypothesis that similar
+% annotations should have similar gene members. The Functional Annotation Clustering integrates the
+% same techniques of  Kappa statistics to measure the degree of the common genes between two
+% annotations, and fuzzy heuristic clustering (used in Gene Functional Classification Tool) to
+% classify the groups of similar annotations according kappa values. In this sense, the more common
+% genes annotations share, the higher chance they will be grouped together.
 
-% focused to be read vs. traditional chart report. The grouping algorithm is based on the hypothesis that similar annotations should have similar gene members.
+[uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
+clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
 
-% The Functional Annotation Clustering integrates the same techniques of  Kappa statistics to measure the degree of the common genes between two annotations, and
-
-% fuzzy heuristic clustering (used in Gene Functional Classification Tool ) to classify the groups of similar annotations according kappa values. In this sense, the more common genes
-
-% annotations share, the higher chance they will be grouped together.
-
-gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, true);
+gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, true, true);
 
 
 %%
@@ -1047,11 +1049,16 @@ gene_annotation(gid, IND_DRG{i}, fidxcluster{i}, 'Annotation', path, true, true)
 
 % %Obtain Smoothed Estimates of the derivative and trajectory.
 
+[uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
+clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
+
 for i = 1:N
 
-for j = 1:length(fidxcluster{i})
+%  for j = 1:length(fidxcluster{i})
+for j = 1:length(clusters_sorted_by_size)
 
-group               = IND_DRG{i}(fidxcluster{i}{j});
+%  group               = IND_DRG{i}(fidxcluster{i}{j});
+group               = IND_DRG{i}(clusters_sorted_by_size{j});
 
 meanfd              = mean_grouped(fdgenens{i},group);
 
@@ -1265,4 +1272,6 @@ fclose(sifFile);
 disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
 disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into BioLayout Express 3D.'));
 
-[x, y]=system(['Rscript ', path, 'plot_network.R', ' Network_matrix.csv']);
+if isunix()
+  [x, y]=system(['Rscript ', path, 'plot_network.R', ' Network_matrix.csv']);
+end
