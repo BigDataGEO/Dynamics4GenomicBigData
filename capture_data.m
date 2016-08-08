@@ -96,5 +96,3 @@ function [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(
     end
     Subject = repmat(1, 1, size(Pos,2));
   end
-    
-  
