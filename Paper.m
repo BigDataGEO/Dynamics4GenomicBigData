@@ -28,55 +28,7 @@
 
 % -----------------------------------------------------------------
 
-% No. of Subjects
-N = 1;
-
-% No. of Probe sets
-n = size(Data,1);
-
-%Obtain the log 2 centered gene expression data for each subject.
-gexp = cell(1,N);
-
-%Centered Gene Expression
-gexp2 = cell(1,N);
-Time  = cell(1,N);
-
-for i = 1:N
-  %Get Subject
-  ind = 1:length(Subject);
-
-  %Get time
-  [tmp,ix] = sort(Pos(ind));
-
-  %Check time > -1
-  tmp = tmp(tmp>-1);
-
-  %Check for replicates
-  tb       = tabulate(tmp);
-  Time{i}  = tb(tb(:,2)>0,1);
-  nt       = length(Time{i});
-
-  if(max(tb(:,2))>1)
-    gexp_wr{i} = zeros(n,max(tb(:,2)),nt);
-
-    for j = 1:nt
-
-      %gexp2 time gene
-      idx = find(tb(j,1)==tmp);
-
-      if(any(Data(:,ind(ix(idx)))<0))
-	gexp_wr{i}(:,1:tb(j,2),j) = (Data(:,ind(ix(idx))));
-	gexp{i}(:,j)      = nanmean((Data(:,ind(ix(idx)))),2);
-      else
-	gexp_wr{i}(:,1:tb(j,2),j) = log2(Data(:,ind(ix(idx))));
-	gexp{i}(:,j)      = nanmean(log2(Data(:,ind(ix(idx)))),2);
-      end
-    end
-  else
-    gexp{i}  = Data(:,ind(ix));
-  end
-  gexp2{i} = gexp{i} - repmat(nanmean(gexp{i},2),1,nt);
-end
+[gexp, gexp2, Time, N, n, subject_name] = get_preprocessed_data(Data, Subject, Pos, str_ind);
 
 %%
 
@@ -132,6 +84,7 @@ for sub = 1:N
 end
 
 print('Paper_01.pdf','-dpdf');
+close all;
 
 %%
 
@@ -360,6 +313,7 @@ for sub = 1:N
 end
 
 print('Paper_03.pdf','-dpdf');
+close all;
 
 
 
@@ -547,6 +501,7 @@ for sub = 1:N
 end
 
 print('Paper_04.pdf','-dpdf');
+close all;
 
 %%
 
@@ -693,6 +648,7 @@ for i=1:N
         end
 
         print(h8,'-dpsc2', '-append', 'Cluster.ps');
+        close all;
 
     end
 
@@ -835,6 +791,7 @@ xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 title('SGM');
 
 print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
+close all;
 
 % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
@@ -1048,28 +1005,14 @@ gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, tr
 % 
 
 % %Obtain Smoothed Estimates of the derivative and trajectory.
-
-[uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
-clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
-
 for i = 1:N
-
-%  for j = 1:length(fidxcluster{i})
-for j = 1:length(clusters_sorted_by_size)
-
-%  group               = IND_DRG{i}(fidxcluster{i}{j});
-group               = IND_DRG{i}(clusters_sorted_by_size{j});
-
-meanfd              = mean_grouped(fdgenens{i},group);
-
-TimeEx{i}           = linspace(Time{i}(1),Time{i}(end),100)';
-
-yhatEx{i}(:,j)      = eval_fd(TimeEx{i}, meanfd);
-
-dyhatEx{i}(:,j)     = eval_fd(TimeEx{i}, meanfd,1);
-
-end
-
+  for j = 1:length(clusters_sorted_by_size)
+    group               = IND_DRG{i}(clusters_sorted_by_size{j});
+    meanfd              = mean_grouped(fdgenens{i},group);
+    TimeEx{i}           = linspace(Time{i}(1),Time{i}(end),100)';
+    yhatEx{i}(:,j)      = eval_fd(TimeEx{i}, meanfd);
+    dyhatEx{i}(:,j)     = eval_fd(TimeEx{i}, meanfd,1);
+  end
 end
 
 
