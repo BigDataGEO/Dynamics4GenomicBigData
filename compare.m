@@ -104,14 +104,34 @@ for i = 1:size(GEO_num,1)
   currentClusterIndex = 1;
 
   for i=1:N
+  
+    p_values = [];
+    alpha_threshold = 0.05;
+    p_value_output_matrix = {'Cluster number', 'p-value', ['p-value < ' num2str(alpha_threshold)]};
 
     [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
-    number_of_subplots_per_page = 4;    
+    
+    number_of_clusters = size(mean_clusters_mat{i},1);
+
+    number_of_subplots = 2 * number_of_clusters;
+    
+    number_of_subplots_per_page = 4;
     number_of_columns_per_page = 2;    
     number_of_rows_per_page = number_of_subplots_per_page / number_of_columns_per_page;
+    
+    number_of_pages = ceil(number_of_subplots / number_of_subplots_per_page);
+    number_of_plots_in_last_page = number_of_subplots_per_page;
+    if mod(number_of_subplots, number_of_subplots_per_page)~=0
+      number_of_plots_in_last_page = mod(number_of_subplots, number_of_subplots_per_page);
+    end
       
-    for b = 1:floor(2*size(mean_clusters_mat{i},1)./number_of_subplots_per_page)
-    %for b = 1:1 % For testing purposes, output only the first page.
+    for b = 1:number_of_pages
+      
+      number_of_plots_in_current_page = number_of_subplots_per_page;
+      
+      if(b == number_of_pages) %i.e., if this is the last page
+	number_of_plots_in_current_page = number_of_plots_in_last_page;
+      end
 
       h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
       axisLabelFontSize = 9;
@@ -124,27 +144,33 @@ for i = 1:size(GEO_num,1)
 
       gen = 1;
 	  
-      while gen <= number_of_subplots_per_page
-	  
-	% The first individual
-
-	subplot(number_of_rows_per_page,number_of_columns_per_page,gen)
-
+      while gen <= number_of_plots_in_current_page
+      
 	ind2 = cluster_indexes_by_size(currentClusterIndex);
+	
+	expression_of_first_subject = clusters{i}{ind2};
+      
+	% THIS MAY NOT BE CORRECT.
+	expression_of_second_subject = gexp2_2{i}(IND_DRG{i}(fidxcluster{i}{ind2}),:);
+	  
+	% Plot the expression of the first individual
 
-	plot(clusters{i}{ind2}','-*b')
+	subplot(number_of_rows_per_page,number_of_columns_per_page,gen);
 
-	xlabel('Time', 'FontSize', axisLabelFontSize)
+	plot(expression_of_first_subject','-*b');
+	
+	set(gca,'XTick', 1:size(Time{i}));
+	set(gca,'XTickLabel', Time{i});
 
-	ylabel('Expression', 'FontSize', axisLabelFontSize)
+	xlabel('Time', 'FontSize', axisLabelFontSize);
+	ylabel('Expression', 'FontSize', axisLabelFontSize);
 
 	hold on;
 
-	plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5)
+	plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5);
 
-	xlim([0,size(mean_clusters_mat{i}(ind2,:),2)])
-
-	ylim([min(min(clusters{i}{ind2}))-.05,max(max(clusters{i}{ind2}))+.05])
+	y_axis_limits = [min([min(expression_of_first_subject), min(expression_of_second_subject)])-.05,max([max(expression_of_first_subject), max(expression_of_second_subject)])+.05];
+	ylim(y_axis_limits);
 
 	v = axis;
 
@@ -155,30 +181,26 @@ for i = 1:size(GEO_num,1)
 	hold off;
 	      
 	      
-	% The second individual
+	% Plot the expression of the second individual
 	      
 	gen = gen + 1;
-	      
-	      
-	% THIS MAY NOT BE CORRECT.
-	expression_of_second_individual = gexp2_2{i}(IND_DRG{i}(fidxcluster{i}{ind2}),:);
-	      
+
 	subplot(number_of_rows_per_page,number_of_columns_per_page,gen)
 
+	plot(expression_of_second_subject','-*b');
+	
+%  	plot(mean_clusters_mat{i}(ind2,:),'o-g','LineWidth',1.5);
 
-	plot(expression_of_second_individual','-*b')
+	ylim(y_axis_limits);
+	
+	set(gca,'XTick', 1:size(Time{i}));
+	set(gca,'XTickLabel', Time{i});
 
 	xlabel('Time', 'FontSize', axisLabelFontSize)
 
 	ylabel('Expression', 'FontSize', axisLabelFontSize)
 
 	hold on;
-
-	      
-
-	xlim([0,size(mean_clusters_mat{i}(ind2,:),2)])
-
-	ylim([min(min(expression_of_second_individual))-.05,max(max(expression_of_second_individual))+.05])
 
 	v = axis;
 
@@ -187,15 +209,22 @@ for i = 1:size(GEO_num,1)
 	set(handle,'Position',[2.5 v(4)*1. 0]);
 
 	hold off;
-	      
+	
+	p_value = wilcoxon_signed_rank_test(expression_of_first_subject, expression_of_second_subject);
+	
+	p_values = [p_values; p_value];
+	
+	p_value_output_matrix = [p_value_output_matrix; {['Cluster ' num2str(currentClusterIndex)], num2str(p_value), num2str(p_value < alpha_threshold)}];
+	
 	currentClusterIndex = currentClusterIndex + 1;
 
 	gen = gen + 1;
-	      
-	      
+
       end
 	  
       print(h8,'-dpsc2', '-append', 'Comparison.ps');
+      
+      create_exel_file('p-values_case_vs_control.xls',p_value_output_matrix,i,[],path);
 
       close all;
     end

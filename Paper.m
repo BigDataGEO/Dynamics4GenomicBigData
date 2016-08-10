@@ -71,11 +71,11 @@ for sub = 1:N
 
     xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
+    ylabel('Genes', 'FontSize', axisLabelFontSize);
 
-    zlabel('Expression Level', 'FontSize', axisLabelFontSize);
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-    title([char(Subject_name),' all genes measured'], 'FontSize', axisLabelFontSize);
+    title(['All genes'], 'FontSize', axisLabelFontSize);
 
     hold on;
 
@@ -84,7 +84,6 @@ for sub = 1:N
 end
 
 print('Paper_01.pdf','-dpdf');
-close all;
 
 %%
 
@@ -176,13 +175,13 @@ for sub = 1:N
 
     xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
+    ylabel('Genes', 'FontSize', axisLabelFontSize);
 
-    zlabel('Probe Set Expression Level', 'FontSize', axisLabelFontSize);
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
 
     hold on;
 
-    title([char(Subject_name),' subset of genes with smooth', ' trajectories with dof<5'], 'FontSize', 20);
+    title(['Genes with smooth trajectories with dof<5'], 'FontSize', 20);
 
     hold off;
 
@@ -300,20 +299,19 @@ for sub = 1:N
 
     xlabel('Time', 'FontSize', axisLabelFontSize);
 
-    ylabel('Probe Set', 'FontSize', axisLabelFontSize);
+    ylabel('Genes', 'FontSize', axisLabelFontSize);
 
-    zlabel('Probe Set Expression Level', 'FontSize', axisLabelFontSize);
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
 
     hold on;
 
-    title([char(Subject_name),' smooth gene expresion curves'], 'FontSize', 20);
+    title(['Smooth gene expression curves'], 'FontSize', 20);
 
     hold off;
 
 end
 
 print('Paper_03.pdf','-dpdf');
-close all;
 
 
 
@@ -494,14 +492,13 @@ for sub = 1:N
 
     zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-    title([char(Subject_name),' Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
+    title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
 
     hold off;
 
 end
 
 print('Paper_04.pdf','-dpdf');
-close all;
 
 %%
 
@@ -605,8 +602,24 @@ disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_ID
 for i=1:N
 
     [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
+    
+    % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
+    number_of_subplots_per_page = 30;    
+    number_of_columns_per_page = 6;    
+    number_of_clusters = size(mean_clusters_mat{i},1);
+    number_of_rows_per_page = number_of_subplots_per_page / number_of_columns_per_page;
+    number_of_pages = ceil(number_of_clusters / number_of_subplots_per_page);
+    number_of_plots_in_last_page = mod(number_of_clusters, number_of_subplots_per_page);
+    
+    
 
-    for b = 1:floor(size(mean_clusters_mat{i},1)./30)
+    for b = 1:number_of_pages
+%      for b = 1:1 % For testing purposes, output only the first page.
+
+	number_of_plots_in_current_page = number_of_subplots_per_page;
+	if(b == number_of_pages) %i.e., if this is the last page
+	  number_of_plots_in_current_page = number_of_plots_in_last_page;
+	end
 
         h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
         axisLabelFontSize = 9;
@@ -617,29 +630,32 @@ for i=1:N
 	set(gcf, 'PaperUnits', 'centimeters');
 	set(gcf, 'PaperSize', [85 50]);
 
-        for gen = 1:30
+        for gen = 1:number_of_plots_in_current_page
 
-            subplot(5,6,gen)
+            subplot(number_of_rows_per_page,number_of_columns_per_page,gen)
 
-            ind2 = ind(gen+(b-1).*30);
+            ind2 = ind(gen+(b-1).*number_of_plots_in_current_page);
 
-            plot(clusters{i}{ind2}','-*b')
+            plot(clusters{i}{ind2}','-*b');
+            
+            set(gca,'XTick', 1:size(Time{i}));
+	    set(gca,'XTickLabel', Time{i});
 
-            xlabel('Time', 'FontSize', axisLabelFontSize)
+            xlabel('Time', 'FontSize', axisLabelFontSize);
 
-            ylabel('Expression', 'FontSize', axisLabelFontSize)
+            ylabel('Expression', 'FontSize', axisLabelFontSize);
 
             hold on;
 
-            plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5)
+            plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5);
 
-            xlim([0,size(mean_clusters_mat{i}(ind2,:),2)])
+            xlim([0,size(mean_clusters_mat{i}(ind2,:),2)]);
 
-            ylim([min(min(clusters{i}{ind2}))-.05,max(max(clusters{i}{ind2}))+.05])
+            ylim([min(min(clusters{i}{ind2}))-.05,max(max(clusters{i}{ind2}))+.05]);
 
             v = axis;
 
-            handle=title([' No. Probe Sets ',num2str(s(gen+(b-1).*30))]);
+            handle=title(['Number of genes: ',num2str(s(gen+(b-1).*number_of_plots_in_current_page))]);
 
             set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -648,7 +664,6 @@ for i=1:N
         end
 
         print(h8,'-dpsc2', '-append', 'Cluster.ps');
-        close all;
 
     end
 
@@ -791,7 +806,6 @@ xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 title('SGM');
 
 print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
-close all;
 
 % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
@@ -865,7 +879,7 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
 clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
 
-gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, true, true);
+gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, false, false);
 
 
 %%

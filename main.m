@@ -63,8 +63,7 @@ for i = 1:size(GEO_num,1)
   end %while cont == 1
 
   %% Create Manuscript
-
-  prompt = '\nWhich conditions would you like the manuscript to include? (format [1,2,3]) ';
+  prompt = '\nWhich subjects would you like the manuscript to include? (format [1,2,3]) ';
   cond   = input(prompt);
   
   % If running on Windows.  
@@ -82,9 +81,6 @@ for i = 1:size(GEO_num,1)
     % Two output arguments (x and y) are used simply to prevent the output from being printed onscreen.
     [x, y]=system(['./latex/compile.sh ' flder]);
   end
-
-  %opens your web browser and looks for papers related to your data set. Read
-  %these papers.
   google(GEO_number,'scholar');
 end
 

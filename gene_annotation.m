@@ -181,7 +181,8 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
 	    
 	  for index_in_records=1:number_of_records
 	    fprintf(fileID, strcat('%s', fileFieldSeparator, '%s\n'), strrep(records{index_in_records,1}, fileFieldSeparator, withinFieldSeparator), strrep(records{index_in_records,2}, fileFieldSeparator, withinFieldSeparator));
-	  end 
+	  end
+	  fprintf(fileID, strcat(fileFieldSeparator,fileFieldSeparator,fileFieldSeparator,fileFieldSeparator,fileFieldSeparator,'\n'));
 	end
 	fclose(fileID);
       end
