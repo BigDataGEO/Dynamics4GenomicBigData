@@ -603,13 +603,19 @@ for i=1:N
 
     [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
     
-    % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
-    number_of_subplots_per_page = 30;    
-    number_of_columns_per_page = 6;    
     number_of_clusters = size(mean_clusters_mat{i},1);
+    number_of_subplots = number_of_clusters;
+    
+    % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
+    number_of_subplots_per_page = 30;
+    number_of_columns_per_page = 6;    
     number_of_rows_per_page = number_of_subplots_per_page / number_of_columns_per_page;
-    number_of_pages = ceil(number_of_clusters / number_of_subplots_per_page);
-    number_of_plots_in_last_page = mod(number_of_clusters, number_of_subplots_per_page);
+    
+    number_of_pages = ceil(number_of_subplots / number_of_subplots_per_page);
+    number_of_plots_in_last_page = number_of_subplots_per_page;
+    if mod(number_of_subplots, number_of_subplots_per_page)~=0
+      number_of_plots_in_last_page = mod(number_of_subplots, number_of_subplots_per_page);
+    end
     
     
 
@@ -879,7 +885,7 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
 clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
 
-gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, true, true);
+gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, false, false);
 
 
 %%
