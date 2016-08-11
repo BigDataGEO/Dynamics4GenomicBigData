@@ -35,7 +35,7 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
 	      'WORMBASE_GENE_ID'
 	      'WORMPEP_ID'
 	      'ZFIN_ID'};
-  idType = idTypes{9}; % This is so wrong but no solution in sight yet.
+  idType = idTypes{1}; % This is so wrong but no solution in sight yet.
   
   gene_ids = full_list_of_gene_ids(indices_of_top_DRGs);
 
