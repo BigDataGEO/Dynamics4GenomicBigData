@@ -617,7 +617,7 @@ for i=1:N
       number_of_plots_in_last_page = mod(number_of_subplots, number_of_subplots_per_page);
     end
     
-    
+    cluster_number = 1;
 
     for b = 1:number_of_pages
 %      for b = 1:1 % For testing purposes, output only the first page.
@@ -661,11 +661,15 @@ for i=1:N
 
             v = axis;
 
-            handle=title(['Number of genes: ',num2str(s(gen+(b-1).*number_of_plots_in_current_page))]);
+            number_of_genes_in_current_cluster  = s(gen+(b-1).*number_of_plots_in_current_page);
+            
+            handle=title(['M' num2str(cluster_number) ' (' num2str(number_of_genes_in_current_cluster) ' genes)' ]);
 
             set(handle,'Position',[2.5 v(4)*1. 0]);
 
             hold off;
+            
+            cluster_number = cluster_number + 1;
 
         end
 
@@ -1054,7 +1058,7 @@ for i = 1:N
   A_tmp   = EAS{i}';
   create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
   create_exel_file('Network_matrix.xls',EAS{i},i,[],path);
-  csvwrite('Network_matrix.csv',EAS{i});
+  csvwrite('Network_matrix.csv',EAS{i});  
 end
 disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
 disp(strcat('This is the full matrix of parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks_matrix.xls">Network</a>.'));
@@ -1181,20 +1185,20 @@ adjacency_matrix = EAS{i};
 
 %  adjacency_matrix = [1 1 1;  0 1 1; 1 0 0]; % example
 
-[number_of_rows number_of_columns] = size(adjacency_matrix);
+number_of_clusters = size(adjacency_matrix,1);
 
-dependency_matrix = repmat({''}, [number_of_rows 2]);
+dependency_matrix = repmat({''}, [number_of_clusters 2]);
 
 module_name_preffix = 'M';
 withinFieldSeparator = ';';
 betweenFieldSeparator = ',';
 
-row_labels = repmat({''}, [number_of_rows 1]);
+row_labels = repmat({''}, [number_of_clusters 1]);
 column_labels = {'' 'Out' 'In'};
 
-for u=1:number_of_rows
+for u=1:number_of_clusters
   row_labels{u} = strcat(module_name_preffix, num2str(u));
-  for v=1:number_of_columns
+  for v=1:number_of_clusters
     if adjacency_matrix(u,v) ~= 0
       if strcmp(dependency_matrix{u, 2}, '')
 	dependency_matrix{u, 2} = strcat(module_name_preffix, num2str(v));
@@ -1214,6 +1218,12 @@ matrix_to_save = [column_labels; [row_labels dependency_matrix]];
 
 create_exel_file('Dependency_matrix.xls',matrix_to_save,i,[],path);
 disp(strcat('This is the matrix listing the <a href="',flder,'/Dependency_matrix.xls">dependencies between GRMs</a>.'));
+
+
+matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix)]];
+
+create_exel_file('Adjacency_matrix.xls',matrix_to_save,i,[],path);
+disp(strcat('This is the matrix listing the <a href="',flder,'/Adjacency_matrix.xls">dependencies between GRMs</a>.'));
 
 % View network in a plot
 tgfFile = fopen('Network.tgf','w');

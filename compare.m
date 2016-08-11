@@ -27,7 +27,7 @@ for i = 1:size(GEO_num,1)
   
   display(sprintf('\nYou have successfully entered the data for the first subject.'));
   
-  prompt = '\nNow you will be required to enter the same information for the second subject (enter to continue).';
+  prompt = '\nNow you will be required to enter the same information for the second subject (press enter to continue).';
   
   tm_ind = input(prompt);
   
@@ -107,7 +107,7 @@ for i = 1:size(GEO_num,1)
   
     p_values = [];
     alpha_threshold = 0.05;
-    p_value_output_matrix = {'Cluster number', 'p-value', ['p-value < ' num2str(alpha_threshold)]};
+    p_value_output_matrix = {'GRM number', 'p-value', ['p-value < ' num2str(alpha_threshold)]};
 
     [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
     
@@ -174,7 +174,7 @@ for i = 1:size(GEO_num,1)
 
 	v = axis;
 
-	handle=title(['Gene expression of cluster ',num2str(currentClusterIndex), ' (', subject_name, ')']);
+	handle=title(['Gene expression of M',num2str(currentClusterIndex), ' (', subject_name, ')']);
 
 	set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -189,6 +189,8 @@ for i = 1:size(GEO_num,1)
 
 	plot(expression_of_second_subject','-*b');
 	
+	% The following line is intended to plot the mean of the current cluster but it deletes the
+	% plotted expression of the second subject in the figure. Commented out for now.
 %  	plot(mean_clusters_mat{i}(ind2,:),'o-g','LineWidth',1.5);
 
 	ylim(y_axis_limits);
@@ -204,7 +206,7 @@ for i = 1:size(GEO_num,1)
 
 	v = axis;
 
-	handle=title(['Gene expression of cluster ',num2str(currentClusterIndex), ' (', subject_name_2, ')']);
+	handle=title(['Gene expression of M',num2str(currentClusterIndex), ' (', subject_name_2, ')']);
 
 	set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -214,7 +216,7 @@ for i = 1:size(GEO_num,1)
 	
 	p_values = [p_values; p_value];
 	
-	p_value_output_matrix = [p_value_output_matrix; {['Cluster ' num2str(currentClusterIndex)], num2str(p_value), num2str(p_value < alpha_threshold)}];
+	p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value), num2str(p_value < alpha_threshold)}];
 	
 	currentClusterIndex = currentClusterIndex + 1;
 
@@ -224,7 +226,7 @@ for i = 1:size(GEO_num,1)
 	  
       print(h8,'-dpsc2', '-append', 'Comparison.ps');
       
-      create_exel_file('p-values_case_vs_control.xls',p_value_output_matrix,i,[],path);
+      create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,i,[],path);
 
       close all;
     end
