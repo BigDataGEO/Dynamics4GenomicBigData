@@ -28,7 +28,7 @@
 
 % -----------------------------------------------------------------
 
-[gexp, gexp2, Time, N, n, subject_name] = get_preprocessed_data(Data, Subject, Pos, str_ind);
+[gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(Data, Subject, Pos, str_ind, true, true);
 
 %%
 
@@ -43,57 +43,11 @@
 % $\sigma^{2}$. Figure (1) provides an illustration the time course gene expression measurements
 % over time for each subject.
 
-h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-
-clear title;
-
-set(gcf, 'PaperPositionMode', 'manual');
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperPosition', [0 0 30 24]);
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperSize', [30 24]);
-axisLabelFontSize = 30;
-
-ind= 0;
-
-for sub = 1:N
-
-    surf(gexp2{i},'FaceColor','interp','EdgeColor','none');
-
-    xlim([Time{sub}(1),length(Time{sub})]);
-
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
-    set(gca,'FontSize',11);
-
-    ylim([1,n]);
-
-    zlim([min(min(gexp2{i})),max(max(gexp2{i}))]);
-
-    xlabel('Time', 'FontSize', axisLabelFontSize);
-
-    ylabel('Genes', 'FontSize', axisLabelFontSize);
-
-    zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-    title(['All genes'], 'FontSize', axisLabelFontSize);
-
-    hold on;
-
-    hold off;
-
-end
-
-print('Paper_01.pdf','-dpdf');
-
 %%
 
 % _*Figure 1* Log 2 Centered Gene Expression Level for each probe set
 
 % across all timepoints for each subject._  
-
-
-
-
 
 %% Spline Smoothing
 
@@ -145,57 +99,15 @@ print('Paper_01.pdf','-dpdf');
 
 %  -----------------------------------------------------------------------
 
-yCR = Est_Sub_Sel(Time,gexp2,N);
 
-h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
-clear title;
 
-set(gcf, 'PaperPositionMode', 'manual');
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperPosition', [0 0 30 24]);
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperSize', [30 24]);
-axisLabelFontSize = 30;
-
-ind= 0 ;
-
-for sub = 1:N
-
-    surf(yCR{sub},'FaceColor','interp','EdgeColor','none');
-
-    xlim([Time{sub}(1),length(Time{sub})]);
-
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
-    set(gca,'FontSize',11);
-
-    ylim([1,size(yCR{sub},1)]);
-
-    zlim([min(min(yCR{sub})),max(max(yCR{sub}))]);
-
-    xlabel('Time', 'FontSize', axisLabelFontSize);
-
-    ylabel('Genes', 'FontSize', axisLabelFontSize);
-
-    zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-    hold on;
-
-    title(['Genes with smooth trajectories with dof<5'], 'FontSize', 20);
-
-    hold off;
-
-end
-
-print('Paper_02.pdf','-dpdf');
 
 %%
 
 % _*Figure 2* The Log 2 Centered Gene Expression Level for each probe set
 
 % in the estimation subset across all timepoints for each subject._
-
-
 
 %%
 
@@ -206,163 +118,6 @@ print('Paper_02.pdf','-dpdf');
 % expression profiles. Table 1 provides the optimal smoothing parameters, the corresponding degrees of freedom,
 
 % the generalized cross validation and the sum of squared errors for the fitted curves $X_{i,j}(t)$ for each subject in the study respectively.
-
-
-
-%  -----------------------------------------------------------------------
-
-%                        FDA
-
-%  -----------------------------------------------------------------------
-
-fdgenens    = cell(N,1);
-
-dfgenens    = cell(N,1);
-
-gcvgenens   = cell(N,1);
-
-lambdagenes = cell(N,1);
-
-yhat        = cell(N,1);
-
-dyhat       = cell(N,1);
-
-STDERR = cell(N,1);
-
-SSE = cell(N,1);
-
-
-
-options = optimset('LargeScale',  'off', 'Display',     'on', 'Diagnostics', 'off', 'GradObj',     'off', 'Hessian',     'off', 'TolFun', 1e-8, 'TolX',        1e-8);
-
-
-
-for i = 1:N
-
-    %  ---------------  set up the b-spline basis  ------------------------
-
-    knots    = Time{i}';
-
-    norder   = 3;
-
-    nbasis   = length(Time{i}) + norder - 1;
-
-    basisobj = create_bspline_basis([min(Time{i}) max(Time{i})], nbasis, norder, knots);
-
-    
-
-    %  -----------  Otain optimal smoothing parameter  -----------------
-
-    B              = eval_basis(Time{i},basisobj);
-
-    R              = eval_penalty(basisobj,2);
-
-    lambdagenes{i} = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, yCR{i}', R);
-
-    fdParobj       = fdPar(basisobj, 2, lambdagenes{i});
-
-    [fdgenens{i}, dfgenens{i}, gcvgenens{i},~,SSE{i}]  = smooth_basis(Time{i}, gexp2{i}', fdParobj);
-
-    yhat{i}        = eval_fd(Time{i}, fdgenens{i});
-
-    dyhat{i}       = eval_fd(Time{i}, fdgenens{i},1);
-
-    STDERR{i}      = sqrt(sum(SSE{i})/(n*(length(Time{i})-dfgenens{i})));
-
-end
-
-h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-
-clear title;
-
-set(gcf, 'PaperPositionMode', 'manual');
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperPosition', [0 0 30 24]);
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperSize', [30 24]);
-axisLabelFontSize = 30;
-
-ind= 0 ;
-
-for sub = 1:N
-
-    surf(yhat{sub}','FaceColor','interp','EdgeColor','none');
-
-    xlim([Time{sub}(1),length(Time{sub})]);
-
-    set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
-    set(gca,'FontSize',11);
-
-    ylim([1,size(yhat{sub},2)]);
-
-    zlim([min(min(yhat{sub})),max(max(yhat{sub}))]);
-
-    xlabel('Time', 'FontSize', axisLabelFontSize);
-
-    ylabel('Genes', 'FontSize', axisLabelFontSize);
-
-    zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-    hold on;
-
-    title(['Smooth gene expression curves'], 'FontSize', 20);
-
-    hold off;
-
-end
-
-print('Paper_03.pdf','-dpdf');
-
-
-
-col_hed = {'Df','GCV','log10(\lambda)','Std Error'};
-
-row_hed = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, 1:N, 'UniformOutput', false))');
-
-tmp = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
-
-makeHtmlTable(tmp,[],row_hed,col_hed);
-
-% Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing'; 
-
-% Label = 'fit1';
-
-% filename = [con,'fitted_vals.tex'];
-
-% Generate_Latex_Tabels(tmp,row_hed,col_hed,Caption,Label,filename)
-
-
-
-
-
-%%
-
-% _*Table 1* The optimal smoothing parameters, the corresponding degrees of freedom,
-
-% the generalized cross validation and the sum of squared errors for the fitted curves $X_{i,j}(t)$ for each subject in the study._
-
-
-
-    %Create Excel Files with the fitted curves and the derivatives of the
-
-    %fitted curves.   
-
-    for i = 1:N
-
-        create_exel_file('Fitted_curves.xls',yhat{i}',i,[],path);
-
-        create_exel_file('Derivative_Fitted_Curves.xls',dyhat{i}',i,[],path);
-
-    end
-
-    
-
-disp(strcat('This is a link to the Fitted Curves <a href="',flder,'/Fitted_curves.xls">Fitted_Curves</a>.'))
-
-
-
-disp(strcat('This is a link to the Derivatives of the Fitted Curves <a href="',flder,'/Derivative_Fitted_Curves.xls">Derivative_Fitted_Curves</a>.'))
-
 
 
 
@@ -409,55 +164,8 @@ disp(strcat('This is a link to the Derivatives of the Fitted Curves <a href="',f
 
 % can be considered as exhibiting notable changes with respect to time.
 
+[fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, path, flder, gid, true, true);
 
-
-F    = cell(N,1);
-
-INDF = cell(N,1);
-
-
-
-for i = 1:N
-
-    
-
-    F{i} = Ftest(gexp2{i}, Time{i},  fdgenens{i}, dfgenens{i});
-
-    
-
-    [SF, INDF{i}] = sort(F{i},'descend');
-
-    
-
-end
-
-
-
-% Create Excel Files with the F-values, Index for Ranking of the F-values, Probe set IDs for the
-% DRGs and the time-course expresion level for the DRGs.
-for i = 1:N
-  cutoff = 3000;
-  IND_DRG{i} = INDF{i}(1:cutoff);
-  GID_DRG{i} = gid(IND_DRG{i});
-  DRG{i}= gexp2{i}(IND_DRG{i},:)';
-end
-
-Col = 'A':'X';
-
-for i = 1:N
-  xlRange = [Col(i) '1'];
-  create_exel_file('F_value.xls',F{i},1,xlRange,path);
-  create_exel_file('Index_Ftest.xls',INDF{i},1,xlRange,path);
-  create_exel_file('Index_Ftest_DRG.xls',IND_DRG{i},1,xlRange,path);
-  create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG{i},1,xlRange,path);
-  create_exel_file('DRG.xls',DRG{i}',i,[],path);
-end
-
-disp(strcat('This is a link to the F statistics <a href="',flder,'/F_value.xls">F_value</a>.'));
-disp(strcat('This is a link to the Index F statistics <a href="',flder,'/Index_Ftest.xls">Index_Ftest</a>.'));
-disp(strcat('This is a link to the Index of the DRGs <a href="',flder,'/Index_Ftest_DRG.xls">Index_DRGs</a>.'));
-disp(strcat('This is a link to the Probe set Ids for TRGs <a href="',flder,'/Probe_set_ID_Ftest_DRG.xls">Probe_sets_DRGs</a>.'));
-disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_DRG</a>.'));
 
 %%
 
@@ -467,38 +175,9 @@ disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_
 
 %  ---------------  Surfaces of Top Genes from F-test  ------------------------
 
-h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
-ind= 0 ;
 
-for sub = 1:N
 
-    surf(yhat{sub}(:,IND_DRG{i}),'FaceColor','interp','EdgeColor','none');
-
-    ylim([1,length(Time{sub})]);
-
-    set(gca,'YTick',1:length(Time{sub}),'Yticklabel',Time{sub});
-    set(gca,'FontSize',11);
-
-    xlim([1,cutoff]);
-
-    zlim([min(min(yhat{sub}(:,IND_DRG{i}))),max(max(yhat{sub}(:,IND_DRG{i})))]);
-
-    hold on;
-    
-    ylabel('Time', 'FontSize', axisLabelFontSize);
-
-    xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
-
-    zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-    title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
-
-    hold off;
-
-end
-
-print('Paper_04.pdf','-dpdf');
 
 %%
 
@@ -547,145 +226,8 @@ print('Paper_04.pdf','-dpdf');
 
 %
 
+[std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, path, flder, GID_DRG, true, true, true);
 
-
-%  -----------------------------------------------------------------------
-
-%                       Cluster (IHC)
-
-%  -----------------------------------------------------------------------
-
-
-
-%Theshold
-
-alpha = 0.75;
-
-
-
-for  i = 1:N
-
-    std_data{i}     = zscore(gexp2{i}(INDF{i}(1:cutoff),:)')';
-
-    [fidxcluster{i},rmclusters{i},c{i},mean_clusters_mat{i},clusters{i}] = IHC(std_data{i},alpha);
-
-    n_clusters{i}   = cellfun(@(x) size(x,1),clusters{i},'UniformOutput', false);
-
-end
-
-
-
-for  i = 1:N
-
-for l = 1:length(fidxcluster{i})
-
-        Cluster_IDX{i}(fidxcluster{i}{l}) = l;
-
-end
-
-end
-
-
-
-
-
-    for i = 1:N
-
-        create_exel_file('Cluster_IDX.xls',Cluster_IDX{i}',i,[],path);
-
-    end
-
-    
-
-disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
-
-for i=1:N
-
-    [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
-    
-    number_of_clusters = size(mean_clusters_mat{i},1);
-    number_of_subplots = number_of_clusters;
-    
-    % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
-    number_of_subplots_per_page = 30;
-    number_of_columns_per_page = 6;    
-    number_of_rows_per_page = number_of_subplots_per_page / number_of_columns_per_page;
-    
-    number_of_pages = ceil(number_of_subplots / number_of_subplots_per_page);
-    number_of_plots_in_last_page = number_of_subplots_per_page;
-    if mod(number_of_subplots, number_of_subplots_per_page)~=0
-      number_of_plots_in_last_page = mod(number_of_subplots, number_of_subplots_per_page);
-    end
-    
-    cluster_number = 1;
-
-    for b = 1:number_of_pages
-%      for b = 1:1 % For testing purposes, output only the first page.
-
-	number_of_plots_in_current_page = number_of_subplots_per_page;
-	if(b == number_of_pages) %i.e., if this is the last page
-	  number_of_plots_in_current_page = number_of_plots_in_last_page;
-	end
-
-        h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
-        axisLabelFontSize = 9;
-        
-        set(gcf, 'PaperPositionMode', 'manual');
-	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperPosition', [0 0 75 50]);
-	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperSize', [85 50]);
-
-        for gen = 1:number_of_plots_in_current_page
-
-            subplot(number_of_rows_per_page,number_of_columns_per_page,gen)
-
-            ind2 = ind(gen+(b-1).*number_of_plots_in_current_page);
-
-            plot(clusters{i}{ind2}','-*b');
-            
-            set(gca,'XTick', 1:size(Time{i}));
-	    set(gca,'XTickLabel', Time{i});
-
-            xlabel('Time', 'FontSize', axisLabelFontSize);
-
-            ylabel('Expression', 'FontSize', axisLabelFontSize);
-
-            hold on;
-
-            plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5);
-
-            xlim([0,size(mean_clusters_mat{i}(ind2,:),2)]);
-
-            ylim([min(min(clusters{i}{ind2}))-.05,max(max(clusters{i}{ind2}))+.05]);
-
-            v = axis;
-
-            number_of_genes_in_current_cluster  = s(gen+(b-1).*number_of_plots_in_current_page);
-            
-            handle=title(['M' num2str(cluster_number) ' (' num2str(number_of_genes_in_current_cluster) ' genes)' ]);
-
-            set(handle,'Position',[2.5 v(4)*1. 0]);
-
-            hold off;
-            
-            cluster_number = cluster_number + 1;
-
-        end
-
-        print(h8,'-dpsc2', '-append', 'Cluster.ps');
-
-    end
-
-end
-
-
-
-% The temporal gene response modules for each subject are shown in the
-
-% following file:
-
-disp(strcat('This is a link to the Cluster Plots <a href="',flder,'/Cluster.ps">Cluster_Plots</a>.'));
 
 %%
 
@@ -696,136 +238,6 @@ disp(strcat('This is a link to the Cluster Plots <a href="',flder,'/Cluster.ps">
 % the clusters and large-size modules (LSM) which contain over 100 genes in each cluster.
 
 
-
-for k=1:N
-
-    sz{k}       = cell2mat(n_clusters{k});
-
-    ind         = find(sz{k}>99);
-
-    ind1        = find(sz{k}>9 & sz{k}<100);
-
-    ind2        = find(sz{k}>1 & sz{k}<10);
-
-    ind3        = find(sz{k}==1);
-
-    lrg_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind}));
-
-    med_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind1}));
-
-    smal_id{k}  = GID_DRG{k}(vertcat(fidxcluster{k}{ind2}));
-
-    sin_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind3}));
-
-    lrg_ts{k}   = mean_clusters_mat{k}(ind,:);
-
-    med_ts{k}   = mean_clusters_mat{k}(ind1,:);
-
-    smal_ts{k}  = mean_clusters_mat{k}(ind2,:);
-
-    sin_ts{k}   = mean_clusters_mat{k}(ind3,:);
-
-    sizes{k}    = [size(sz{k},1),length(ind),length(ind1),length(ind2),length(ind3)];
-
-end
-
-GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
-
-axisLabelFontSize = 30;
-
-set(gcf, 'PaperPositionMode', 'manual');
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperPosition', [0 -2 50 40]);
-set(gcf, 'PaperUnits', 'centimeters');
-set(gcf, 'PaperSize', [65 40]);
-set(gca,'FontSize',11);
-
-Figure1 = subplot(2,2,1);
-set(gca,'FontSize',11);
-
-if(~isempty(lrg_ts{1}));
-
-ribbon(lrg_ts{1}');
-
-ylim([1,size(lrg_ts{1},2)]);
-
-if size(lrg_ts{1},1) > 1
-  xlim([1,size(lrg_ts{1},1)]);
-end
-
-zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))]);
-
-ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-title('LSM');
-
-end
-
-Figure2 = subplot(2,2,2);
-set(gca,'FontSize',11);
-
-ribbon(med_ts{1}');
-
-ylim([1,size(med_ts{1},2)]);
-
-if size(med_ts{1},1) > 1
-  xlim([1,size(med_ts{1},1)]);
-end
-zlim([min(min(med_ts{1})),max(max(med_ts{1}))]);
-
-ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-title('MSM');
-
-Figure3 = subplot(2,2,3);
-set(gca,'FontSize',11);
-
-ribbon(smal_ts{1}');
-
-ylim([1,size(smal_ts{1},2)]);
-
-xlim([1,size(smal_ts{1},1)]);
-
-zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))]);
-
-ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-title('SSM');
-
-Figure4 = subplot(2,2,4);
-set(gca,'FontSize',11);
-
-ribbon(sin_ts{1}');
-
-ylim([1,size(sin_ts{1},2)]);
-
-xlim([1,size(sin_ts{1},1)]);
-
-zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))]);
-
-ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-title('SGM');
-
-print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
-
-% *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
-
-col_hed = {'No. of Modules','No. of LSM','No. of MSM','No. of SSM','No. of SGM'};
-
-row_hed = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, 1:N, 'UniformOutput', false))');
-
-tmp = round2(vertcat(sizes{:}));
-
-makeHtmlTable(tmp,[],row_hed,col_hed);
 
 % Caption = 'The number of clusters for each subject and the number of clusters in each category.'; 
 
@@ -886,11 +298,7 @@ makeHtmlTable(tmp,[],row_hed,col_hed);
 % classify the groups of similar annotations according kappa values. In this sense, the more common
 % genes annotations share, the higher chance they will be grouped together.
 
-[uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
-clusters_sorted_by_size = fidxcluster{i}(cluster_indexes_by_size);
-
-gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, true, true);
-
+[cluster_indexes_by_size, clusters_sorted_by_size] = step_5(i, fidxcluster, gid, IND_DRG, path);
 
 %%
 
@@ -1028,62 +436,7 @@ gene_annotation(gid, IND_DRG{i}, clusters_sorted_by_size, 'Annotation', path, tr
 
 % 
 
-% %Obtain Smoothed Estimates of the derivative and trajectory.
-for i = 1:N
-  for j = 1:length(clusters_sorted_by_size)
-    group               = IND_DRG{i}(clusters_sorted_by_size{j});
-    meanfd              = mean_grouped(fdgenens{i},group);
-    TimeEx{i}           = linspace(Time{i}(1),Time{i}(end),100)';
-    yhatEx{i}(:,j)      = eval_fd(TimeEx{i}, meanfd);
-    dyhatEx{i}(:,j)     = eval_fd(TimeEx{i}, meanfd,1);
-  end
-end
-
-
-
-% Obtain LASSO estimate of the parameters.
-EAS   = cell(N);
-Stats = cell(N);
-
-for i = 1:N
-  for j = 1:size(dyhatEx{i},2)
-    [EAS{i}(:,j),Stats{i}{j}] = lasso(yhatEx{i},dyhatEx{i}(:,j));
-  end       
-  G{i} = (EAS{i}~=0); 
-  A0{i} = EAS{i}(G{i});
-end
-
-for i = 1:N
-  tmp_ind = find(EAS{i}');
-  A_tmp   = EAS{i}';
-  create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-  create_exel_file('Network_matrix.xls',EAS{i},i,[],path);
-  csvwrite('Network_matrix.csv',EAS{i});  
-end
-disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
-disp(strcat('This is the full matrix of parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks_matrix.xls">Network</a>.'));
-
-
-% Obtain Refined estimates of the parameters.
-
-%  optim_options = optimset('Display', 'iter','Algorithm','levenberg-marquardt','TolFun',1.0000e-08,'TolX', 1.0000e-08);
-
-% % 
-
-A = cell(N);
-for i = 1:N 
-  A{i} = EAS{i};%lsqnonlin(@rss_sp,A0{i},[],[],optim_options,TimeEx{i},yhatEx{i},G{i});
-end
-
-for i = 1:N
-  tmp_ind = find(A{i}');
-  A_tmp   = A{i}';
-  create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-  create_exel_file('Networks_Refined_matrix.xls',A{i},i,[],path);
-end
-
-disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'));
-disp(strcat('This is the matrix with the estimated parameters of the ODE <a href="',flder,'/Networks_Refined_matrix.xls">Parameters</a>.'));
+[EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time, path, flder);
 
 % %% Obtain Network Analysis of the gene regulation networks (GRNs).
 
@@ -1104,20 +457,6 @@ disp(strcat('This is the matrix with the estimated parameters of the ODE <a href
 % %       graph_meandist           - Calculate mean distance of the graph.
 
 % %       graph_density            - Calculate density of the graph.
-
- for i = 1:N
-
- GS(i,:) = [graph_clustercoeff(sparse(G{i})),graph_diameter(G{i}),graph_meandist(G{i}),graph_density(G{i})];
-
- end
-
- 
-
-for i = 1:N
-
-create_exel_file('Graph Statistics.xls',GS,i,[],path);
-
-end
 
 % %   Node Statistics
 
@@ -1165,86 +504,4 @@ end
 
 % %
 
-  for i = 1:N
-
-  NS{i} = [bridging_centrality(G{i}),closeness_centrality(sparse(G{i})),eccentricity_centrality(sparse(G{i}))'];
-
-  SWI(i) = smallworldindex(G{i});
-
-  end
-
-
-
-for i = 1:N
-  create_exel_file('Node Statistics.xls',GS,i,[],path);
-end
-
-% % % %   Visualization
-
-adjacency_matrix = EAS{i};
-
-%  adjacency_matrix = [1 1 1;  0 1 1; 1 0 0]; % example
-
-number_of_clusters = size(adjacency_matrix,1);
-
-dependency_matrix = repmat({''}, [number_of_clusters 2]);
-
-module_name_preffix = 'M';
-withinFieldSeparator = ';';
-betweenFieldSeparator = ',';
-
-row_labels = repmat({''}, [number_of_clusters 1]);
-column_labels = {'' 'Out' 'In'};
-
-for u=1:number_of_clusters
-  row_labels{u} = strcat(module_name_preffix, num2str(u));
-  for v=1:number_of_clusters
-    if adjacency_matrix(u,v) ~= 0
-      if strcmp(dependency_matrix{u, 2}, '')
-	dependency_matrix{u, 2} = strcat(module_name_preffix, num2str(v));
-      else
-	dependency_matrix{u, 2} = strcat(dependency_matrix{u, 2}, withinFieldSeparator, module_name_preffix, num2str(v));
-      end
-      if strcmp(dependency_matrix{v, 1}, '')
-	dependency_matrix{v, 1} = strcat(module_name_preffix, num2str(u));
-      else
-	dependency_matrix{v, 1} = strcat(dependency_matrix{v, 1}, withinFieldSeparator, module_name_preffix, num2str(u));
-      end
-    end
-  end
-end
-
-matrix_to_save = [column_labels; [row_labels dependency_matrix]];
-
-create_exel_file('Dependency_matrix.xls',matrix_to_save,i,[],path);
-disp(strcat('This is the matrix listing the <a href="',flder,'/Dependency_matrix.xls">dependencies between GRMs</a>.'));
-
-
-matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix)]];
-
-create_exel_file('Adjacency_matrix.xls',matrix_to_save,i,[],path);
-disp(strcat('This is the matrix listing the <a href="',flder,'/Adjacency_matrix.xls">dependencies between GRMs</a>.'));
-
-% View network in a plot
-tgfFile = fopen('Network.tgf','w');
-sifFile = fopen('Network.sif','w');
-
-i = 1;
-for u = 1:length(EAS{i})
-  for v = 1:length(EAS{i})
-    if(EAS{i}(u,v) ~= 0)
-      fprintf(tgfFile,'"Cluster %1.1i"	"Cluster %1.1i"\n',u,v);
-      fprintf(sifFile,'"Cluster %1.1i"	pp	"Cluster %1.1i"\n',u,v);
-    end
-  end
-end
-
-fclose(tgfFile);
-fclose(sifFile);
-
-disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into Cytoscape.'));
-disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into BioLayout Express 3D.'));
-
-if isunix()
-  [x, y]=system(['Rscript ', path, 'plot_network.R', ' Network_matrix.csv']);
-end
+[GS, NS, SWI] = step_8(N, G, path, EAS, flder);
