@@ -42,8 +42,8 @@ function compare()
     
     flder = strcat(path,'Results/',GEO_number,'/',con,'/Comparison/');
     
-    mkdir(flder)
-    cd(flder)
+    mkdir(flder);
+    cd(flder);
     
     options = struct('format','html','outputDir',flder,'showCode',true);
     
@@ -73,11 +73,14 @@ function compare()
     clusters_2{i} = clusters_2{i}(cluster_indexes_by_size);
     mean_clusters_mat_2{i} = mean_clusters_mat_2{i}(cluster_indexes_by_size,:);
     
-    % The following section outputs the comparison plots.
-    output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_clusters_mat, fidxcluster_2, clusters_2, mean_clusters_mat_2, gexp2, gexp2_2, IND_DRG, IND_DRG_2, Time, Time_2, subject_name, subject_name_2, path, flder);
+    array_indices_of_first_subjects_DRGs = IND_DRG{i};
+    
+    first_subjects_clusters = fidxcluster{i};
     
     name_of_first_subject = subject_name;
     name_of_second_subject = subject_name_2;
+    
+    second_subjects_gene_expression = gexp2_2{i};
     
     first_subjects_expression_by_cluster = clusters{i};
     second_subjects_expression_by_cluster = clusters_2{i};
@@ -88,6 +91,8 @@ function compare()
     time_points_of_first_subject = Time{i};
     time_points_of_second_subject = Time_2{i};
     
+    output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs, path);
+    
     plot_cluster_matches(name_of_first_subject, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_expression_by_cluster, means_of_second_subjects_clusters, time_points_of_second_subject);
     
     close all;
@@ -95,12 +100,17 @@ function compare()
   end
 end
 
+
 function plot_cluster_matches(name_of_first_subject, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_expression_by_cluster, means_of_second_subjects_clusters, time_points_of_second_subject)
 
     x = means_of_first_subjects_clusters;
     y = means_of_second_subjects_clusters;
     
     z = corr(x', y');
+    
+    output_folder = 'GRM_matching';
+    mkdir(output_folder);
+    cd(output_folder);
     
     for current_cluster = 1:size(z,1)
       module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)));
@@ -134,18 +144,18 @@ function plot_cluster_matches(name_of_first_subject, first_subjects_expression_b
       
       close all;
     end
-
+    cd('..');
 end
 
 function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points_of_first_subject, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_of_second_subject, y_axis_limits)
-      h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
+      h8=figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
       axisLabelFontSize = 9;
 	    
       set(gcf, 'PaperPositionMode', 'manual');
       set(gcf, 'PaperUnits', 'centimeters');
-      set(gcf, 'PaperPosition', [0 0 75 50]);
+      set(gcf, 'PaperPosition', [0 0 45 20]);
       set(gcf, 'PaperUnits', 'centimeters');
-      set(gcf, 'PaperSize', [85 50]);
+      set(gcf, 'PaperSize', [45 20]);
       
       % First subplot      
       subplot(1,2,1);
@@ -166,7 +176,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       v = axis;
 
-      handle=title([name_of_first_subjects_cluster, ' (', name_of_first_subject, ')']);
+      handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
 
       set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -191,28 +201,28 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       v = axis;
       
-      handle=title([name_of_second_subjects_cluster, ' (', name_of_second_subject, ')']);
+      handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
 
       set(handle,'Position',[2.5 v(4)*1. 0]);
 
       hold off;
 end
 
-
-function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_clusters_mat, fidxcluster_2, clusters_2, mean_clusters_mat_2, gexp2, gexp2_2, IND_DRG, IND_DRG_2, Time, Time_2, subject_name, subject_name_2, path, flder)
-  for i=1:N
-    
+function output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs, path)
+  
+      output_folder = 'Gene_expression_of_both_subjects';
+      mkdir(output_folder);
+      cd(output_folder);
+      
       p_values = [];
       alpha_threshold = 0.05;
       p_value_output_matrix = {'GRM number', 'p-value', ['p-value < ' num2str(alpha_threshold)]};
-
-      [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
       
-      number_of_clusters = size(mean_clusters_mat{i},1);
+      number_of_clusters = size(means_of_first_subjects_clusters,1);
 
       number_of_subplots = 2 * number_of_clusters;
       
-      number_of_subplots_per_page = 4;
+      number_of_subplots_per_page = 2;
       number_of_columns_per_page = 2;    
       number_of_rows_per_page = number_of_subplots_per_page / number_of_columns_per_page;
       
@@ -232,26 +242,23 @@ function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_c
 	  number_of_plots_in_current_page = number_of_plots_in_last_page;
 	end
 
-	h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
+	h8=figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
 	axisLabelFontSize = 9;
 	    
 	set(gcf, 'PaperPositionMode', 'manual');
 	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperPosition', [0 0 75 50]);
+	set(gcf, 'PaperPosition', [0 0 45 20]);
 	set(gcf, 'PaperUnits', 'centimeters');
-	set(gcf, 'PaperSize', [85 50]);
+	set(gcf, 'PaperSize', [45 20]);
 
 	gen = 1;
 	    
 	while gen <= number_of_plots_in_current_page
-	
-  %  	ind2 = cluster_indexes_by_size(currentClusterIndex);
-	  ind2 = currentClusterIndex;
 	  
-	  expression_of_first_subject = clusters{i}{ind2};
+	  expression_of_first_subject = first_subjects_expression_by_cluster{currentClusterIndex};
 	
 	  % THIS MAY NOT BE CORRECT.
-	  expression_of_second_subject = gexp2_2{i}(IND_DRG{i}(fidxcluster{i}{ind2}),:);
+	  expression_of_second_subject = second_subjects_gene_expression(array_indices_of_first_subjects_DRGs(first_subjects_clusters{currentClusterIndex}),:);
 	    
 	  % Plot the expression of the first individual
 
@@ -259,22 +266,22 @@ function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_c
 
 	  plot(expression_of_first_subject','-*b');
 	  
-	  set(gca,'XTick', 1:size(Time{i}));
-	  set(gca,'XTickLabel', Time{i});
+	  set(gca,'XTick', 1:size(time_points_of_first_subject));
+	  set(gca,'XTickLabel', time_points_of_first_subject);
 
 	  xlabel('Time', 'FontSize', axisLabelFontSize);
 	  ylabel('Expression', 'FontSize', axisLabelFontSize);
 
 	  hold on;
 
-	  plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5);
+	  plot(means_of_first_subjects_clusters(currentClusterIndex,:),'o-r','LineWidth',1.5);
 
 	  y_axis_limits = [min([min(expression_of_first_subject), min(expression_of_second_subject)])-.05,max([max(expression_of_first_subject), max(expression_of_second_subject)])+.05];
 	  ylim(y_axis_limits);
 
 	  v = axis;
 
-	  handle=title(['Gene expression of M',num2str(currentClusterIndex), ' (', subject_name, ')']);
+	  handle=title(['Expression of genes in M',num2str(currentClusterIndex), ' from ', name_of_first_subject, '']);
 
 	  set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -289,14 +296,14 @@ function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_c
 
 	  plot(expression_of_second_subject','-*b');
 	  
-	  % The following line is intended to plot the mean of the current cluster but it deletes the
-	  % plotted expression of the second subject in the figure. Commented out for now.
-  %  	plot(mean_clusters_mat{i}(ind2,:),'o-g','LineWidth',1.5);
+	  hold on;
+	  
+%  	  plot(means_of_first_subjects_clusters(currentClusterIndex,:),'o-g','LineWidth',1.5);
 
 	  ylim(y_axis_limits);
 	  
-	  set(gca,'XTick', 1:size(Time{i}));
-	  set(gca,'XTickLabel', Time{i});
+	  set(gca,'XTick', 1:size(time_points_of_first_subject));
+	  set(gca,'XTickLabel', time_points_of_first_subject);
 
 	  xlabel('Time', 'FontSize', axisLabelFontSize)
 
@@ -306,7 +313,7 @@ function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_c
 
 	  v = axis;
 
-	  handle=title(['Gene expression of M',num2str(currentClusterIndex), ' (', subject_name_2, ')']);
+	  handle=title(['Expression of the same genes in ', name_of_second_subject, '']);
 
 	  set(handle,'Position',[2.5 v(4)*1. 0]);
 
@@ -318,17 +325,18 @@ function output_comparison_plots(i, N, n_clusters, fidxcluster, clusters, mean_c
 	  
 	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value), num2str(p_value < alpha_threshold)}];
 	  
+	  print(h8,'-dpdf', ['M' num2str(currentClusterIndex) '.pdf']);
+	  
 	  currentClusterIndex = currentClusterIndex + 1;
 
 	  gen = gen + 1;
 
 	end
-	    
-	print(h8,'-dpsc2', '-append', 'Comparison.ps');
-	
-	create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,i,[],path);
 
 	close all;
       end
-    end % for i=1:N
+      
+      create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,1,[],path);
+      
+      cd('..');
 end

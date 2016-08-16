@@ -51,11 +51,9 @@ function main()
       conditions_analyzed{cont} = con;
 
       %Run pipeline each subject at a time
-      options = struct('format','html','outputDir',flder,'showCode',false);
-      publish('Paper.m',options)
-      web('Paper.html', '-browser')
-
-      save(strcat(GEO_number,con,date))
+      options = struct('format','html','outputDir',flder,'showCode',true);
+      publish('Paper.m',options);
+      web('Paper.html', '-browser');
 
       prompt = '\nWould you like to start a new analysis with a different set of samples (i.e., a different subject/condition)? ([1 "yes", 0 "no"]) ';
       cont   = input(prompt);

@@ -35,7 +35,7 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
 	      'WORMBASE_GENE_ID'
 	      'WORMPEP_ID'
 	      'ZFIN_ID'};
-  idType = idTypes{9}; % This is so wrong but no solution in sight yet.
+  idType = idTypes{1}; % This is so wrong but no solution in sight yet.
   
   gene_ids = full_list_of_gene_ids(indices_of_top_DRGs);
 
@@ -107,12 +107,12 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
   write_gene_cluster_to_csv_file(full_list_of_gene_ids(indices_of_top_DRGs(:)),strcat('All_DRGs', '.txt'));
   for cluster_iteration_ID = 1:length(gene_clusters)
     % First create the subfolder for the current cluster.
-    mkdir(strcat('Cluster_',num2str(cluster_iteration_ID)));
-    cd(strcat('Cluster_',num2str(cluster_iteration_ID)));
+    mkdir(strcat('M',num2str(cluster_iteration_ID)));
+    cd(strcat('M',num2str(cluster_iteration_ID)));
     
     % Then output all genes in the current cluster, for reference.
     ids_of_genes_in_current_cluster = full_list_of_gene_ids(indices_of_top_DRGs(gene_clusters{cluster_iteration_ID}));
-    write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,strcat('Genes_in_cluster_', num2str(cluster_iteration_ID), '.txt'));
+    write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,strcat('Genes_in_M', num2str(cluster_iteration_ID), '.txt'));
     
     header = [];
     if includeChartReport && ~isempty(chartReport)
@@ -153,7 +153,7 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
 	fileFieldSeparator=',';
 	withinFieldSeparator = ';';
 	
-	fid = fopen(strcat('Chart_report_of_cluster_', num2str(cluster_iteration_ID),'.csv'), 'w') ;
+	fid = fopen(strcat('Chart_report_of_M', num2str(cluster_iteration_ID),'.csv'), 'w') ;
 		for row=1:number_of_entries_in_chart_report_of_current_cluster
 	  fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n', strrep(chart_report_of_current_cluster{row, 1}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 2}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 3}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 4}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 5}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 6}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 7}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 8}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 9}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 10}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 11}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 12}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 13}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 14}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 15}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 16}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 17}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 18}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 19}, fileFieldSeparator, withinFieldSeparator));
 	end
@@ -165,7 +165,7 @@ function gene_annotation(full_list_of_gene_ids, indices_of_top_DRGs, gene_cluste
     if includeTableReport && ~isempty(tableReport)
       [number_of_entries_in_table_report_of_current_cluster uselessVariable] = size(table_report_of_current_cluster);
       if number_of_entries_in_table_report_of_current_cluster > 0
-	fileID = fopen(strcat('Table_report_of_cluster_', num2str(cluster_iteration_ID),'.csv'),'w');
+	fileID = fopen(strcat('Table_report_of_M', num2str(cluster_iteration_ID),'.csv'),'w');
 	fileFieldSeparator=',';
 	withinFieldSeparator = ';';
 	for index_in_table_report_of_current_cluster=1:number_of_entries_in_table_report_of_current_cluster
