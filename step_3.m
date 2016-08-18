@@ -1,5 +1,6 @@
-function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, path, flder, gid, outputFig3, outputFiles)
+function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, number_of_top_DRGs_considered, outputFig3, outputFiles)
 
+  flder = pwd;
   %  -----------------------------------------------------------------------
 
   %                        FDA
@@ -43,8 +44,12 @@ function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG
     [SF, INDF{i}] = sort(F{i},'descend');
   end
   
+  cutoff = size(INDF{i},1);
+  if(number_of_top_DRGs_considered>0 && number_of_top_DRGs_considered<=size(INDF{i},1))
+    cutoff = number_of_top_DRGs_considered;
+  end
+  
   for i = 1:N
-    cutoff = 3000;
     IND_DRG{i} = INDF{i}(1:cutoff);
     GID_DRG{i} = gid(IND_DRG{i});
     DRG{i}= gexp2{i}(IND_DRG{i},:)';
@@ -99,13 +104,15 @@ function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG
   
     Col = 'A':'X';
 
+    global Dynamics4GenomicBigData_HOME;
+    
     for i = 1:N
       xlRange = [Col(i) '1'];
-      create_exel_file('F_value.xls',F{i},1,xlRange,path);
-      create_exel_file('Index_Ftest.xls',INDF{i},1,xlRange,path);
-      create_exel_file('Index_Ftest_DRG.xls',IND_DRG{i},1,xlRange,path);
-      create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG{i},1,xlRange,path);
-      create_exel_file('DRG.xls',DRG{i}',i,[],path);
+      create_exel_file('F_value.xls',F{i},1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Index_Ftest.xls',INDF{i},1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Index_Ftest_DRG.xls',IND_DRG{i},1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG{i},1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('DRG.xls',DRG{i}',i,[],Dynamics4GenomicBigData_HOME);
     end
 
     disp(strcat('This is a link to the F statistics <a href="',flder,'/F_value.xls">F_value</a>.'));
@@ -115,8 +122,8 @@ function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG
     disp(strcat('This is a link to the DRG values <a href="',flder,'/DRG.xls">Index_DRG</a>.'));
     
     for i = 1:N
-      create_exel_file('Fitted_curves.xls',yhat{i}',i,[],path);
-      create_exel_file('Derivative_Fitted_Curves.xls',dyhat{i}',i,[],path);
+      create_exel_file('Fitted_curves.xls',yhat{i}',i,[],Dynamics4GenomicBigData_HOME);
+      create_exel_file('Derivative_Fitted_Curves.xls',dyhat{i}',i,[],Dynamics4GenomicBigData_HOME);
     end
 
     disp(strcat('This is a link to the Fitted Curves <a href="',flder,'/Fitted_curves.xls">Fitted_Curves</a>.'));

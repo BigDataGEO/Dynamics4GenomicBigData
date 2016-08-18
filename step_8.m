@@ -1,11 +1,14 @@
-function [GS, NS, SWI] = step_8(N, G, path, EAS, flder)
+function [GS, NS, SWI] = step_8(N, G, EAS)
+
+  global Dynamics4GenomicBigData_HOME;
+  flder = pwd;
 
   for i = 1:N
     GS(i,:) = [graph_clustercoeff(sparse(G{i})),graph_diameter(G{i}),graph_meandist(G{i}),graph_density(G{i})];
   end
 
   for i = 1:N
-    create_exel_file('Graph Statistics.xls',GS,i,[],path);
+    create_exel_file('Graph Statistics.xls',GS,i,[],Dynamics4GenomicBigData_HOME);
   end
   
   for i = 1:N
@@ -14,7 +17,7 @@ function [GS, NS, SWI] = step_8(N, G, path, EAS, flder)
   end
 
   for i = 1:N
-    create_exel_file('Node Statistics.xls',GS,i,[],path);
+    create_exel_file('Node Statistics.xls',GS,i,[],Dynamics4GenomicBigData_HOME);
   end
   
   % % % %   Visualization
@@ -54,13 +57,13 @@ function [GS, NS, SWI] = step_8(N, G, path, EAS, flder)
 
   matrix_to_save = [column_labels; [row_labels dependency_matrix]];
 
-  create_exel_file('Dependency_matrix.xls',matrix_to_save,i,[],path);
+  create_exel_file('Dependency_matrix.xls',matrix_to_save,i,[],Dynamics4GenomicBigData_HOME);
   disp(strcat('This is the matrix listing the <a href="',flder,'/Dependency_matrix.xls">dependencies between GRMs</a>.'));
 
 
   matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix)]];
 
-  create_exel_file('Adjacency_matrix.xls',matrix_to_save,i,[],path);
+  create_exel_file('Adjacency_matrix.xls',matrix_to_save,i,[],Dynamics4GenomicBigData_HOME);
   disp(strcat('This is the matrix listing the <a href="',flder,'/Adjacency_matrix.xls">dependencies between GRMs</a>.'));
 
   % View network in a plot
@@ -84,5 +87,5 @@ function [GS, NS, SWI] = step_8(N, G, path, EAS, flder)
   disp(strcat('This is <a href="',flder,'/Network.sif">the network file</a> that can be imported into BioLayout Express 3D.'));
 
   if isunix()
-    [x, y]=system(['Rscript ', path, 'plot_network.R', ' Network_matrix.csv']);
+    [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' Network_matrix.csv']);
   end

@@ -1,6 +1,6 @@
-function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(Data, Subject, Pos, str_ind, outputFig1, outputFig2)
+function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Subject, Pos, str_ind, outputFig1, outputFig2)
 
-  [gexp, gexp2, Time, N, n, subject_name] = get_preprocessed_data(Data, Subject, Pos, str_ind);
+  [gexp, gexp2, Time, N, n, subject_name] = get_preprocessed_data(gene_expression_of_subject_across_time_points, Subject, Pos, str_ind);
   
   if(outputFig1)
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);

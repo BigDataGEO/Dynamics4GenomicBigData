@@ -1,4 +1,7 @@
-function [EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time, path, flder)
+function [EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time)
+  
+  global Dynamics4GenomicBigData_HOME;
+  flder = pwd;
 
   % %Obtain Smoothed Estimates of the derivative and trajectory.
   for i = 1:N
@@ -28,8 +31,8 @@ function [EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens,
   for i = 1:N
     tmp_ind = find(EAS{i}');
     A_tmp   = EAS{i}';
-    create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-    create_exel_file('Network_matrix.xls',EAS{i},i,[],path);
+    create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],Dynamics4GenomicBigData_HOME);
+    create_exel_file('Network_matrix.xls',EAS{i},i,[],Dynamics4GenomicBigData_HOME);
     csvwrite('Network_matrix.csv',EAS{i});  
   end
   disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
@@ -49,8 +52,8 @@ function [EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens,
   for i = 1:N
     tmp_ind = find(A{i}');
     A_tmp   = A{i}';
-    create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],path);
-    create_exel_file('Networks_Refined_matrix.xls',A{i},i,[],path);
+    create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],Dynamics4GenomicBigData_HOME);
+    create_exel_file('Networks_Refined_matrix.xls',A{i},i,[],Dynamics4GenomicBigData_HOME);
   end
 
   disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'));

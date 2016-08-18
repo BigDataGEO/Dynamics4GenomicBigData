@@ -164,7 +164,7 @@
 
 % can be considered as exhibiting notable changes with respect to time.
 
-[fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, path, flder, gid, true, true);
+[fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, 3000, true, true);
 
 
 %%
@@ -226,7 +226,7 @@
 
 %
 
-[std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, path, flder, GID_DRG, true, true, true);
+[std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, true, true, true);
 
 
 %%
@@ -298,7 +298,7 @@
 % classify the groups of similar annotations according kappa values. In this sense, the more common
 % genes annotations share, the higher chance they will be grouped together.
 
-[cluster_indexes_by_size, clusters_sorted_by_size] = step_5(i, fidxcluster, gid, IND_DRG, path);
+[cluster_indexes_by_size, clusters_sorted_by_size] = step_5(fidxcluster{1}, gid, IND_DRG{1});
 
 %%
 
@@ -436,7 +436,7 @@
 
 % 
 
-[EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time, path, flder);
+[EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time);
 
 % %% Obtain Network Analysis of the gene regulation networks (GRNs).
 
@@ -504,4 +504,4 @@
 
 % %
 
-[GS, NS, SWI] = step_8(N, G, path, EAS, flder);
+[GS, NS, SWI] = step_8(N, G, EAS);

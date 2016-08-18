@@ -1,4 +1,6 @@
-function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, path, flder, GID_DRG, outputFiles, outputClusterFig, outputClusterByTypeFig)
+function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, outputFiles, outputClusterFig, outputClusterByTypeFig)
+
+  flder=pwd;
   
   %  ---------------  Surfaces of Top Genes from F-test  ------------------------
 
@@ -57,8 +59,9 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
   end
 
   if(outputFiles)
+    global Dynamics4GenomicBigData_HOME;
     for i = 1:N
-      create_exel_file('Cluster_IDX.xls',Cluster_IDX{i}',i,[],path);
+      create_exel_file('Cluster_IDX.xls',Cluster_IDX{i}',i,[],Dynamics4GenomicBigData_HOME);
     end
     
     disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));

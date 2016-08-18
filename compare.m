@@ -1,23 +1,10 @@
 function compare()
 
-  close all;
-  clc;
-  clear;
-
-  path = strcat(pwd,'/');
-
-  %if first time running on computer run line 9 and 10 
-  %cd([path,'SBEToolbox-1.3.3\'])
-  %install
-
-  %Add Paths
-  addpath(path)
-  addpath(genpath([path,'fdaM/']))
-  addpath(genpath([path,'SBEToolbox-1.3.3/']))
+  set_paths_and_imports;
+  
+  global Dynamics4GenomicBigData_HOME;
 
   [~,GEO_num] = xlsread('GEO_list.xlsx');
-
-  py.importlib.import_module('DAVIDWS');
 
   for i = 1:size(GEO_num,1)
 
@@ -40,7 +27,7 @@ function compare()
     con = strrep(con,'/','_');
     con = strrep(con,'.','_');
     
-    flder = strcat(path,'Results/',GEO_number,'/',con,'/Comparison/');
+    flder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number,'/',con,'/Comparison/');
     
     mkdir(flder);
     cd(flder);
@@ -49,13 +36,13 @@ function compare()
     
     % Steps 2, 3, and 4 of the pipeline are run for the first subject.
     [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(Data, Subject, Pos, str_ind, false, false);  
-    [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, path, flder, gid, false, false);  
-    [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, path, flder, GID_DRG, false, false, false);
+    [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, 3000, false, false);  
+    [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, false, false, false);
     
     % Steps 2, 3, and 4 of the pipeline are run for the second subject.
     [gexp_2, gexp2_2, Time_2, N_2, n_2, subject_name_2, yCR_2] = step_2(Data_2, Subject_2, Pos_2, str_ind_2, false, false);
-    [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, path, flder, gid, false, false);
-    [std_data_2, fidxcluster_2,rmclusters_2,c_2,mean_clusters_mat_2,clusters_2, n_clusters_2, Cluster_IDX_2] = step_4(N_2, i, yhat_2, IND_DRG_2, Time_2, cutoff_2, axisLabelFontSize_2, gexp2_2, INDF_2, path, flder, GID_DRG_2, false, false, false);
+    [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, gid, 3000, false, false);
+    [std_data_2, fidxcluster_2,rmclusters_2,c_2,mean_clusters_mat_2,clusters_2, n_clusters_2, Cluster_IDX_2] = step_4(N_2, i, yhat_2, IND_DRG_2, Time_2, cutoff_2, axisLabelFontSize_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
 
     % The first subject's clusters are sorted by size, so that the first cluster is the largest one
     % and the last cluster is the smallest one.
@@ -91,12 +78,12 @@ function compare()
     time_points_of_first_subject = Time{i};
     time_points_of_second_subject = Time_2{i};
     
-    output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs, path);
+    output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs);
     
     plot_cluster_matches(name_of_first_subject, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_expression_by_cluster, means_of_second_subjects_clusters, time_points_of_second_subject);
     
     close all;
-    cd(path);
+    cd(Dynamics4GenomicBigData_HOME);
   end
 end
 
@@ -208,7 +195,9 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
       hold off;
 end
 
-function output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs, path)
+function output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs)
+
+      global Dynamics4GenomicBigData_HOME;
   
       output_folder = 'Gene_expression_of_both_subjects';
       mkdir(output_folder);
@@ -336,7 +325,7 @@ function output_comparison_plots(name_of_first_subject, first_subjects_clusters,
 	close all;
       end
       
-      create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,1,[],path);
+      create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,1,[],Dynamics4GenomicBigData_HOME);
       
       cd('..');
 end
