@@ -298,7 +298,7 @@
 % classify the groups of similar annotations according kappa values. In this sense, the more common
 % genes annotations share, the higher chance they will be grouped together.
 
-[cluster_indexes_by_size, clusters_sorted_by_size] = step_5(fidxcluster{1}, gid, IND_DRG{1});
+[cluster_indexes_by_size, clusters_sorted_by_size] = step_5(fidxcluster{1}, gid, IND_DRG{1}, gene_ID_type);
 
 %%
 

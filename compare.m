@@ -12,7 +12,7 @@ function compare()
     Preprocessing_technique = 'Default';
     [Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
-    [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+    [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
     
     display(sprintf('\nYou have successfully entered the data for the first subject.'));
     
@@ -20,7 +20,7 @@ function compare()
     
     tm_ind = input(prompt);
     
-    [Data_2, Subject_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_2] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);  
+    [Data_2, Subject_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_2, gene_ID_type_2] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);  
     
     [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
     con = strrep(con,' ','_');
