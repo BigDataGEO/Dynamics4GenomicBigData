@@ -12,7 +12,7 @@ continue_analysis = 1;
 
 while continue_analysis == 1
       
-  [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+  [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
       
   [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
   con = strrep(con,' ','_');
@@ -28,6 +28,8 @@ while continue_analysis == 1
   options = struct('format','html','outputDir',flder,'showCode',true);
   publish('Paper.m',options);
   web('Paper.html', '-browser');
+  
+  save(strcat(GEO_number,con,date));
 
   close all;
   cd(Dynamics4GenomicBigData_HOME);
@@ -38,8 +40,9 @@ while continue_analysis == 1
 end %while continue_analysis == 1
 
 %% Create Manuscript
-prompt = '\nWhich subjects would you like the manuscript to include? (format [1,2,3]) ';
-cond   = input(prompt);
+%  prompt = '\nWhich subjects would you like the manuscript to include? (format [1,2,3]) ';
+%  cond   = input(prompt);
+cond   = 1;
     
 % If running on Windows.  
 if ispc()

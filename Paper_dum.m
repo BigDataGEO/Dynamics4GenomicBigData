@@ -8,7 +8,8 @@
 %% Materials and Methods
 
 %% Expermental Design
-if ~isempty(geoStruct.Header.Samples.description)
+%  if ~isempty(geoStruct.Header.Samples.description)
+if(isfield(geoStruct.Header.Samples,'description'))
 for i = 1:length(cond)
     wraptext(geoStruct.Header.Samples.description{pr_ind(cond(i))},60);
     fprintf('%\n');

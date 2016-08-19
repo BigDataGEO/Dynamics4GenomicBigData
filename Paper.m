@@ -164,7 +164,7 @@
 
 % can be considered as exhibiting notable changes with respect to time.
 
-[fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, 3000, true, true);
+[fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, number_of_top_DRGs, true, true);
 
 
 %%

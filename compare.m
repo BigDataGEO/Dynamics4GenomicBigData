@@ -12,7 +12,7 @@ function compare()
     Preprocessing_technique = 'Default';
     [Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
-    [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+    [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
     
     display(sprintf('\nYou have successfully entered the data for the first subject.'));
     
@@ -20,7 +20,7 @@ function compare()
     
     tm_ind = input(prompt);
     
-    [Data_2, Subject_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);  
+    [Data_2, Subject_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_2] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);  
     
     [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
     con = strrep(con,' ','_');
@@ -36,12 +36,12 @@ function compare()
     
     % Steps 2, 3, and 4 of the pipeline are run for the first subject.
     [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(Data, Subject, Pos, str_ind, false, false);  
-    [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, 3000, false, false);  
+    [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, number_of_top_DRGs, false, false);  
     [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, false, false, false);
     
     % Steps 2, 3, and 4 of the pipeline are run for the second subject.
     [gexp_2, gexp2_2, Time_2, N_2, n_2, subject_name_2, yCR_2] = step_2(Data_2, Subject_2, Pos_2, str_ind_2, false, false);
-    [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, gid, 3000, false, false);
+    [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, gid, number_of_top_DRGs_2, false, false);
     [std_data_2, fidxcluster_2,rmclusters_2,c_2,mean_clusters_mat_2,clusters_2, n_clusters_2, Cluster_IDX_2] = step_4(N_2, i, yhat_2, IND_DRG_2, Time_2, cutoff_2, axisLabelFontSize_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
 
     % The first subject's clusters are sorted by size, so that the first cluster is the largest one

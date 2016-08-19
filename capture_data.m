@@ -1,4 +1,4 @@
-function [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct)
+function [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
@@ -57,6 +57,14 @@ function [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(
     prompt = '\nWhich item in the list corresponds to the subject/condition? (format [1,2,3] or all) ';
     su_ind = input(prompt);
     [Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
+    
+    
+    total_number_of_genes = size(Data, 1);
+    prompt = ['Dataset ' GEO_number ' contains a total of ' num2str(total_number_of_genes) ' genes.\n\nEnter the number of top DRGs you want to consider in the analysis (or -1 to include them all): '];
+    number_of_top_DRGs = input(['\n' prompt]);
+    if(~isnumeric(number_of_top_DRGs))
+      number_of_top_DRGs = -1;
+    end
 
   else
     % New case where time points must be read from title field or somewhere else.      
@@ -95,4 +103,11 @@ function [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name] = capture_data(
       Subject_name = str_ind;
     end
     Subject = repmat(1, 1, size(Pos,2));
+    
+    total_number_of_genes = size(Data, 1);
+    prompt = ['Dataset ' GEO_number ' contains a total of ' num2str(total_number_of_genes) ' genes.\n\nEnter the number of top DRGs you want to consider in the analysis (or -1 to include them all): '];
+    number_of_top_DRGs = input(['\n' prompt]);
+    if(~isnumeric(number_of_top_DRGs))
+      number_of_top_DRGs = -1;
+    end
   end
