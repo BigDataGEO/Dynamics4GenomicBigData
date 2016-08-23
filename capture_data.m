@@ -155,7 +155,8 @@ function [gene_ID_type] = capture_type_of_gene_ID(GEO_number)
 	      'WORMPEP_ID'
 	      'ZFIN_ID'};
     
-    display('\n\n');
+
+    fprintf('\n\n');
     
     for indx = 1:size(idTypes,1)
       display([num2str(indx) ': ' idTypes{indx} '']);

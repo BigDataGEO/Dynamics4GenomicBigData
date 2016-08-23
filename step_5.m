@@ -11,3 +11,5 @@ function [cluster_indexes_by_size, clusters_sorted_by_size] = step_5(fidxcluster
   clusters_sorted_by_size = fidxcluster(cluster_indexes_by_size);
 
   gene_annotation(gene_ID_type, gid, IND_DRG, clusters_sorted_by_size, 'Annotation', Dynamics4GenomicBigData_HOME, true, true);
+
+end

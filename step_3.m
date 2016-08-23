@@ -129,25 +129,3 @@ function [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG
     disp(strcat('This is a link to the Fitted Curves <a href="',flder,'/Fitted_curves.xls">Fitted_Curves</a>.'));
     disp(strcat('This is a link to the Derivatives of the Fitted Curves <a href="',flder,'/Derivative_Fitted_Curves.xls">Derivative_Fitted_Curves</a>.'));
   end
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

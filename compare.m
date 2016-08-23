@@ -165,7 +165,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
 
-      set(handle,'Position',[2.5 v(4)*1. 0]);
+      set(handle,'Position',[8 v(4)*1.03 0]);
 
       hold off;
       
@@ -190,7 +190,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
       
       handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
 
-      set(handle,'Position',[2.5 v(4)*1. 0]);
+      set(handle,'Position',[8 v(4)*1.03 0]);
 
       hold off;
 end
@@ -272,7 +272,7 @@ function output_comparison_plots(name_of_first_subject, first_subjects_clusters,
 
 	  handle=title(['Expression of genes in M',num2str(currentClusterIndex), ' from ', name_of_first_subject, '']);
 
-	  set(handle,'Position',[2.5 v(4)*1. 0]);
+	  set(handle,'Position',[8 v(4)*1.03 0]);
 
 	  hold off;
 		
@@ -304,7 +304,7 @@ function output_comparison_plots(name_of_first_subject, first_subjects_clusters,
 
 	  handle=title(['Expression of the same genes in ', name_of_second_subject, '']);
 
-	  set(handle,'Position',[2.5 v(4)*1. 0]);
+	  set(handle,'Position',[8 v(4)*1.03 0]);
 
 	  hold off;
 	  

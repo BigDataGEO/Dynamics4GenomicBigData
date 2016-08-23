@@ -23,7 +23,7 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
     % The following four lines are in preparation for the chart report.
     if(includeChartReport)
       chartReportPy = py.DAVIDWS.getChartReport(inputIds, idType, listName, listType, thd, count);
-      chartReport = convertChartReportFromPythonRecordToMatlabMatrix(chartReportPy);    
+      chartReport = convertChartReportFromPythonRecordToMatlabMatrix(chartReportPy);
     end
 
     % The following lines (down to the end of the while loop) are in preparation for the table report.
@@ -63,7 +63,6 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
     end
   end
   
-  
   % Now that the chart and table reports have been obtained, we proceed to export them to files,
   % grouped by gene cluster.
   % The output directory is created in the following two lines.
@@ -86,7 +85,9 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
     
     chart_report_of_current_cluster = header;
     table_report_of_current_cluster = [];
-      
+    
+    
+    genes_grouped_by_pathway = [];
     for gene_iteration_ID = 1:length(ids_of_genes_in_current_cluster)
       geneID = ids_of_genes_in_current_cluster{gene_iteration_ID};
       
@@ -101,24 +102,58 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
       end
       
       % This section finds the gene in the big table report.
-      if includeTableReport && ~isempty(tableReport)
+      if includeTableReport
 	if not(isempty(tableReport))
 	  index_of_current_gene_in_table_report = find(not(cellfun('isempty', strfind(tableReport(:,1), geneID))));
-	  table_report_of_current_cluster = [table_report_of_current_cluster; tableReport(index_of_current_gene_in_table_report,:)];
+	  if(not(isempty(index_of_current_gene_in_table_report)))
+	    table_report_of_current_cluster = [table_report_of_current_cluster; tableReport(index_of_current_gene_in_table_report,:)];
+	    
+	    % PURELY EXPERIMENTAL STUFF
+	    record_of_current_gene_in_table_report = tableReport(index_of_current_gene_in_table_report,:);
+	    
+	    fields_and_values_of_current_gene_in_table_report = record_of_current_gene_in_table_report{4};
+	    
+	    index_of_KEGG_field_for_current_gene_in_TR = find(strcmp([fields_and_values_of_current_gene_in_table_report(:,1)], 'KEGG_PATHWAY'));
+	    
+	    pathway_name = 'NO_PATHWAY';
+	    if(not(isempty(index_of_KEGG_field_for_current_gene_in_TR)))%i.e., this gene has a pathway associated to it.
+	      pathway_names=fields_and_values_of_current_gene_in_table_report(index_of_KEGG_field_for_current_gene_in_TR,2);
+	      pathway_names = strsplit(pathway_names{1}, ';');
+	      pathway_name = pathway_names(1);
+	    end
+	    
+	    
+	    for index_of_current_pathway=1:size(pathway_names, 2)
+	      
+	    end
+	    
+	    idx = [];
+	    if(size(genes_grouped_by_pathway,1)>0)
+	      idx = find(strcmp([genes_grouped_by_pathway(:,1)], pathway_name));		
+	    end
+	      
+	    if(isempty(idx))%There is no record with this pathway
+	      new_pathway = [pathway_name {{geneID}}];
+	      genes_grouped_by_pathway = [genes_grouped_by_pathway; new_pathway];
+	    else%There is already a record with this pathway
+	      genes_in_this_pathway = genes_grouped_by_pathway(idx, 2);
+	      genes_in_this_pathway = {genes_in_this_pathway; {geneID}};
+	      genes_grouped_by_pathway{idx, 2} = genes_in_this_pathway;
+	    end
+	    % PURELY EXPERIMENTAL STUFF
+	  end
 	end
       end
-    end
+    end%for gene_iteration_ID = 1:length(ids_of_genes_in_current_cluster)
       
     if includeChartReport && ~isempty(chartReport)
       [number_of_entries_in_chart_report_of_current_cluster uselessVariable] = size(chart_report_of_current_cluster);
       if number_of_entries_in_chart_report_of_current_cluster > 1
-%  	create_exel_file(strcat('Annotation_of_cluster_', num2str(cluster_iteration_ID),'.xls'),cellfun(@trimStringForExcelOutput, chart_report_of_current_cluster, 'UniformOutput', 0),i,[],path);
-%  	[number_of_rows useless] = size(chartReport);
   
 	fileFieldSeparator=',';
 	withinFieldSeparator = ';';
 	
-	fid = fopen(strcat('Chart_report_of_M', num2str(cluster_iteration_ID),'.csv'), 'w') ;
+	fid = fopen(strcat('Chart_report_of_M', num2str(cluster_iteration_ID),'.csv'), 'w');
 		for row=1:number_of_entries_in_chart_report_of_current_cluster
 	  fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n', strrep(chart_report_of_current_cluster{row, 1}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 2}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 3}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 4}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 5}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 6}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 7}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 8}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 9}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 10}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 11}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 12}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 13}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 14}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 15}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 16}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 17}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 18}, fileFieldSeparator, withinFieldSeparator),strrep(chart_report_of_current_cluster{row, 19}, fileFieldSeparator, withinFieldSeparator));
 	end
@@ -155,7 +190,7 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
     cd('..');
   end
   cd('..');
-
+end
  
 
 
@@ -172,7 +207,7 @@ function[matlabMatrix] = convertChartReportFromPythonRecordToMatlabMatrix(chartR
   labels = {'EASEBonferroni', 'afdr', 'benjamini', 'bonferroni', 'categoryName', 'ease', 'fisher', 'foldEnrichment', 'geneIds', 'id', 'listHits', 'listName', 'listTotals', 'percent', 'popHits', 'popTotals', 'rfdr', 'scores', 'termName'};
   
   matlabMatrix = [labels; matlabMatrix];
-
+end
 
   
 function[table_matrix] = convertTableReportFromPythonRecordToMatlabMatrix(tableReportAsPythonList)
@@ -221,7 +256,7 @@ function[table_matrix] = convertTableReportFromPythonRecordToMatlabMatrix(tableR
     end
     table_matrix = [table_matrix; [{geneID} {char(tableRecord.name)} {char(tableRecord.species)} {record_matrix}]];
   end
-
+end
 
 function write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,output_file_name)
 
@@ -232,3 +267,4 @@ function write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,output_f
     fprintf(fid, '%s\n', ids_of_genes_in_current_cluster{row,end});
   end
   fclose(fid);
+end

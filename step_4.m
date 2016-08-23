@@ -49,6 +49,15 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
   for  i = 1:N
       std_data{i}     = zscore(gexp2{i}(INDF{i}(1:cutoff),:)')';
       [fidxcluster{i},rmclusters{i},c{i},mean_clusters_mat{i},clusters{i}] = IHC(std_data{i},alpha);
+      
+      
+      % The following four lines sort the clusters by size.
+      [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
+      fidxcluster{i} = fidxcluster{i}(cluster_indexes_by_size);
+      clusters{i} = clusters{i}(cluster_indexes_by_size);
+      mean_clusters_mat{i} = mean_clusters_mat{i}(cluster_indexes_by_size,:);
+      % The previous four lines sort the clusters by size.
+      
       n_clusters{i}   = cellfun(@(x) size(x,1),clusters{i},'UniformOutput', false);
   end
 
@@ -66,6 +75,10 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
     
     disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
   end
+  
+  
+  
+  
   
   for k=1:N
 
@@ -121,8 +134,7 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
       cluster_number = 1;
 
       for b = 1:number_of_pages
-  %      for b = 1:1 % For testing purposes, output only the first page.
-
+      
 	  number_of_plots_in_current_page = number_of_subplots_per_page;
 	  if(b == number_of_pages) %i.e., if this is the last page
 	    number_of_plots_in_current_page = number_of_plots_in_last_page;
@@ -139,11 +151,9 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
 	  for gen = 1:number_of_plots_in_current_page
 
-	      subplot(number_of_rows_per_page,number_of_columns_per_page,gen)
+	      subplot(number_of_rows_per_page,number_of_columns_per_page,gen);
 
-	      ind2 = ind(gen+(b-1).*number_of_plots_in_current_page);
-
-	      plot(clusters{i}{ind2}','-*b');
+	      plot(clusters{i}{cluster_number}','-*b');
 	      
 	      set(gca,'XTick', 1:size(Time{i}));
 	      set(gca,'XTickLabel', Time{i});
@@ -154,17 +164,21 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
 	      hold on;
 
-	      plot(mean_clusters_mat{i}(ind2,:),'o-r','LineWidth',1.5);
+	      plot(mean_clusters_mat{i}(cluster_number,:),'o-r','LineWidth',1.5);
 
-	      xlim([0,size(mean_clusters_mat{i}(ind2,:),2)]);
+	      xlim([0,size(mean_clusters_mat{i}(cluster_number,:),2)]);
 
-	      ylim([min(min(clusters{i}{ind2}))-.05,max(max(clusters{i}{ind2}))+.05]);
+	      ylim([min(min(clusters{i}{cluster_number}))-.05,max(max(clusters{i}{cluster_number}))+.05]);
 
 	      v = axis;
-
-	      number_of_genes_in_current_cluster  = s(gen+(b-1).*number_of_plots_in_current_page);
+	      
+	      number_of_genes_in_current_cluster  = s(cluster_number);
 	      
 	      handle=title(['M' num2str(cluster_number) ' (' num2str(number_of_genes_in_current_cluster) ' genes)' ]);
+	      
+	      if(number_of_genes_in_current_cluster == 1)
+		handle=title(['M' num2str(cluster_number) ' (' num2str(number_of_genes_in_current_cluster) ' gene)' ]);
+	      end
 
 	      set(handle,'Position',[2.5 v(4)*1. 0]);
 
