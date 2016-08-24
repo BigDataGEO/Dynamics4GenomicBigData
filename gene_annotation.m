@@ -109,37 +109,33 @@ function gene_annotation(gene_ID_type, full_list_of_gene_ids, indices_of_top_DRG
 	    table_report_of_current_cluster = [table_report_of_current_cluster; tableReport(index_of_current_gene_in_table_report,:)];
 	    
 	    % PURELY EXPERIMENTAL STUFF
-	    record_of_current_gene_in_table_report = tableReport(index_of_current_gene_in_table_report,:);
-	    
-	    fields_and_values_of_current_gene_in_table_report = record_of_current_gene_in_table_report{4};
-	    
-	    index_of_KEGG_field_for_current_gene_in_TR = find(strcmp([fields_and_values_of_current_gene_in_table_report(:,1)], 'KEGG_PATHWAY'));
-	    
-	    pathway_name = 'NO_PATHWAY';
-	    if(not(isempty(index_of_KEGG_field_for_current_gene_in_TR)))%i.e., this gene has a pathway associated to it.
-	      pathway_names=fields_and_values_of_current_gene_in_table_report(index_of_KEGG_field_for_current_gene_in_TR,2);
-	      pathway_names = strsplit(pathway_names{1}, ';');
-	      pathway_name = pathway_names(1);
-	    end
-	    
-	    
-	    for index_of_current_pathway=1:size(pathway_names, 2)
-	      
-	    end
-	    
-	    idx = [];
-	    if(size(genes_grouped_by_pathway,1)>0)
-	      idx = find(strcmp([genes_grouped_by_pathway(:,1)], pathway_name));		
-	    end
-	      
-	    if(isempty(idx))%There is no record with this pathway
-	      new_pathway = [pathway_name {{geneID}}];
-	      genes_grouped_by_pathway = [genes_grouped_by_pathway; new_pathway];
-	    else%There is already a record with this pathway
-	      genes_in_this_pathway = genes_grouped_by_pathway(idx, 2);
-	      genes_in_this_pathway = {genes_in_this_pathway; {geneID}};
-	      genes_grouped_by_pathway{idx, 2} = genes_in_this_pathway;
-	    end
+%  	    record_of_current_gene_in_table_report = tableReport(index_of_current_gene_in_table_report,:);
+%  	    
+%  	    fields_and_values_of_current_gene_in_table_report = record_of_current_gene_in_table_report{4};
+%  	    
+%  	    index_of_KEGG_field_for_current_gene_in_TR = find(strcmp([fields_and_values_of_current_gene_in_table_report(:,1)], 'KEGG_PATHWAY'));
+%  	    
+%  	    pathway_name = 'NO_PATHWAY';
+%  	    if(not(isempty(index_of_KEGG_field_for_current_gene_in_TR)))%i.e., this gene has a pathway associated to it.
+%  	      pathway_names=fields_and_values_of_current_gene_in_table_report(index_of_KEGG_field_for_current_gene_in_TR,2);
+%  	      pathway_names = strsplit(pathway_names{1}, ';');
+%  	      pathway_name = pathway_names(1);
+%  	    end
+%  	    
+%  	    
+%  	    idx = [];
+%  	    if(size(genes_grouped_by_pathway,1)>0)
+%  	      idx = find(strcmp([genes_grouped_by_pathway(:,1)], pathway_name));		
+%  	    end
+%  	      
+%  	    if(isempty(idx))%There is no record with this pathway
+%  	      new_pathway = [pathway_name {{geneID}}];
+%  	      genes_grouped_by_pathway = [genes_grouped_by_pathway; new_pathway];
+%  	    else%There is already a record with this pathway
+%  	      genes_in_this_pathway = genes_grouped_by_pathway(idx, 2);
+%  	      genes_in_this_pathway = {genes_in_this_pathway; {geneID}};
+%  	      genes_grouped_by_pathway{idx, 2} = genes_in_this_pathway;
+%  	    end
 	    % PURELY EXPERIMENTAL STUFF
 	  end
 	end

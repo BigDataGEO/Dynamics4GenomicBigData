@@ -35,7 +35,7 @@ function [GS, NS, SWI] = step_8(N, G, EAS)
   betweenFieldSeparator = ',';
 
   row_labels = repmat({''}, [number_of_clusters 1]);
-  column_labels = {'' 'Out' 'In'};
+  column_labels = {'' 'Out (Influences) (Outward edges)' 'In (Influenced by) (Inward edges)'};
 
   for u=1:number_of_clusters
     row_labels{u} = strcat(module_name_preffix, num2str(u));
@@ -74,8 +74,8 @@ function [GS, NS, SWI] = step_8(N, G, EAS)
   for u = 1:length(EAS{i})
     for v = 1:length(EAS{i})
       if(EAS{i}(u,v) ~= 0)
-	fprintf(tgfFile,'"Cluster %1.1i"	"Cluster %1.1i"\n',u,v);
-	fprintf(sifFile,'"Cluster %1.1i"	pp	"Cluster %1.1i"\n',u,v);
+	fprintf(tgfFile,'"M%1.1i"	"M%1.1i"\n',v,u);
+	fprintf(sifFile,'"M%1.1i"	pp	"M%1.1i"\n',v,u);
       end
     end
   end
