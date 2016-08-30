@@ -1,6 +1,13 @@
-function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Subject, Pos, str_ind, outputFig1, outputFig2)
+function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Pos, str_ind, outputFig1, outputFig2)
 
-  [gexp, gexp2, Time, N, n, subject_name] = get_preprocessed_data(gene_expression_of_subject_across_time_points, Subject, Pos, str_ind);
+  [gexp2, Time, subject_name] = get_preprocessed_data(gene_expression_of_subject_across_time_points, Pos, str_ind);
+  
+  global Dynamics4GenomicBigData_HOME;
+  
+  outputFolder = 'Step_2';
+  mkdir(outputFolder);
+  
+  n = size(gene_expression_of_subject_across_time_points,1);
   
   if(outputFig1)
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
@@ -15,21 +22,23 @@ function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_o
     axisLabelFontSize = 30;
 
     ind= 0;
+    
+    N=1;
 
     for sub = 1:N
     
 	i = sub;
 
-	surf(gexp2{i},'FaceColor','interp','EdgeColor','none');
+	surf(gexp2,'FaceColor','interp','EdgeColor','none');
 
-	xlim([Time{sub}(1),length(Time{sub})]);
+	xlim([Time(1),length(Time)]);
 
-	set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
+	set(gca,'XTick',1:length(Time),'Xticklabel',Time);
 	set(gca,'FontSize',11);
 
 	ylim([1,n]);
 
-	zlim([min(min(gexp2{i})),max(max(gexp2{i}))]);
+	zlim([min(min(gexp2)),max(max(gexp2))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -45,13 +54,16 @@ function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_o
 
     end
 
-    savefig('Paper_01.fig');
+%      savefig('Paper_01.fig');
+%      movefile('Paper_01.fig', outputFolder);
     
     print('Paper_01.pdf','-dpdf');
+    movefile('Paper_01.pdf', outputFolder);
   end
   
   
   yCR = Est_Sub_Sel(Time,gexp2,N);
+  yCR = yCR{1};
 
   if(outputFig2)
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
@@ -69,16 +81,16 @@ function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_o
 
     for sub = 1:N
 
-	surf(yCR{sub},'FaceColor','interp','EdgeColor','none');
+	surf(yCR,'FaceColor','interp','EdgeColor','none');
 
-	xlim([Time{sub}(1),length(Time{sub})]);
+	xlim([Time(1),length(Time)]);
 
-	set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub});
+	set(gca,'XTick',1:length(Time),'Xticklabel',Time);
 	set(gca,'FontSize',11);
 
-	ylim([1,size(yCR{sub},1)]);
+	ylim([1,size(yCR,1)]);
 
-	zlim([min(min(yCR{sub})),max(max(yCR{sub}))]);
+	zlim([min(min(yCR)),max(max(yCR))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -95,4 +107,16 @@ function [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(gene_expression_o
     end
 
     print('Paper_02.pdf','-dpdf');
+    movefile('Paper_02.pdf', outputFolder);
   end
+  
+  matrix_of_files_descs = [{'File name'} {'Description.'}];
+  
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_02.pdf'} {'Expression of genes with smooth trajectories with degrees of freedom below 5.'}]];
+  
+  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+
+  movefile('List_and_description_of_output.xls', outputFolder);
+  
+end

@@ -12,7 +12,7 @@ function compare()
     Preprocessing_technique = 'Default';
     [Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
-    [Data, Subject, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+    [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
     
     display(sprintf('\nYou have successfully entered the data for the first subject.'));
     
@@ -35,39 +35,28 @@ function compare()
     options = struct('format','html','outputDir',flder,'showCode',true);
     
     % Steps 2, 3, and 4 of the pipeline are run for the first subject.
-    [gexp, gexp2, Time, N, n, subject_name, yCR] = step_2(Data, Subject, Pos, str_ind, false, false);  
-    [fdgenens, dfgenens, gcvgenens, lambdagenes, yhat, STDERR, SSE, IND_DRG, GID_DRG, DRG, cutoff, INDF, F, axisLabelFontSize] = step_3(N, Time, yCR, gexp2, n, gid, number_of_top_DRGs, false, false);  
-    [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, false, false, false);
+    [gexp2, Time, subject_name, yCR] = step_2(Data, Pos, str_ind, false, false);
+    [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, gid, number_of_top_DRGs, false, false);
+    fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, false, false, false);
     
     % Steps 2, 3, and 4 of the pipeline are run for the second subject.
     [gexp_2, gexp2_2, Time_2, N_2, n_2, subject_name_2, yCR_2] = step_2(Data_2, Subject_2, Pos_2, str_ind_2, false, false);
     [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, gid, number_of_top_DRGs_2, false, false);
     [std_data_2, fidxcluster_2,rmclusters_2,c_2,mean_clusters_mat_2,clusters_2, n_clusters_2, Cluster_IDX_2] = step_4(N_2, i, yhat_2, IND_DRG_2, Time_2, cutoff_2, axisLabelFontSize_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
+    
+    [gexp2_2, Time_2, subject_name_2, yCR_2] = step_2(Data_2, Pos_2, str_ind_2, false, false);
+    [fdgenens_2, yhat_2, IND_DRG_2, GID_DRG_2, INDF_2] = step_3(Time_2, yCR_2, gexp2_2, n_2, gid, number_of_top_DRGs_2, false, false);
+    fidxcluster_2 = step_4(yhat_2, IND_DRG_2, Time_2, cutoff_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
 
-    % The first subject's clusters are sorted by size, so that the first cluster is the largest one
-    % and the last cluster is the smallest one.
-    [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
     
-    fidxcluster{i} = fidxcluster{i}(cluster_indexes_by_size);
-    clusters{i} = clusters{i}(cluster_indexes_by_size);
-    mean_clusters_mat{i} = mean_clusters_mat{i}(cluster_indexes_by_size,:);
+    array_indices_of_first_subjects_DRGs = IND_DRG;
     
-    % The second subject's clusters are sorted by size, so that the first cluster is the largest one
-    % and the last cluster is the smallest one.
-    [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster_2{i}, 1), 'descend');
-    
-    fidxcluster_2{i} = fidxcluster_2{i}(cluster_indexes_by_size);
-    clusters_2{i} = clusters_2{i}(cluster_indexes_by_size);
-    mean_clusters_mat_2{i} = mean_clusters_mat_2{i}(cluster_indexes_by_size,:);
-    
-    array_indices_of_first_subjects_DRGs = IND_DRG{i};
-    
-    first_subjects_clusters = fidxcluster{i};
+    first_subjects_clusters = fidxcluster;
     
     name_of_first_subject = subject_name;
     name_of_second_subject = subject_name_2;
     
-    second_subjects_gene_expression = gexp2_2{i};
+    second_subjects_gene_expression = gexp2_2;
     
     first_subjects_expression_by_cluster = clusters{i};
     second_subjects_expression_by_cluster = clusters_2{i};
@@ -75,8 +64,8 @@ function compare()
     means_of_first_subjects_clusters = mean_clusters_mat{i};
     means_of_second_subjects_clusters = mean_clusters_mat_2{i};
     
-    time_points_of_first_subject = Time{i};
-    time_points_of_second_subject = Time_2{i};
+    time_points_of_first_subject = Time;
+    time_points_of_second_subject = Time_2;
     
     output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs);
     

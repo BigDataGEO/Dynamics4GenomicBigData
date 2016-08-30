@@ -1,60 +1,57 @@
-function [EAS, Stats, G] = step_7(N, clusters_sorted_by_size, IND_DRG, fdgenens, Time)
+function EAS = step_7(clusters_sorted_by_size, IND_DRG, fdgenens, Time)
   
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
+  
+  outputFolder = 'Step_7';
+  mkdir(outputFolder);
 
   % %Obtain Smoothed Estimates of the derivative and trajectory.
-  for i = 1:N
-    for j = 1:length(clusters_sorted_by_size)
-      group               = IND_DRG{i}(clusters_sorted_by_size{j});
-      meanfd              = mean_grouped(fdgenens{i},group);
-      TimeEx{i}           = linspace(Time{i}(1),Time{i}(end),100)';
-      yhatEx{i}(:,j)      = eval_fd(TimeEx{i}, meanfd);
-      dyhatEx{i}(:,j)     = eval_fd(TimeEx{i}, meanfd,1);
-    end
+  for j = 1:length(clusters_sorted_by_size)
+    group = IND_DRG(clusters_sorted_by_size{j});
+    meanfd = mean_grouped(fdgenens,group);
+    TimeEx = linspace(Time(1),Time(end),100)';
+    yhatEx(:,j) = eval_fd(TimeEx, meanfd);
+    dyhatEx(:,j) = eval_fd(TimeEx, meanfd,1);
   end
-
-
 
   % Obtain LASSO estimate of the parameters.
-  EAS   = cell(N);
-  Stats = cell(N);
+  EAS   = [];
+  Stats =[];
 
-  for i = 1:N
-    for j = 1:size(dyhatEx{i},2)
-      [EAS{i}(:,j),Stats{i}{j}] = lasso(yhatEx{i},dyhatEx{i}(:,j));
-    end       
-    G{i} = (EAS{i}~=0); 
-    A0{i} = EAS{i}(G{i});
-  end
-
-  for i = 1:N
-    tmp_ind = find(EAS{i}');
-    A_tmp   = EAS{i}';
-    create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],Dynamics4GenomicBigData_HOME);
-    create_exel_file('Network_matrix.xls',EAS{i},i,[],Dynamics4GenomicBigData_HOME);
-    csvwrite('Network_matrix.csv',EAS{i});  
-  end
-  disp(strcat('This is the parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks.xls">Network</a>.'));
-  disp(strcat('This is the full matrix of parameters of the ODE obtained by two-stage method <a href="',flder,'/Networks_matrix.xls">Network</a>.'));
+  for j = 1:size(dyhatEx,2)
+    [EAS(:,j),Stats{j}] = lasso(yhatEx,dyhatEx(:,j));
+  end       
   
-  % Obtain Refined estimates of the parameters.
+  G = (EAS~=0);
+  A0 = EAS(G);
 
-  %  optim_options = optimset('Display', 'iter','Algorithm','levenberg-marquardt','TolFun',1.0000e-08,'TolX', 1.0000e-08);
+  tmp_ind = find(EAS');
+  A_tmp   = EAS';
+  create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],1,[],Dynamics4GenomicBigData_HOME);
+  create_exel_file('Network_matrix.xls',EAS,1,[],Dynamics4GenomicBigData_HOME);
+  
+  movefile('Networks.xls', outputFolder);
+  movefile('Network_matrix.xls', outputFolder);
+  
+  A = EAS;
 
-  % % 
+  tmp_ind = find(A');
+  A_tmp   = A';
+  create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],1,[],Dynamics4GenomicBigData_HOME);
+  create_exel_file('Networks_Refined_matrix.xls',A,1,[],Dynamics4GenomicBigData_HOME);
+  
+  movefile('Networks_Refined.xls', outputFolder);
+  movefile('Networks_Refined_matrix.xls', outputFolder);
 
-  A = cell(N);
-  for i = 1:N 
-    A{i} = EAS{i};%lsqnonlin(@rss_sp,A0{i},[],[],optim_options,TimeEx{i},yhatEx{i},G{i});
-  end
+  matrix_of_files_descs = [{'File name'} {'Description'}];
+  
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Networks.xls'} {'Parameters of the ODE obtained by the two-stage method.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Network_matrix.xls'} {'Full matrix of parameters of the ODE obtained by the two-stage method.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Networks_Refined.xls'} {'Estimated parameters of the ODE.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Networks_Refined_matrix.xls'} {'Matrix with the estimated parameters of the ODE.'}]];
+  
+  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
-  for i = 1:N
-    tmp_ind = find(A{i}');
-    A_tmp   = A{i}';
-    create_exel_file('Networks_Refined.xls',[tmp_ind,A_tmp(tmp_ind)],i,[],Dynamics4GenomicBigData_HOME);
-    create_exel_file('Networks_Refined_matrix.xls',A{i},i,[],Dynamics4GenomicBigData_HOME);
-  end
-
-  disp(strcat('This is the estimated parameters of the ODE <a href="',flder,'/Networks_Refined.xls">Parameters</a>.'));
-  disp(strcat('This is the matrix with the estimated parameters of the ODE <a href="',flder,'/Networks_Refined_matrix.xls">Parameters</a>.'));
+  movefile('List_and_description_of_output.xls', outputFolder);
+end

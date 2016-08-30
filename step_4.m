@@ -1,39 +1,39 @@
-function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clusters, Cluster_IDX] = step_4(N, i, yhat, IND_DRG, Time, cutoff, axisLabelFontSize, gexp2, INDF, GID_DRG, outputFiles, outputClusterFig, outputClusterByTypeFig)
+function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, outputFiles, outputClusterFig, outputClusterByTypeFig)
 
   flder=pwd;
   
+  outputFolder = 'Step_4';
+  mkdir(outputFolder);
+  
   %  ---------------  Surfaces of Top Genes from F-test  ------------------------
+  
+  axisLabelFontSize = 30;
 
-%    h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-%  
-%    ind= 0 ;
-%  
-%    for sub = 1:N
-%  
-%      surf(yhat{sub}(:,IND_DRG{i}),'FaceColor','interp','EdgeColor','none');
-%  
-%      ylim([1,length(Time{sub})]);
-%  
-%      set(gca,'YTick',1:length(Time{sub}),'Yticklabel',Time{sub});
-%      set(gca,'FontSize',11);
-%  
-%      xlim([1,cutoff]);
-%  
-%      zlim([min(min(yhat{sub}(:,IND_DRG{i}))),max(max(yhat{sub}(:,IND_DRG{i})))]);
-%      hold on;
-%        
-%      ylabel('Time', 'FontSize', axisLabelFontSize);
-%  
-%      xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
-%  
-%      zlabel('Expression', 'FontSize', axisLabelFontSize);
-%  
-%      title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
-%      hold off;
-%  
-%    end
-%  
-%    print('Paper_04.pdf','-dpdf');
+  h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
+
+  ind= 0 ;
+
+  surf(yhat(:,IND_DRG),'FaceColor','interp','EdgeColor','none');
+
+  ylim([1,length(Time)]);
+
+  set(gca,'YTick',1:length(Time),'Yticklabel',Time);
+  set(gca,'FontSize',11);
+
+  xlim([1,cutoff]);
+
+  zlim([min(min(yhat(:,IND_DRG))),max(max(yhat(:,IND_DRG)))]);
+  hold on;
+      
+  ylabel('Time', 'FontSize', axisLabelFontSize);
+  xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
+  zlabel('Expression', 'FontSize', axisLabelFontSize);
+
+  title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
+  hold off;
+
+%    print(h,'-dpsc2', '-append', 'Paper_04.ps');
+%    movefile('Paper_04.ps', outputFolder);
   
   %  -----------------------------------------------------------------------
 
@@ -46,43 +46,32 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
   %Theshold
   alpha = 0.75;
 
-  for  i = 1:N
-      std_data{i}     = zscore(gexp2{i}(INDF{i}(1:cutoff),:)')';
-      [fidxcluster{i},rmclusters{i},c{i},mean_clusters_mat{i},clusters{i}] = IHC(std_data{i},alpha);
+  std_data     = zscore(gexp2(INDF(1:cutoff),:)')';
+  [fidxcluster,rmclusters,c,mean_clusters_mat,clusters] = IHC(std_data,alpha);
       
       
-      % The following four lines sort the clusters by size.
-      [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster{i}, 1), 'descend');
-      fidxcluster{i} = fidxcluster{i}(cluster_indexes_by_size);
-      clusters{i} = clusters{i}(cluster_indexes_by_size);
-      mean_clusters_mat{i} = mean_clusters_mat{i}(cluster_indexes_by_size,:);
-      % The previous four lines sort the clusters by size.
+  % The following four lines sort the clusters by size.
+  [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster, 1), 'descend');
+  fidxcluster = fidxcluster(cluster_indexes_by_size);
+  clusters = clusters(cluster_indexes_by_size);
+  mean_clusters_mat = mean_clusters_mat(cluster_indexes_by_size,:);
+  % The previous four lines sort the clusters by size.
       
-      n_clusters{i}   = cellfun(@(x) size(x,1),clusters{i},'UniformOutput', false);
-  end
+  n_clusters   = cellfun(@(x) size(x,1),clusters,'UniformOutput', false);
 
-  for  i = 1:N
-    for l = 1:length(fidxcluster{i})
-      Cluster_IDX{i}(fidxcluster{i}{l}) = l;
-    end
+  for l = 1:length(fidxcluster)
+    Cluster_IDX(fidxcluster{l}) = l;
   end
 
   if(outputFiles)
     global Dynamics4GenomicBigData_HOME;
-    for i = 1:N
-      create_exel_file('Cluster_IDX.xls',Cluster_IDX{i}',i,[],Dynamics4GenomicBigData_HOME);
-    end
-    
-    disp(strcat('This is a link to the Cluster Indexes <a href="',flder,'/Cluster_IDX.xls">Cluster_Index</a>.'));
+    create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
+    movefile('Cluster_IDX.xls', outputFolder);
   end
-  
-  
-  
-  
-  
-  for k=1:N
 
-    sz{k}       = cell2mat(n_clusters{k});
+  for k=1:1
+
+    sz{k}       = cell2mat(n_clusters);
 
     ind         = find(sz{k}>99);
 
@@ -92,32 +81,31 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
     ind3        = find(sz{k}==1);
 
-    lrg_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind}));
+    lrg_id{k}   = GID_DRG(vertcat(fidxcluster{ind}));
 
-    med_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind1}));
+    med_id{k}   = GID_DRG(vertcat(fidxcluster{ind1}));
 
-    smal_id{k}  = GID_DRG{k}(vertcat(fidxcluster{k}{ind2}));
+    smal_id{k}  = GID_DRG(vertcat(fidxcluster{ind2}));
 
-    sin_id{k}   = GID_DRG{k}(vertcat(fidxcluster{k}{ind3}));
+    sin_id{k}   = GID_DRG(vertcat(fidxcluster{ind3}));
 
-    lrg_ts{k}   = mean_clusters_mat{k}(ind,:);
+    lrg_ts{k}   = mean_clusters_mat(ind,:);
 
-    med_ts{k}   = mean_clusters_mat{k}(ind1,:);
+    med_ts{k}   = mean_clusters_mat(ind1,:);
 
-    smal_ts{k}  = mean_clusters_mat{k}(ind2,:);
+    smal_ts{k}  = mean_clusters_mat(ind2,:);
 
-    sin_ts{k}   = mean_clusters_mat{k}(ind3,:);
+    sin_ts{k}   = mean_clusters_mat(ind3,:);
 
     sizes{k}    = [size(sz{k},1),length(ind),length(ind1),length(ind2),length(ind3)];
 
   end
   
   if(outputClusterFig)
-    for i=1:N
 
-      [s,ind]=sort(cell2mat(n_clusters{i}),'descend');
+      [s,ind]=sort(cell2mat(n_clusters),'descend');
       
-      number_of_clusters = size(mean_clusters_mat{i},1);
+      number_of_clusters = size(mean_clusters_mat,1);
       number_of_subplots = number_of_clusters;
       
       % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
@@ -153,10 +141,10 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
 	      subplot(number_of_rows_per_page,number_of_columns_per_page,gen);
 
-	      plot(clusters{i}{cluster_number}','-*b');
+	      plot(clusters{cluster_number}','-*b');
 	      
-	      set(gca,'XTick', 1:size(Time{i}));
-	      set(gca,'XTickLabel', Time{i});
+	      set(gca,'XTick', 1:size(Time));
+	      set(gca,'XTickLabel', Time);
 
 	      xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -164,11 +152,11 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
 	      hold on;
 
-	      plot(mean_clusters_mat{i}(cluster_number,:),'o-r','LineWidth',1.5);
+	      plot(mean_clusters_mat(cluster_number,:),'o-r','LineWidth',1.5);
 
-	      xlim([0,size(mean_clusters_mat{i}(cluster_number,:),2)]);
+	      xlim([0,size(mean_clusters_mat(cluster_number,:),2)]);
 
-	      ylim([min(min(clusters{i}{cluster_number}))-.05,max(max(clusters{i}{cluster_number}))+.05]);
+	      ylim([min(min(clusters{cluster_number}))-.05,max(max(clusters{cluster_number}))+.05]);
 
 	      v = axis;
 	      
@@ -190,11 +178,7 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
 
 	  print(h8,'-dpsc2', '-append', 'Cluster.ps');
       end
-    end
-    
-
-    disp(strcat('This is a link to the Cluster Plots <a href="',flder,'/Cluster.ps">Cluster_Plots</a>.'));
-  
+    movefile('Cluster.ps', outputFolder);
   end
 
   if(outputClusterByTypeFig)
@@ -285,14 +269,28 @@ function [std_data, fidxcluster,rmclusters,c,mean_clusters_mat,clusters, n_clust
     title('SGM');
 
     print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
+    
+    movefile('GRMs.ps', outputFolder);
 
     % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
     col_hed = {'No. of Modules','No. of LSM','No. of MSM','No. of SSM','No. of SGM'};
 
-    row_hed = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, 1:N, 'UniformOutput', false))');
+    row_hed = strcat(repmat({'Subject '},1,1),cellstr(arrayfun(@num2str, 1:1, 'UniformOutput', false))');
 
     tmp = round2(vertcat(sizes{:}));
 
     makeHtmlTable(tmp,[],row_hed,col_hed);
   end
+  
+  matrix_of_files_descs = [{'File name'} {'Description'}];
+  
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster.ps'} {'Cluster plots.'}]];
+  matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.ps'} {'Clusters plotted by size.'}]];
+  
+  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+
+  movefile('List_and_description_of_output.xls', outputFolder);
+  
+end
