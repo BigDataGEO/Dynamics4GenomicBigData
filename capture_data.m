@@ -1,4 +1,4 @@
-function [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct)
+function [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct)
 
   %Ask which condition to analyze
   tb = tabulate(titles);

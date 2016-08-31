@@ -28,7 +28,7 @@
 
 % -----------------------------------------------------------------
 
-[gexp2, Time, subject_name, yCR] = step_2(Data, Pos, str_ind, true, true);
+[gexp2, Time, subject_name, yCR] = step_2(Data, Pos, str_ind, true);
 
 %%
 
@@ -165,7 +165,7 @@
 % can be considered as exhibiting notable changes with respect to time.
 
 number_of_genes_in_dataset=size(Data,1);
-[fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, number_of_genes_in_dataset, gid, number_of_top_DRGs_considered, true, true);
+[fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, number_of_genes_in_dataset, gid, number_of_top_DRGs_considered, true);
 
 
 %%
@@ -227,7 +227,7 @@ number_of_genes_in_dataset=size(Data,1);
 
 %
 
-fidxcluster = step_4(yhat, IND_DRG, Time, number_of_top_DRGs_considered, gexp2, INDF, GID_DRG, true, true, true);
+[fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time, number_of_top_DRGs_considered, gexp2, INDF, GID_DRG, true);
 
 
 %%
@@ -437,7 +437,7 @@ step_5(fidxcluster, gid, IND_DRG, gene_ID_type);
 
 % 
 
-EAS = step_7(fidxcluster, IND_DRG, fdgenens, Time);
+EAS = step_7(fidxcluster, IND_DRG, fdgenens, Time, true);
 
 % %% Obtain Network Analysis of the gene regulation networks (GRNs).
 

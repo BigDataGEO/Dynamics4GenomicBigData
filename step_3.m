@@ -1,9 +1,10 @@
-function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, gid, number_of_top_DRGs_considered, outputFig3, outputFiles)
+function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, gid, number_of_top_DRGs_considered, output)
 
+  
+  
   flder = pwd;
   
-  outputFolder = 'Step_3';
-  mkdir(outputFolder);
+  
   
   %  -----------------------------------------------------------------------
 
@@ -54,8 +55,16 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
     DRG= gexp2(IND_DRG,:)';
   end
   
-  axisLabelFontSize = 30;
-  if(outputFig3)
+  
+  
+  if(output)
+  
+    global Dynamics4GenomicBigData_HOME;
+    outputFolder = 'Step_3';
+    mkdir(outputFolder);
+    
+    axisLabelFontSize = 30;
+    
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
     clear title;
@@ -93,9 +102,7 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
 
     print('Paper_03.pdf','-dpdf');
     movefile('Paper_03.pdf', outputFolder);
-  end
 
-  if(outputFiles)
   
     col_hed = {'Df','GCV','log10(\lambda)','Std Error'};
     row_hed = strcat(repmat({'Subject '},1,1),cellstr(arrayfun(@num2str, 1:1, 'UniformOutput', false))');
@@ -128,21 +135,20 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
       movefile('Fitted_curves.xls', outputFolder);
       movefile('Derivative_Fitted_Curves.xls', outputFolder);
     end
-  end
-  
-  
-  matrix_of_files_descs = [{'File name'} {'Description.'}];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_03.pdf'} {'Smooth expression curves.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'F_value.xls'} {'F statistics.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest.xls'} {'Index of F statistics.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest_DRG.xls'} {'Indices of the DRGs.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Probe_set_ID_Ftest_DRG.xls'} {'Probe set Ids for TRGs.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'DRG.xls'} {'DRG values.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Fitted_curves.xls'} {'Fitted Curves.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Derivative_Fitted_Curves.xls'} {'Derivatives of the Fitted Curves.'}]];
-  
-  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
-  movefile('List_and_description_of_output.xls', outputFolder);
+    matrix_of_files_descs = [{'File name'} {'Description.'}];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_03.pdf'} {'Smooth expression curves.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'F_value.xls'} {'F statistics.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest.xls'} {'Index of F statistics.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest_DRG.xls'} {'Indices of the DRGs.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Probe_set_ID_Ftest_DRG.xls'} {'Probe set Ids for TRGs.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'DRG.xls'} {'DRG values.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Fitted_curves.xls'} {'Fitted Curves.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Derivative_Fitted_Curves.xls'} {'Derivatives of the Fitted Curves.'}]];
+    
+    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+
+    movefile('List_and_description_of_output.xls', outputFolder);
+  end
   
 end

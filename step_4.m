@@ -1,39 +1,9 @@
-function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, outputFiles, outputClusterFig, outputClusterByTypeFig)
+function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, output)
 
+  global Dynamics4GenomicBigData_HOME;
+  
   flder=pwd;
-  
-  outputFolder = 'Step_4';
-  mkdir(outputFolder);
-  
-  %  ---------------  Surfaces of Top Genes from F-test  ------------------------
-  
-  axisLabelFontSize = 30;
-
-  h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-
-  ind= 0 ;
-
-  surf(yhat(:,IND_DRG),'FaceColor','interp','EdgeColor','none');
-
-  ylim([1,length(Time)]);
-
-  set(gca,'YTick',1:length(Time),'Yticklabel',Time);
-  set(gca,'FontSize',11);
-
-  xlim([1,cutoff]);
-
-  zlim([min(min(yhat(:,IND_DRG))),max(max(yhat(:,IND_DRG)))]);
-  hold on;
-      
-  ylabel('Time', 'FontSize', axisLabelFontSize);
-  xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
-  zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-  title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
-  hold off;
-
-%    print(h,'-dpsc2', '-append', 'Paper_04.ps');
-%    movefile('Paper_04.ps', outputFolder);
+ 
   
   %  -----------------------------------------------------------------------
 
@@ -62,13 +32,7 @@ function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG,
   for l = 1:length(fidxcluster)
     Cluster_IDX(fidxcluster{l}) = l;
   end
-
-  if(outputFiles)
-    global Dynamics4GenomicBigData_HOME;
-    create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
-    movefile('Cluster_IDX.xls', outputFolder);
-  end
-
+  
   for k=1:1
 
     sz{k}       = cell2mat(n_clusters);
@@ -101,7 +65,45 @@ function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG,
 
   end
   
-  if(outputClusterFig)
+  if(output)
+  
+    global Dynamics4GenomicBigData_HOME;
+    outputFolder = 'Step_4';
+    mkdir(outputFolder);
+  
+    %  ---------------  Surfaces of Top Genes from F-test  ------------------------
+    
+    axisLabelFontSize = 30;
+
+    h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
+
+    ind= 0 ;
+
+    surf(yhat(:,IND_DRG),'FaceColor','interp','EdgeColor','none');
+
+    ylim([1,length(Time)]);
+
+    set(gca,'YTick',1:length(Time),'Yticklabel',Time);
+    set(gca,'FontSize',11);
+
+    xlim([1,cutoff]);
+
+    zlim([min(min(yhat(:,IND_DRG))),max(max(yhat(:,IND_DRG)))]);
+    hold on;
+	
+    ylabel('Time', 'FontSize', axisLabelFontSize);
+    xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
+
+    title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
+    hold off;
+
+    
+    create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
+    movefile('Cluster_IDX.xls', outputFolder);
+
+  
+  
 
       [s,ind]=sort(cell2mat(n_clusters),'descend');
       
@@ -179,9 +181,7 @@ function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG,
 	  print(h8,'-dpsc2', '-append', 'Cluster.ps');
       end
     movefile('Cluster.ps', outputFolder);
-  end
 
-  if(outputClusterByTypeFig)
     GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
 
     axisLabelFontSize = 30;
@@ -281,16 +281,18 @@ function fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG,
     tmp = round2(vertcat(sizes{:}));
 
     makeHtmlTable(tmp,[],row_hed,col_hed);
-  end
   
-  matrix_of_files_descs = [{'File name'} {'Description'}];
   
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster.ps'} {'Cluster plots.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.ps'} {'Clusters plotted by size.'}]];
-  
-  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+    matrix_of_files_descs = [{'File name'} {'Description'}];
+    
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster.ps'} {'Cluster plots.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.ps'} {'Clusters plotted by size.'}]];
+    
+    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
-  movefile('List_and_description_of_output.xls', outputFolder);
+    movefile('List_and_description_of_output.xls', outputFolder);
+  
+  end
   
 end

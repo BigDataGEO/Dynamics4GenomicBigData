@@ -44,23 +44,23 @@ end
 
 tmp2 = zeros(length(cond),4);
 myVars = {'dfgenens','gcvgenens','lambdagenes','STDERR'};
-for i = 1:length(cond)
-    load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
-    tmp2(i,:) = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
-end
+%  for i = 1:length(cond)
+%      load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
+%      tmp2(i,:) = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
+%  end
 
-colLab = {'Df','GCV','log10($\lambda$)','Std Error'};
-rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, cond, 'UniformOutput', false))');
-Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing';
-Label = 'fit1';
-disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
+%  colLab = {'Df','GCV','log10($\lambda$)','Std Error'};
+%  rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, cond, 'UniformOutput', false))');
+%  Caption = 'The degrees of freedom (Df), the generalized cross validation (GCV), the smoothing paramter $\lambda$ and the standard error of the fitted curves produced by spline smoothing';
+%  Label = 'fit1';
+%  disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
 
 ind= 0 ;
 myVars = {'yhat','Time'};
 for i = 1:length(cond)
     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
-    for sub = 1:N
-        surf(yhat{sub}','FaceColor','interp','EdgeColor','none');
+    for sub = 1:1
+        surf(yhat','FaceColor','interp','EdgeColor','none');
         
         axisLabelFontSize = 30;
         
@@ -73,12 +73,12 @@ for i = 1:length(cond)
 	set(gcf, 'PaperUnits', 'centimeters');
 	set(gcf, 'PaperSize', [30 24]);        
         
-        set(gca,'XTick',1:length(Time{sub}),'Xticklabel',Time{sub})
+        set(gca,'XTick',1:length(Time),'Xticklabel',Time)
         set(gca,'FontSize',11);
         
-        xlim([Time{sub}(1),length(Time{sub})])
-        ylim([1,size(yhat{sub},2)])
-        zlim([min(min(yhat{sub})),max(max(yhat{sub}))])
+        xlim([Time(1),length(Time)])
+        ylim([1,size(yhat,2)])
+        zlim([min(min(yhat)),max(max(yhat))])
         
         xlabel('Time', 'FontSize', axisLabelFontSize)
         ylabel('Probe Set', 'FontSize', axisLabelFontSize)
@@ -122,14 +122,14 @@ tmp2 = zeros(length(cond),4);
 myVars ={'dfgenens','gcvgenens','lambdagenes','STDERR'};
 for i = 1:length(cond)
     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
-    tmp2(i,:) = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
+%      tmp2(i,:) = round2([cell2mat(dfgenens), mean(cell2mat(gcvgenens),2),log10(cell2mat(lambdagenes)),sum(cell2mat(STDERR),2)]);
 end
 
-colLab = {'No. of Modules','No. of LSM','No. of MSM','No. of SSM','No. of SGM'};
-rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, cond, 'UniformOutput', false))');
-Caption = 'The number of gene response modules, number of LSM, MSM, SMS and SGM';
-Label = 'fit1';
-disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
+%  colLab = {'No. of Modules','No. of LSM','No. of MSM','No. of SSM','No. of SGM'};
+%  rowLab = strcat(repmat({'Subject '},N,1),cellstr(arrayfun(@num2str, cond, 'UniformOutput', false))');
+%  Caption = 'The number of gene response modules, number of LSM, MSM, SMS and SGM';
+%  Label = 'fit1';
+%  disp(char(Generate_Latex_Tabels(tmp2,rowLab,colLab,Caption,Label)));
 
 
 

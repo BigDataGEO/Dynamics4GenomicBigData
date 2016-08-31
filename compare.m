@@ -5,75 +5,51 @@ function compare()
   global Dynamics4GenomicBigData_HOME;
 
   [~,GEO_num] = xlsread('GEO_list.xlsx');
+  GEO_number = char(GEO_num(1));
+  
+  Preprocessing_technique = 'Default';
+  [Data_GEO, gid, titles, Info, PInfo, geoStruct] = Obtain_data_from_GEO_website_user(GEO_number, Preprocessing_technique);
 
-  for i = 1:size(GEO_num,1)
-
-    GEO_number = char(GEO_num(i));
-    Preprocessing_technique = 'Default';
-    [Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
-
-    [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+  [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs_considered, gene_ID_type] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);
     
-    display(sprintf('\nYou have successfully entered the data for the first subject.'));
+  display(sprintf('\nYou have successfully entered the data for the first subject.'));
     
-    prompt = '\nNow you will be required to enter the same information for the second subject (press enter to continue).';
+  prompt = '\nNow you will be required to enter the same information for the second subject (press enter to continue).';
     
-    tm_ind = input(prompt);
+  tm_ind = input(prompt);
     
-    [Data_2, Subject_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_2, gene_ID_type_2] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);  
+  [Data_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_considered_2, gene_ID_type_2] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);  
     
-    [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
-    con = strrep(con,' ','_');
-    con = strrep(con,'/','_');
-    con = strrep(con,'.','_');
+  [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
+  con = strrep(con,' ','_');
+  con = strrep(con,'/','_');
+  con = strrep(con,'.','_');
     
-    flder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number,'/',con,'/Comparison/');
+  flder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number,'/',con,'/Comparison/');
     
-    mkdir(flder);
-    cd(flder);
+  mkdir(flder);
+  cd(flder);
     
-    options = struct('format','html','outputDir',flder,'showCode',true);
+  options = struct('format','html','outputDir',flder,'showCode',true);
     
-    % Steps 2, 3, and 4 of the pipeline are run for the first subject.
-    [gexp2, Time, subject_name, yCR] = step_2(Data, Pos, str_ind, false, false);
-    [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, gid, number_of_top_DRGs, false, false);
-    fidxcluster = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, false, false, false);
+  % Steps 2, 3, and 4 of the pipeline are run for the first subject.
+  [gexp2, time_points_of_first_subject, name_of_first_subject, yCR] = step_2(Data, Pos, str_ind, false);
+  number_of_genes_in_dataset=size(Data,1);
+  [fdgenens, yhat, array_indices_of_first_subjects_DRGs, GID_DRG, INDF] = step_3(time_points_of_first_subject, yCR, gexp2, number_of_genes_in_dataset, gid, number_of_top_DRGs_considered, false);
+  [first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters] = step_4(yhat, array_indices_of_first_subjects_DRGs, time_points_of_first_subject, number_of_top_DRGs_considered, gexp2, INDF, GID_DRG, false);
     
-    % Steps 2, 3, and 4 of the pipeline are run for the second subject.
-    [gexp_2, gexp2_2, Time_2, N_2, n_2, subject_name_2, yCR_2] = step_2(Data_2, Subject_2, Pos_2, str_ind_2, false, false);
-    [fdgenens_2, dfgenens_2, gcvgenens_2, lambdagenes_2, yhat_2, STDERR_2, SSE_2, IND_DRG_2, GID_DRG_2, DRG_2, cutoff_2, INDF_2, F_2, axisLabelFontSize_2] = step_3(N_2, Time_2, yCR_2, gexp2_2, n_2, gid, number_of_top_DRGs_2, false, false);
-    [std_data_2, fidxcluster_2,rmclusters_2,c_2,mean_clusters_mat_2,clusters_2, n_clusters_2, Cluster_IDX_2] = step_4(N_2, i, yhat_2, IND_DRG_2, Time_2, cutoff_2, axisLabelFontSize_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
+  % Steps 2, 3, and 4 of the pipeline are run for the second subject.    
+  [second_subjects_gene_expression, time_points_of_second_subject, name_of_second_subject, yCR_2] = step_2(Data_2, Pos_2, str_ind_2, false);
+  number_of_genes_in_dataset_2=size(Data,1);
+  [fdgenens_2, yhat_2, IND_DRG_2, GID_DRG_2, INDF_2] = step_3(time_points_of_second_subject, yCR_2, second_subjects_gene_expression, number_of_genes_in_dataset_2, gid, number_of_top_DRGs_considered_2, false);
+  [fidxcluster_2, second_subjects_expression_by_cluster, means_of_second_subjects_clusters] = step_4(yhat_2, IND_DRG_2, time_points_of_second_subject, number_of_top_DRGs_considered, second_subjects_gene_expression, INDF_2, GID_DRG_2, false);
     
-    [gexp2_2, Time_2, subject_name_2, yCR_2] = step_2(Data_2, Pos_2, str_ind_2, false, false);
-    [fdgenens_2, yhat_2, IND_DRG_2, GID_DRG_2, INDF_2] = step_3(Time_2, yCR_2, gexp2_2, n_2, gid, number_of_top_DRGs_2, false, false);
-    fidxcluster_2 = step_4(yhat_2, IND_DRG_2, Time_2, cutoff_2, gexp2_2, INDF_2, GID_DRG_2, false, false, false);
-
+  output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs);
     
-    array_indices_of_first_subjects_DRGs = IND_DRG;
+  plot_cluster_matches(name_of_first_subject, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_expression_by_cluster, means_of_second_subjects_clusters, time_points_of_second_subject);
     
-    first_subjects_clusters = fidxcluster;
-    
-    name_of_first_subject = subject_name;
-    name_of_second_subject = subject_name_2;
-    
-    second_subjects_gene_expression = gexp2_2;
-    
-    first_subjects_expression_by_cluster = clusters{i};
-    second_subjects_expression_by_cluster = clusters_2{i};
-    
-    means_of_first_subjects_clusters = mean_clusters_mat{i};
-    means_of_second_subjects_clusters = mean_clusters_mat_2{i};
-    
-    time_points_of_first_subject = Time;
-    time_points_of_second_subject = Time_2;
-    
-    output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs);
-    
-    plot_cluster_matches(name_of_first_subject, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_expression_by_cluster, means_of_second_subjects_clusters, time_points_of_second_subject);
-    
-    close all;
-    cd(Dynamics4GenomicBigData_HOME);
-  end
+  close all;
+  cd(Dynamics4GenomicBigData_HOME);
 end
 
 

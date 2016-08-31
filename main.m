@@ -27,7 +27,7 @@ while continue_analysis == 1
     
   options = struct('format','html','outputDir',flder,'showCode',true);
   publish('Paper.m',options);
-  web('Paper.html', '-browser');
+%    web('Paper.html', '-browser');
   
   save(strcat(GEO_number,con,date));
 
@@ -60,4 +60,4 @@ else
   [x, y]=system(['./latex/compile.sh ' flder]);
 end
 
-google(GEO_number,'scholar');
+%  google(GEO_number,'scholar');

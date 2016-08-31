@@ -1,15 +1,19 @@
-function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Pos, str_ind, outputFig1, outputFig2)
+function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Pos, str_ind, output)
 
   [gexp2, Time, subject_name] = get_preprocessed_data(gene_expression_of_subject_across_time_points, Pos, str_ind);
   
-  global Dynamics4GenomicBigData_HOME;
-  
-  outputFolder = 'Step_2';
-  mkdir(outputFolder);
+  yCR = Est_Sub_Sel(Time,gexp2,1);
+  yCR = yCR{1};
   
   n = size(gene_expression_of_subject_across_time_points,1);
   
-  if(outputFig1)
+  if(output)
+  
+    global Dynamics4GenomicBigData_HOME;
+  
+    outputFolder = 'Step_2';
+    mkdir(outputFolder);
+  
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
     clear title;
@@ -59,13 +63,7 @@ function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_ac
     
     print('Paper_01.pdf','-dpdf');
     movefile('Paper_01.pdf', outputFolder);
-  end
-  
-  
-  yCR = Est_Sub_Sel(Time,gexp2,N);
-  yCR = yCR{1};
 
-  if(outputFig2)
     h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
     clear title;
@@ -108,15 +106,15 @@ function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_ac
 
     print('Paper_02.pdf','-dpdf');
     movefile('Paper_02.pdf', outputFolder);
-  end
-  
-  matrix_of_files_descs = [{'File name'} {'Description.'}];
-  
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
-  matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_02.pdf'} {'Expression of genes with smooth trajectories with degrees of freedom below 5.'}]];
-  
-  create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
-  movefile('List_and_description_of_output.xls', outputFolder);
+    matrix_of_files_descs = [{'File name'} {'Description.'}];
+    
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_02.pdf'} {'Expression of genes with smooth trajectories with degrees of freedom below 5.'}]];
+    
+    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+
+    movefile('List_and_description_of_output.xls', outputFolder);
+  end
   
 end
