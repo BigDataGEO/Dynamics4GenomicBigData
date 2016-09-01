@@ -5,14 +5,14 @@ set_paths_and_imports;
 GEO_number              = char(GEO_num(1));
 Preprocessing_technique = 'Default';
 
-[Data_GEO,gid,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
+[Data_GEO,list_of_genes,titles,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique);
 
 conditions_analyzed = cell(20);
 continue_analysis = 1;
 
 while continue_analysis == 1
       
-  [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs_considered, gene_ID_type] = capture_data(GEO_number, Data_GEO,gid,titles,Info,PInfo,geoStruct);
+  [raw_gene_expression, raw_time_points, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs_considered, gene_ID_type] = capture_data(GEO_number, Data_GEO,list_of_genes,titles,Info,PInfo,geoStruct);
       
   [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
   con = strrep(con,' ','_');

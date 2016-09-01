@@ -1,11 +1,11 @@
-function step_8(EAS)
+function step_8(adjacency_matrix_of_gene_regulatory_network)
 
   output = true;
 
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
   
-  G = (EAS~=0);
+  G = (adjacency_matrix_of_gene_regulatory_network~=0);
 
   GS(1,:) = [graph_clustercoeff(sparse(G)),graph_diameter(G),graph_meandist(G),graph_density(G)];
   NS{1} = [bridging_centrality(G),closeness_centrality(sparse(G)),eccentricity_centrality(sparse(G))'];
@@ -13,7 +13,7 @@ function step_8(EAS)
 
   
 
-  adjacency_matrix = EAS;
+  adjacency_matrix = adjacency_matrix_of_gene_regulatory_network;
 
   number_of_clusters = size(adjacency_matrix,1);
 
@@ -68,9 +68,9 @@ function step_8(EAS)
     networkSIF='Network.sif';
     sifFile = fopen(networkSIF,'w');
 
-    for u = 1:length(EAS)
-      for v = 1:length(EAS)
-	if(EAS(u,v) ~= 0)
+    for u = 1:length(adjacency_matrix_of_gene_regulatory_network)
+      for v = 1:length(adjacency_matrix_of_gene_regulatory_network)
+	if(adjacency_matrix_of_gene_regulatory_network(u,v) ~= 0)
 	  fprintf(tgfFile,'"M%1.1i"	"M%1.1i"\n',v,u);
 	  fprintf(sifFile,'"M%1.1i"	pp	"M%1.1i"\n',v,u);
 	end
@@ -84,7 +84,7 @@ function step_8(EAS)
     movefile(networkSIF, outputFolder);
 
     adjacencyMatrixCSVFilename = 'Network_matrix.csv';
-    csvwrite(adjacencyMatrixCSVFilename,EAS);
+    csvwrite(adjacencyMatrixCSVFilename,adjacency_matrix_of_gene_regulatory_network);
     
     if isunix()
       [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' ', adjacencyMatrixCSVFilename]);    

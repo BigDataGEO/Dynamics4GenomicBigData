@@ -60,7 +60,7 @@ myVars = {'yhat','Time'};
 for i = 1:length(cond)
     load(strcat(flder,'/',strcat(GEO_number,conditions_analyzed{cond(i)},date),'.mat'),myVars{:});
     for sub = 1:1
-        surf(yhat','FaceColor','interp','EdgeColor','none');
+        surf(smooth_gene_expression','FaceColor','interp','EdgeColor','none');
         
         axisLabelFontSize = 30;
         
@@ -73,12 +73,12 @@ for i = 1:length(cond)
 	set(gcf, 'PaperUnits', 'centimeters');
 	set(gcf, 'PaperSize', [30 24]);        
         
-        set(gca,'XTick',1:length(Time),'Xticklabel',Time)
+        set(gca,'XTick',1:length(time_points),'Xticklabel',time_points)
         set(gca,'FontSize',11);
         
-        xlim([Time(1),length(Time)])
-        ylim([1,size(yhat,2)])
-        zlim([min(min(yhat)),max(max(yhat))])
+        xlim([time_points(1),length(time_points)])
+        ylim([1,size(smooth_gene_expression,2)])
+        zlim([min(min(smooth_gene_expression)),max(max(smooth_gene_expression))])
         
         xlabel('Time', 'FontSize', axisLabelFontSize)
         ylabel('Probe Set', 'FontSize', axisLabelFontSize)

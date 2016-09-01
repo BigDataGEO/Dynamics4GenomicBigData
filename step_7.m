@@ -1,4 +1,4 @@
-function EAS = step_7(clusters_sorted_by_size, IND_DRG, fdgenens, Time, output)
+function adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, indices_of_DRGs, fd_smooth_coefficients, time_points, output)
   
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
@@ -6,38 +6,38 @@ function EAS = step_7(clusters_sorted_by_size, IND_DRG, fdgenens, Time, output)
   
 
   % %Obtain Smoothed Estimates of the derivative and trajectory.
-  for j = 1:length(clusters_sorted_by_size)
-    group = IND_DRG(clusters_sorted_by_size{j});
-    meanfd = mean_grouped(fdgenens,group);
-    TimeEx = linspace(Time(1),Time(end),100)';
+  for j = 1:length(list_of_gene_clusters)
+    group = indices_of_DRGs(list_of_gene_clusters{j});
+    meanfd = mean_grouped(fd_smooth_coefficients,group);
+    TimeEx = linspace(time_points(1),time_points(end),100)';
     yhatEx(:,j) = eval_fd(TimeEx, meanfd);
     dyhatEx(:,j) = eval_fd(TimeEx, meanfd,1);
   end
 
   % Obtain LASSO estimate of the parameters.
-  EAS   = [];
+  adjacency_matrix_of_gene_regulatory_network   = [];
   Stats =[];
 
   for j = 1:size(dyhatEx,2)
-    [EAS(:,j),Stats{j}] = lasso(yhatEx,dyhatEx(:,j));
+    [adjacency_matrix_of_gene_regulatory_network(:,j),Stats{j}] = lasso(yhatEx,dyhatEx(:,j));
   end       
   
   if(output)
     outputFolder = 'Step_7';
     mkdir(outputFolder);
     
-    G = (EAS~=0);
-    A0 = EAS(G);
+    G = (adjacency_matrix_of_gene_regulatory_network~=0);
+    A0 = adjacency_matrix_of_gene_regulatory_network(G);
 
-    tmp_ind = find(EAS');
-    A_tmp   = EAS';
+    tmp_ind = find(adjacency_matrix_of_gene_regulatory_network');
+    A_tmp   = adjacency_matrix_of_gene_regulatory_network';
     create_exel_file('Networks.xls',[tmp_ind,A_tmp(tmp_ind)],1,[],Dynamics4GenomicBigData_HOME);
-    create_exel_file('Network_matrix.xls',EAS,1,[],Dynamics4GenomicBigData_HOME);
+    create_exel_file('Network_matrix.xls',adjacency_matrix_of_gene_regulatory_network,1,[],Dynamics4GenomicBigData_HOME);
     
     movefile('Networks.xls', outputFolder);
     movefile('Network_matrix.xls', outputFolder);
     
-    A = EAS;
+    A = adjacency_matrix_of_gene_regulatory_network;
 
     tmp_ind = find(A');
     A_tmp   = A';

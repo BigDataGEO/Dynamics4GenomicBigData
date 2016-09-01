@@ -1,8 +1,10 @@
-function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, gid, number_of_top_DRGs_considered, output)
+function [fd_smooth_coefficients, smooth_gene_expression, indices_of_DRGs, list_of_DRGs, indices_of_genes_sorted_by_F_value] = step_3(time_points, smooth_gene_trajectories, gene_expression, list_of_genes, number_of_top_DRGs_considered, output)
 
   
   
   flder = pwd;
+  
+  total_number_of_genes_in_geo_record = size(list_of_genes,1);
   
   
   
@@ -11,12 +13,12 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
   %                        FDA
 
   %  -----------------------------------------------------------------------
-  fdgenens    = [];
+  fd_smooth_coefficients    = [];
   dfgenens    = [];
   gcvgenens   = [];
   lambdagenes = [];
-  yhat        = [];
-  dyhat       = cell(1,1);
+  smooth_gene_expression        = [];
+  derivatives_of_smooth_gene_expression_curves       = [];
   STDERR = [];
   SSE = [];
 
@@ -25,34 +27,34 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
   for i = 1:1
     
     %  ---------------  set up the b-spline basis  ------------------------
-    knots    = Time';
+    knots    = time_points';
     norder   = 3;
-    nbasis   = length(Time) + norder - 1;
-    basisobj = create_bspline_basis([min(Time) max(Time)], nbasis, norder, knots);
+    nbasis   = length(time_points) + norder - 1;
+    basisobj = create_bspline_basis([min(time_points) max(time_points)], nbasis, norder, knots);
 
     %  -----------  Otain optimal smoothing parameter  -----------------
-    B              = eval_basis(Time,basisobj);
+    B              = eval_basis(time_points,basisobj);
     R              = eval_penalty(basisobj,2);
-    lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, yCR', R);
+    lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
     fdParobj       = fdPar(basisobj, 2, lambdagenes);
-    [fdgenens, dfgenens, gcvgenens,~,SSE]  = smooth_basis(Time, gexp2', fdParobj);
-    yhat        = eval_fd(Time, fdgenens);
-    dyhat{i}       = eval_fd(Time, fdgenens,1);
-    STDERR      = sqrt(sum(SSE)/(n*(length(Time)-dfgenens)));
+    [fd_smooth_coefficients, dfgenens, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
+    smooth_gene_expression        = eval_fd(time_points, fd_smooth_coefficients);
+    derivatives_of_smooth_gene_expression_curves       = eval_fd(time_points, fd_smooth_coefficients,1);
+    STDERR      = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-dfgenens)));
   end
   
   F    = [];
-  INDF = [];
+  indices_of_genes_sorted_by_F_value = [];
 
   for i = 1:1
-    F = Ftest(gexp2, Time,  fdgenens, dfgenens);
-    [SF, INDF] = sort(F,'descend');
+    F = Ftest(gene_expression, time_points,  fd_smooth_coefficients, dfgenens);
+    [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
   end
   
   for i = 1:1
-    IND_DRG = INDF(1:number_of_top_DRGs_considered);
-    GID_DRG = gid(IND_DRG);
-    DRG= gexp2(IND_DRG,:)';
+    indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
+    list_of_DRGs = list_of_genes(indices_of_DRGs);
+    DRG= gene_expression(indices_of_DRGs,:)';
   end
   
   
@@ -79,14 +81,14 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
 
     for sub = 1:1
 
-	surf(yhat','FaceColor','interp','EdgeColor','none');
-	xlim([Time(1),length(Time)]);
+	surf(smooth_gene_expression','FaceColor','interp','EdgeColor','none');
+	xlim([time_points(1),length(time_points)]);
 	
-	set(gca,'XTick',1:length(Time),'Xticklabel',Time);
+	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);
 
-	ylim([1,size(yhat,2)]);
-	zlim([min(min(yhat)),max(max(yhat))]);
+	ylim([1,size(smooth_gene_expression,2)]);
+	zlim([min(min(smooth_gene_expression)),max(max(smooth_gene_expression))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 	ylabel('Genes', 'FontSize', axisLabelFontSize);
@@ -116,9 +118,9 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
     for i = 1:1
       xlRange = [Col(i) '1'];
       create_exel_file('F_value.xls',F,1,xlRange,Dynamics4GenomicBigData_HOME);
-      create_exel_file('Index_Ftest.xls',INDF,1,xlRange,Dynamics4GenomicBigData_HOME);
-      create_exel_file('Index_Ftest_DRG.xls',IND_DRG,1,xlRange,Dynamics4GenomicBigData_HOME);
-      create_exel_file('Probe_set_ID_Ftest_DRG.xls',GID_DRG,1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Index_Ftest.xls',indices_of_genes_sorted_by_F_value,1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Index_Ftest_DRG.xls',indices_of_DRGs,1,xlRange,Dynamics4GenomicBigData_HOME);
+      create_exel_file('Probe_set_ID_Ftest_DRG.xls',list_of_DRGs,1,xlRange,Dynamics4GenomicBigData_HOME);
       create_exel_file('DRG.xls',DRG',i,[],Dynamics4GenomicBigData_HOME);
       
       movefile('F_value.xls', outputFolder);
@@ -129,8 +131,8 @@ function [fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, n, 
     end
     
     for i = 1:1
-      create_exel_file('Fitted_curves.xls',yhat',i,[],Dynamics4GenomicBigData_HOME);
-      create_exel_file('Derivative_Fitted_Curves.xls',dyhat{i}',i,[],Dynamics4GenomicBigData_HOME);
+      create_exel_file('Fitted_curves.xls',smooth_gene_expression',i,[],Dynamics4GenomicBigData_HOME);
+      create_exel_file('Derivative_Fitted_Curves.xls',derivatives_of_smooth_gene_expression_curves',i,[],Dynamics4GenomicBigData_HOME);
       
       movefile('Fitted_curves.xls', outputFolder);
       movefile('Derivative_Fitted_Curves.xls', outputFolder);

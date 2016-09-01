@@ -1,4 +1,4 @@
-%% A Pipeline for High-Dimensional Time Course Gene Expression Data
+%% A Pipeline for High-Dimensional time_points Course Gene Expression Data
 
 % M. Carey, S. Wu and H. Wu
 
@@ -28,7 +28,7 @@
 
 % -----------------------------------------------------------------
 
-[gexp2, Time, subject_name, yCR] = step_2(Data, Pos, str_ind, true);
+[gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, true);
 
 %%
 
@@ -164,8 +164,8 @@
 
 % can be considered as exhibiting notable changes with respect to time.
 
-number_of_genes_in_dataset=size(Data,1);
-[fdgenens, yhat, IND_DRG, GID_DRG, INDF] = step_3(Time, yCR, gexp2, number_of_genes_in_dataset, gid, number_of_top_DRGs_considered, true);
+
+[fd_smooth_coefficients, smooth_gene_expression, indices_of_DRGs, list_of_DRGs, indices_of_genes_sorted_by_F_value] = step_3(time_points, smooth_gene_trajectories, gene_expression, list_of_genes, number_of_top_DRGs_considered, true);
 
 
 %%
@@ -227,7 +227,7 @@ number_of_genes_in_dataset=size(Data,1);
 
 %
 
-[fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time, number_of_top_DRGs_considered, gexp2, INDF, GID_DRG, true);
+[list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(smooth_gene_expression, indices_of_DRGs, time_points, number_of_top_DRGs_considered, gene_expression, indices_of_genes_sorted_by_F_value, list_of_DRGs, true);
 
 
 %%
@@ -299,7 +299,7 @@ number_of_genes_in_dataset=size(Data,1);
 % classify the groups of similar annotations according kappa values. In this sense, the more common
 % genes annotations share, the higher chance they will be grouped together.
 
-step_5(fidxcluster, gid, IND_DRG, gene_ID_type);
+step_5(list_of_gene_clusters, list_of_genes, indices_of_DRGs, gene_ID_type);
 
 %%
 
@@ -437,7 +437,7 @@ step_5(fidxcluster, gid, IND_DRG, gene_ID_type);
 
 % 
 
-EAS = step_7(fidxcluster, IND_DRG, fdgenens, Time, true);
+adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, indices_of_DRGs, fd_smooth_coefficients, time_points, true);
 
 % %% Obtain Network Analysis of the gene regulation networks (GRNs).
 
@@ -505,4 +505,4 @@ EAS = step_7(fidxcluster, IND_DRG, fdgenens, Time, true);
 
 % %
 
-step_8(EAS);
+step_8(adjacency_matrix_of_gene_regulatory_network);

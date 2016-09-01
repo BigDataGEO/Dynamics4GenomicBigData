@@ -1,4 +1,4 @@
-function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time, cutoff, gexp2, INDF, GID_DRG, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(smooth_gene_expression, indices_of_DRGs, time_points, number_of_top_DRGs_considered, gene_expression, indices_of_genes_sorted_by_F_value, list_of_DRGs, output)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -16,21 +16,21 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
   %Theshold
   alpha = 0.75;
 
-  std_data     = zscore(gexp2(INDF(1:cutoff),:)')';
-  [fidxcluster,rmclusters,c,mean_clusters_mat,clusters] = IHC(std_data,alpha);
+  std_data     = zscore(gene_expression(indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered),:)')';
+  [list_of_gene_clusters,rmclusters,c,list_of_cluster_means,gene_expression_by_cluster] = IHC(std_data,alpha);
       
       
   % The following four lines sort the clusters by size.
-  [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', fidxcluster, 1), 'descend');
-  fidxcluster = fidxcluster(cluster_indexes_by_size);
-  clusters = clusters(cluster_indexes_by_size);
-  mean_clusters_mat = mean_clusters_mat(cluster_indexes_by_size,:);
+  [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', list_of_gene_clusters, 1), 'descend');
+  list_of_gene_clusters = list_of_gene_clusters(cluster_indexes_by_size);
+  gene_expression_by_cluster = gene_expression_by_cluster(cluster_indexes_by_size);
+  list_of_cluster_means = list_of_cluster_means(cluster_indexes_by_size,:);
   % The previous four lines sort the clusters by size.
       
-  n_clusters   = cellfun(@(x) size(x,1),clusters,'UniformOutput', false);
+  n_clusters   = cellfun(@(x) size(x,1),gene_expression_by_cluster,'UniformOutput', false);
 
-  for l = 1:length(fidxcluster)
-    Cluster_IDX(fidxcluster{l}) = l;
+  for l = 1:length(list_of_gene_clusters)
+    Cluster_IDX(list_of_gene_clusters{l}) = l;
   end
   
   for k=1:1
@@ -45,21 +45,21 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
 
     ind3        = find(sz{k}==1);
 
-    lrg_id{k}   = GID_DRG(vertcat(fidxcluster{ind}));
+    lrg_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind}));
 
-    med_id{k}   = GID_DRG(vertcat(fidxcluster{ind1}));
+    med_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind1}));
 
-    smal_id{k}  = GID_DRG(vertcat(fidxcluster{ind2}));
+    smal_id{k}  = list_of_DRGs(vertcat(list_of_gene_clusters{ind2}));
 
-    sin_id{k}   = GID_DRG(vertcat(fidxcluster{ind3}));
+    sin_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind3}));
 
-    lrg_ts{k}   = mean_clusters_mat(ind,:);
+    lrg_ts{k}   = list_of_cluster_means(ind,:);
 
-    med_ts{k}   = mean_clusters_mat(ind1,:);
+    med_ts{k}   = list_of_cluster_means(ind1,:);
 
-    smal_ts{k}  = mean_clusters_mat(ind2,:);
+    smal_ts{k}  = list_of_cluster_means(ind2,:);
 
-    sin_ts{k}   = mean_clusters_mat(ind3,:);
+    sin_ts{k}   = list_of_cluster_means(ind3,:);
 
     sizes{k}    = [size(sz{k},1),length(ind),length(ind1),length(ind2),length(ind3)];
 
@@ -79,16 +79,16 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
 
     ind= 0 ;
 
-    surf(yhat(:,IND_DRG),'FaceColor','interp','EdgeColor','none');
+    surf(smooth_gene_expression(:,indices_of_DRGs),'FaceColor','interp','EdgeColor','none');
 
-    ylim([1,length(Time)]);
+    ylim([1,length(time_points)]);
 
-    set(gca,'YTick',1:length(Time),'Yticklabel',Time);
+    set(gca,'YTick',1:length(time_points),'Yticklabel',time_points);
     set(gca,'FontSize',11);
 
-    xlim([1,cutoff]);
+    xlim([1,number_of_top_DRGs_considered]);
 
-    zlim([min(min(yhat(:,IND_DRG))),max(max(yhat(:,IND_DRG)))]);
+    zlim([min(min(smooth_gene_expression(:,indices_of_DRGs))),max(max(smooth_gene_expression(:,indices_of_DRGs)))]);
     hold on;
 	
     ylabel('Time', 'FontSize', axisLabelFontSize);
@@ -107,7 +107,7 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
 
       [s,ind]=sort(cell2mat(n_clusters),'descend');
       
-      number_of_clusters = size(mean_clusters_mat,1);
+      number_of_clusters = size(list_of_cluster_means,1);
       number_of_subplots = number_of_clusters;
       
       % Ideally the following two variables should be settable to any values. But for now this works only with 30 and 6.
@@ -143,10 +143,10 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
 
 	      subplot(number_of_rows_per_page,number_of_columns_per_page,gen);
 
-	      plot(clusters{cluster_number}','-*b');
+	      plot(gene_expression_by_cluster{cluster_number}','-*b');
 	      
-	      set(gca,'XTick', 1:size(Time));
-	      set(gca,'XTickLabel', Time);
+	      set(gca,'XTick', 1:size(time_points));
+	      set(gca,'XTickLabel', time_points);
 
 	      xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -154,11 +154,11 @@ function [fidxcluster, clusters, mean_clusters_mat] = step_4(yhat, IND_DRG, Time
 
 	      hold on;
 
-	      plot(mean_clusters_mat(cluster_number,:),'o-r','LineWidth',1.5);
+	      plot(list_of_cluster_means(cluster_number,:),'o-r','LineWidth',1.5);
 
-	      xlim([0,size(mean_clusters_mat(cluster_number,:),2)]);
+	      xlim([0,size(list_of_cluster_means(cluster_number,:),2)]);
 
-	      ylim([min(min(clusters{cluster_number}))-.05,max(max(clusters{cluster_number}))+.05]);
+	      ylim([min(min(gene_expression_by_cluster{cluster_number}))-.05,max(max(gene_expression_by_cluster{cluster_number}))+.05]);
 
 	      v = axis;
 	      

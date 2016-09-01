@@ -10,7 +10,7 @@ function compare()
   Preprocessing_technique = 'Default';
   [Data_GEO, gid, titles, Info, PInfo, geoStruct] = Obtain_data_from_GEO_website_user(GEO_number, Preprocessing_technique);
 
-  [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs_considered, gene_ID_type] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);
+  [Data, Pos, name_of_first_subject, pr_ind, tb, Subject_name, number_of_top_DRGs_considered, gene_ID_type] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);
     
   display(sprintf('\nYou have successfully entered the data for the first subject.'));
     
@@ -18,7 +18,7 @@ function compare()
     
   tm_ind = input(prompt);
     
-  [Data_2, Pos_2, str_ind_2, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_considered_2, gene_ID_type_2] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);  
+  [Data_2, Pos_2, name_of_second_subject, pr_ind_2, tb_2, Subject_name_2, number_of_top_DRGs_considered_2, gene_ID_type_2] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct);  
     
   [~, ~, con] = LCS(char(tb(pr_ind(1),1)),char(tb(pr_ind(end),1)));
   con = strrep(con,' ','_');
@@ -33,15 +33,13 @@ function compare()
   options = struct('format','html','outputDir',flder,'showCode',true);
     
   % Steps 2, 3, and 4 of the pipeline are run for the first subject.
-  [gexp2, time_points_of_first_subject, name_of_first_subject, yCR] = step_2(Data, Pos, str_ind, false);
-  number_of_genes_in_dataset=size(Data,1);
-  [fdgenens, yhat, array_indices_of_first_subjects_DRGs, GID_DRG, INDF] = step_3(time_points_of_first_subject, yCR, gexp2, number_of_genes_in_dataset, gid, number_of_top_DRGs_considered, false);
+  [gexp2, time_points_of_first_subject, yCR] = step_2(Data, Pos, false);
+  [fdgenens, yhat, array_indices_of_first_subjects_DRGs, GID_DRG, INDF] = step_3(time_points_of_first_subject, yCR, gexp2, gid, number_of_top_DRGs_considered, false);
   [first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters] = step_4(yhat, array_indices_of_first_subjects_DRGs, time_points_of_first_subject, number_of_top_DRGs_considered, gexp2, INDF, GID_DRG, false);
     
   % Steps 2, 3, and 4 of the pipeline are run for the second subject.    
-  [second_subjects_gene_expression, time_points_of_second_subject, name_of_second_subject, yCR_2] = step_2(Data_2, Pos_2, str_ind_2, false);
-  number_of_genes_in_dataset_2=size(Data,1);
-  [fdgenens_2, yhat_2, IND_DRG_2, GID_DRG_2, INDF_2] = step_3(time_points_of_second_subject, yCR_2, second_subjects_gene_expression, number_of_genes_in_dataset_2, gid, number_of_top_DRGs_considered_2, false);
+  [second_subjects_gene_expression, time_points_of_second_subject, yCR_2] = step_2(Data_2, Pos_2, false);
+  [fdgenens_2, yhat_2, IND_DRG_2, GID_DRG_2, INDF_2] = step_3(time_points_of_second_subject, yCR_2, second_subjects_gene_expression, gid, number_of_top_DRGs_considered_2, false);
   [fidxcluster_2, second_subjects_expression_by_cluster, means_of_second_subjects_clusters] = step_4(yhat_2, IND_DRG_2, time_points_of_second_subject, number_of_top_DRGs_considered, second_subjects_gene_expression, INDF_2, GID_DRG_2, false);
     
   output_comparison_plots(name_of_first_subject, first_subjects_clusters, first_subjects_expression_by_cluster, means_of_first_subjects_clusters, time_points_of_first_subject, name_of_second_subject, second_subjects_gene_expression, array_indices_of_first_subjects_DRGs);

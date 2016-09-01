@@ -1,11 +1,27 @@
-function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_across_time_points, Pos, str_ind, output)
+% Input
 
-  [gexp2, Time, subject_name] = get_preprocessed_data(gene_expression_of_subject_across_time_points, Pos, str_ind);
+% raw_gene_expression : This is the raw gene expression data of the subject as a MxN matrix, where M is the number of genes and N is the number of samples associated to the subject (this number is commonly the same as the number of time points).
+
+% raw_time_points : This is the raw list of time points as they appear on the GSE record. In some GSE records these time points are not necessarily sorted and may have duplicates. This argument is this list of arguments as a row vector (i.e., as an horizontal vector).
+
+% output : A boolean argument indicating whether the results should be output as files. If true, then results are output to directory 'step_2'.
+
+% Output
+
+% gene_expression : The preprocessed gene expression of the subject as a MxN matrix, where M is the number of genes and N is the number of time points (sorted and without duplicates).
+
+% time_points : A column vector with the list of time points (sorted and without duplicates, possibly unlike the list of time points passed as argument raw_time_points).
+
+% smooth_gene_trajectories : This is the expression of genes with smooth trajectories. Also a matrix analogous to gene_expression, although possibly with less rows.
+
+function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, output)
+
+  [gene_expression, time_points] = get_preprocessed_data(raw_gene_expression, raw_time_points);
   
-  yCR = Est_Sub_Sel(Time,gexp2,1);
-  yCR = yCR{1};
+  smooth_gene_trajectories = Est_Sub_Sel(time_points,gene_expression,1);
+  smooth_gene_trajectories = smooth_gene_trajectories{1};
   
-  n = size(gene_expression_of_subject_across_time_points,1);
+  n = size(raw_gene_expression,1);
   
   if(output)
   
@@ -33,16 +49,16 @@ function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_ac
     
 	i = sub;
 
-	surf(gexp2,'FaceColor','interp','EdgeColor','none');
+	surf(gene_expression,'FaceColor','interp','EdgeColor','none');
 
-	xlim([Time(1),length(Time)]);
+	xlim([time_points(1),length(time_points)]);
 
-	set(gca,'XTick',1:length(Time),'Xticklabel',Time);
+	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);
 
 	ylim([1,n]);
 
-	zlim([min(min(gexp2)),max(max(gexp2))]);
+	zlim([min(min(gene_expression)),max(max(gene_expression))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -79,16 +95,16 @@ function [gexp2, Time, subject_name, yCR] = step_2(gene_expression_of_subject_ac
 
     for sub = 1:N
 
-	surf(yCR,'FaceColor','interp','EdgeColor','none');
+	surf(smooth_gene_trajectories,'FaceColor','interp','EdgeColor','none');
 
-	xlim([Time(1),length(Time)]);
+	xlim([time_points(1),length(time_points)]);
 
-	set(gca,'XTick',1:length(Time),'Xticklabel',Time);
+	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);
 
-	ylim([1,size(yCR,1)]);
+	ylim([1,size(smooth_gene_trajectories,1)]);
 
-	zlim([min(min(yCR)),max(max(yCR))]);
+	zlim([min(min(smooth_gene_trajectories)),max(max(smooth_gene_trajectories))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 
