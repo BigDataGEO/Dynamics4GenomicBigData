@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-[list_of_genes, raw_gene_expression, raw_time_points, number_of_top_DRGs_considered, gene_ID_type] = step_1('GSE47962');
+[list_of_genes, raw_gene_expression, raw_time_points, number_of_top_DRGs_considered, gene_ID_type] = step_1('GSE59015');
 
 [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
 
