@@ -1,12 +1,8 @@
-function [fd_smooth_coefficients, smooth_gene_expression, indices_of_DRGs, list_of_DRGs, indices_of_genes_sorted_by_F_value] = step_3(time_points, smooth_gene_trajectories, gene_expression, list_of_genes, number_of_top_DRGs_considered, output)
+function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, fd_smooth_coefficients] = step_3(list_of_genes, gene_expression, time_points, number_of_top_DRGs_considered, smooth_gene_trajectories, output)
 
-  
-  
   flder = pwd;
   
   total_number_of_genes_in_geo_record = size(list_of_genes,1);
-  
-  
   
   %  -----------------------------------------------------------------------
 

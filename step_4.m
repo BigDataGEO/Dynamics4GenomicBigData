@@ -1,4 +1,4 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(smooth_gene_expression, indices_of_DRGs, time_points, number_of_top_DRGs_considered, gene_expression, indices_of_genes_sorted_by_F_value, list_of_DRGs, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, output)
 
   global Dynamics4GenomicBigData_HOME;
   

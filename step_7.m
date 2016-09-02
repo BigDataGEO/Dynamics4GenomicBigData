@@ -1,10 +1,8 @@
-function adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, indices_of_DRGs, fd_smooth_coefficients, time_points, output)
+function adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, output)
   
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
   
-  
-
   % %Obtain Smoothed Estimates of the derivative and trajectory.
   for j = 1:length(list_of_gene_clusters)
     group = indices_of_DRGs(list_of_gene_clusters{j});

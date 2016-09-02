@@ -1,42 +1,41 @@
-function [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, Data_GEO, gid, titles, Info, PInfo, geoStruct)
+function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, raw_gene_expression_data_in_all_samples, gid, titles, metadata_for_all_samples, PInfo, geoStruct)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
-  dis = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
-  display(dis);    
+  list_of_sample_record_titles = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
+  display(list_of_sample_record_titles);    
 	
   display(sprintf('\n\nAll the samples associated to %s are listed above. You must now specify the samples that you want to include in the analysis.\n', GEO_number));
   display(sprintf('You must do this by entering a term or string that is common ONLY to the desired samples from the list above.\n'));
   prompt = 'Which samples would you like to include in the analysis? (enter the common string) ';
-  str_ind = input(prompt);
-  pr_ind = ExtractSubjects(str_ind, dis);
+  common_string_identifying_subject_samples = input(prompt);
+  indices_of_selected_sample_record_titles = ExtractSubjects(common_string_identifying_subject_samples, list_of_sample_record_titles);
   display(sprintf('\nThe samples that match your search terms are listed below.\n'));
-  display(dis(pr_ind));
+  display(list_of_sample_record_titles(indices_of_selected_sample_record_titles));
 
-  %Get Data for that condtion
-  Data     = Data_GEO(:,pr_ind);  
+  raw_gene_expression = raw_gene_expression_data_in_all_samples(:,indices_of_selected_sample_record_titles);  
   
   display(sprintf('\nThe list below shows the information available for each one of the selected samples.\n\n'));
     
   %Display the Characteristics of the GEO series
-  display(strcat(cellstr(arrayfun(@num2str, 1:length({Info{:,pr_ind(1)}}), 'UniformOutput', false))',' : ',{Info{:,pr_ind(1)}}'));
+  display(strcat(cellstr(arrayfun(@num2str, 1:length({metadata_for_all_samples{:,indices_of_selected_sample_record_titles(1)}}), 'UniformOutput', false))',' : ',{metadata_for_all_samples{:,indices_of_selected_sample_record_titles(1)}}'));
 
   %Find out where the time is
   prompt = 'Which item in the list corresponds to the time point? (Enter item number or -1 if none): ';
-  tm_ind = input(prompt);
+  index_of_time_row_in_sample_metadata = input(prompt);
   
-  if tm_ind > 0
+  if index_of_time_row_in_sample_metadata > 0
     % Traditional case: time points can be read from characteristics matrix.
     format bank;
-    Pos    = {Info{tm_ind,pr_ind}};
-    if ~isempty(cell2mat(strfind(Pos,'Baseline')))
-      Pos = strrep(Pos, 'Baseline', '0');
+    raw_time_points    = {metadata_for_all_samples{index_of_time_row_in_sample_metadata,indices_of_selected_sample_record_titles}};
+    if ~isempty(cell2mat(strfind(raw_time_points,'Baseline')))
+      raw_time_points = strrep(raw_time_points, 'Baseline', '0');
     end
-    Pos    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), Pos, 'UniformOutput', false));
+    raw_time_points    = cell2mat(cellfun(@(x) str2num(char(regexp(x,'\d+\.?\d*|-\d+\.?\d*|\.?\d*','match'))), raw_time_points, 'UniformOutput', false));
 
     sane_check = 0;
     while sane_check == 0
-      display(Pos');
+      display(raw_time_points');
       prompt = '\nThese are all the time values measured in hours. Are they correct? (Enter 1 for "Yes" or 0 for "No") ';
       sane_check = input(prompt);
       if sane_check ~= 0
@@ -44,40 +43,46 @@ function [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene
       end
       timePointsMatrix = InputTimePointsManually();
 	
-      Pos = [];
+      raw_time_points = [];
       timeUnit = 'N/A';
 	
       if not(isempty(timePointsMatrix))
-	Pos = cell2mat(timePointsMatrix(:,1))';
+	raw_time_points = cell2mat(timePointsMatrix(:,1))';
 	timeUnit = timePointsMatrix(1,2);
       end
     end
 
     %% Find out where the subject is
-    prompt = '\nWhich item in the list corresponds to the subject/condition? (format [1,2,3] or all) ';
-    su_ind = input(prompt);
-    [Subject_name,~,Subject] = unique({Info{su_ind,pr_ind}});
+%      prompt = '\nWhich item in the list corresponds to the subject/condition? (format [1,2,3] or all) ';
+%      index_of_subject_in_sample_metadata = input(prompt);
+%      [subject_name,~,Subject] = unique({metadata_for_all_samples{index_of_subject_in_sample_metadata,indices_of_selected_sample_record_titles}});
     
+    if iscellstr(common_string_identifying_subject_samples)
+      subject_name = strjoin(common_string_identifying_subject_samples, '_');
+    else
+      subject_name = common_string_identifying_subject_samples;
+    end
+    Subject = repmat(1, 1, size(raw_time_points,2));
     
-    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(Data, 1));
+    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
     
     [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
     
   else
     % New case where time points must be read from title field or somewhere else.      
-    timePointsMatrix = ExtractTimePoints(dis(pr_ind));
+    timePointsMatrix = ExtractTimePoints(list_of_sample_record_titles(indices_of_selected_sample_record_titles));
       
-    Pos = [];
+    raw_time_points = [];
     timeUnit = 'N/A';
       
     if not(isempty(timePointsMatrix))
-      Pos = cell2mat(timePointsMatrix(:,1))';
+      raw_time_points = cell2mat(timePointsMatrix(:,1))';
       timeUnit = timePointsMatrix(1,2);
     end
 	
     sane_check = 0;
     while sane_check == 0
-      display(Pos');
+      display(raw_time_points');
       prompt = ['These are all the time values measured in ' timeUnit{1} '. Are they correct? (Enter 1 for "Yes" or 0 for "No") '];
       sane_check = input(prompt);
       if sane_check ~= 0
@@ -85,26 +90,32 @@ function [Data, Pos, str_ind, pr_ind, tb, Subject_name, number_of_top_DRGs, gene
       end
       timePointsMatrix = InputTimePointsManually();
 	
-      Pos = [];
+      raw_time_points = [];
       timeUnit = 'N/A';
 	
       if not(isempty(timePointsMatrix))
-	Pos = cell2mat(timePointsMatrix(:,1))';
+	raw_time_points = cell2mat(timePointsMatrix(:,1))';
 	timeUnit = timePointsMatrix(1,2);
       end
     end
 
-    if iscellstr(str_ind)
-      Subject_name = strjoin(str_ind, '_');
+    if iscellstr(common_string_identifying_subject_samples)
+      subject_name = strjoin(common_string_identifying_subject_samples, '_');
     else
-      Subject_name = str_ind;
+      subject_name = common_string_identifying_subject_samples;
     end
-    Subject = repmat(1, 1, size(Pos,2));
+    Subject = repmat(1, 1, size(raw_time_points,2));
     
-    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(Data, 1));
+    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
     
     [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
   end
+  
+  [~, ~, condition] = LCS(char(tb(indices_of_selected_sample_record_titles(1),1)),char(tb(indices_of_selected_sample_record_titles(end),1)));
+  condition = strrep(condition,' ','_');
+  condition = strrep(condition,'/','_');
+  condition = strrep(condition,'.','_');
+    
 end
 
 
