@@ -261,7 +261,6 @@ adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time
 
 step_8(adjacency_matrix_of_gene_regulatory_network);
 
-
 %% Results
 
 %% Discussion

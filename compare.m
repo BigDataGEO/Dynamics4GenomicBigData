@@ -40,7 +40,6 @@ function compare()
   cd(Dynamics4GenomicBigData_HOME);
 end
 
-
 function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2)
 
     x = list_of_cluster_means;
@@ -118,7 +117,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
 
-      set(handle,'Position',[8 v(4)*1.03 0]);
+      set(handle,'Position',[2.6 v(4)*1.03 0]);
 
       hold off;
       
@@ -143,7 +142,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
       
       handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
 
-      set(handle,'Position',[8 v(4)*1.03 0]);
+      set(handle,'Position',[2.35 v(4)*1.03 0]);
 
       hold off;
 end
@@ -223,9 +222,9 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 
 	  v = axis;
 
-	  handle=title(['Expression of genes in M',num2str(currentClusterIndex), ' from ', name_of_first_subject, '']);
+	  handle=title(['Expression of genes in M', num2str(currentClusterIndex), ' from ', name_of_first_subject, '']);
 
-	  set(handle,'Position',[8 v(4)*1.03 0]);
+	  set(handle,'Position',[3 v(4)*1.03 0]);
 
 	  hold off;
 		
@@ -241,6 +240,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  hold on;
 	  
 %  	  plot(list_of_cluster_means(currentClusterIndex,:),'o-g','LineWidth',1.5);
+	  plot(mean(expression_of_second_subject,1),'o-r','LineWidth',1.5);
 
 	  ylim(y_axis_limits);
 	  
@@ -257,7 +257,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 
 	  handle=title(['Expression of the same genes in ', name_of_second_subject, '']);
 
-	  set(handle,'Position',[8 v(4)*1.03 0]);
+	  set(handle,'Position',[2.815 v(4)*1.03 0]);
 
 	  hold off;
 	  
