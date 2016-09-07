@@ -1,3 +1,4 @@
+load('Paper.mat');
 %% Introduction
 
 %% Materials and methods
