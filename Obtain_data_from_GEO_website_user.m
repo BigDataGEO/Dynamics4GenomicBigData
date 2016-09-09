@@ -8,7 +8,7 @@ function [dat,gid,title,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_use
 
 %Obtain information from the GEO website 
 try
-geoStruct = getgeodata(GEO_number);
+geoStruct = get_geo_data(GEO_number);
 catch
     prompt    = 'Provide full path to GSE... .soft file downloaded from GEO website';
     str_ind   = input(prompt);

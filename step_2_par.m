@@ -23,6 +23,9 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
   
   n = size(raw_gene_expression,1);
   
+  gene_expression=gene_expression(1:10, :);
+  smooth_gene_trajectories=smooth_gene_trajectories(1:10, :);
+  
   if(output)
   
     global Dynamics4GenomicBigData_HOME;
@@ -77,61 +80,56 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
 %      savefig('Paper_01.fig');
 %      movefile('Paper_01.fig', outputFolder);
     
-%      print('Paper_01.pdf','-dpdf');
-%      movefile('Paper_01.pdf', outputFolder);
-    
-    saveas(gcf, 'Paper_01.png');
-    movefile('Paper_01.png', outputFolder);
+    print('Paper_01.pdf','-dpdf');
+    movefile('Paper_01.pdf', outputFolder);
 
-%      h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-%  
-%      clear title;
-%  
-%      set(gcf, 'PaperPositionMode', 'manual');
-%      set(gcf, 'PaperUnits', 'centimeters');
-%      set(gcf, 'PaperPosition', [0 0 30 24]);
-%      set(gcf, 'PaperUnits', 'centimeters');
-%      set(gcf, 'PaperSize', [30 24]);
-%      axisLabelFontSize = 30;
-%  
-%      ind= 0 ;
-%  
-%      for sub = 1:N
-%  
-%  	surf(smooth_gene_trajectories,'FaceColor','interp','EdgeColor','none');
-%  
-%  	xlim([time_points(1),length(time_points)]);
-%  
-%  	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
-%  	set(gca,'FontSize',11);
-%  
-%  	ylim([1,size(smooth_gene_trajectories,1)]);
-%  
-%  	zlim([min(min(smooth_gene_trajectories)),max(max(smooth_gene_trajectories))]);
-%  
-%  	xlabel('Time', 'FontSize', axisLabelFontSize);
-%  
-%  	ylabel('Genes', 'FontSize', axisLabelFontSize);
-%  
-%  	zlabel('Expression', 'FontSize', axisLabelFontSize);
-%  
-%  	hold on;
-%  
-%  	title(['Genes with smooth trajectories with dof<5'], 'FontSize', 20);
-%  
-%  	hold off;
-%  
-%      end
-%  
-%  %      print('Paper_02.pdf','-dpdf');
-%  %      movefile('Paper_02.pdf', outputFolder);
-%      saveas(gcf, 'Paper_02.png');
-%      movefile('Paper_02.png', outputFolder);
+    h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
+
+    clear title;
+
+    set(gcf, 'PaperPositionMode', 'manual');
+    set(gcf, 'PaperUnits', 'centimeters');
+    set(gcf, 'PaperPosition', [0 0 30 24]);
+    set(gcf, 'PaperUnits', 'centimeters');
+    set(gcf, 'PaperSize', [30 24]);
+    axisLabelFontSize = 30;
+
+    ind= 0 ;
+
+    for sub = 1:N
+
+	surf(smooth_gene_trajectories,'FaceColor','interp','EdgeColor','none');
+
+	xlim([time_points(1),length(time_points)]);
+
+	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
+	set(gca,'FontSize',11);
+
+	ylim([1,size(smooth_gene_trajectories,1)]);
+
+	zlim([min(min(smooth_gene_trajectories)),max(max(smooth_gene_trajectories))]);
+
+	xlabel('Time', 'FontSize', axisLabelFontSize);
+
+	ylabel('Genes', 'FontSize', axisLabelFontSize);
+
+	zlabel('Expression', 'FontSize', axisLabelFontSize);
+
+	hold on;
+
+	title(['Genes with smooth trajectories with dof<5'], 'FontSize', 20);
+
+	hold off;
+
+    end
+
+    print('Paper_02.pdf','-dpdf');
+    movefile('Paper_02.pdf', outputFolder);
 
     matrix_of_files_descs = [{'File name'} {'Description.'}];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
-%      matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_02.pdf'} {'Expression of genes with smooth trajectories with degrees of freedom below 5.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_02.pdf'} {'Expression of genes with smooth trajectories with degrees of freedom below 5.'}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 

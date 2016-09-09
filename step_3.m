@@ -105,7 +105,7 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
     col_hed = {'Df','GCV','log10(\lambda)','Std Error'};
     row_hed = strcat(repmat({'Subject '},1,1),cellstr(arrayfun(@num2str, 1:1, 'UniformOutput', false))');
     tmp = round2([dfgenens, mean(gcvgenens,2),log10(lambdagenes),sum(STDERR,2)]);
-    makeHtmlTable(tmp,[],row_hed,col_hed);
+%      makeHtmlTable(tmp,[],row_hed,col_hed);
   
     Col = 'A':'X';
 

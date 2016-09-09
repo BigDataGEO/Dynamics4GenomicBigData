@@ -280,7 +280,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     tmp = round2(vertcat(sizes{:}));
 
-    makeHtmlTable(tmp,[],row_hed,col_hed);
+%      makeHtmlTable(tmp,[],row_hed,col_hed);
   
   
     matrix_of_files_descs = [{'File name'} {'Description'}];

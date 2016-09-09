@@ -36,9 +36,16 @@ total_number_of_analyses_to_run = index_of_analysis;
 
 for index_of_analysis=1:total_number_of_analyses_to_run
   write_draft(GEO_number, list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis});
+  
+  fprintf('\n');
+  display(['The analysis of condition "' condition_array{index_of_analysis} '" has been completed.']);
+  
+  fprintf('\n');
+  display(['Results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/' condition_array{index_of_analysis} '/']);
 end
 
 fprintf('\n');
 display('The analysis is complete for all the subjects/conditions.');
 
-display(['Results have been output to folder ' 'Results/' GEO_number '/']);
+fprintf('\n');
+display(['All results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/']);
