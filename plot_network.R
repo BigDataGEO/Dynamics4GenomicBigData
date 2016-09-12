@@ -23,7 +23,7 @@ colnames(easMat) <- moduleNumber
 rownames(easMat) <- moduleNumber
 
 ## Plots the GRN
-pdf("Network_plot.pdf")
+pdf(args[2])
 mygraph<- qgraph(t(easMat),details=FALSE,shape="square",repulsion=.7, usePCH=TRUE,fade=FALSE,curveScale=TRUE, layout = "spring", node.height=3.5,label.prop=1.1,asize=1)
 title("Gene regulatory network",line=2.5)
 dev.off()

@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-GEO_number = 'GSE52428';
+GEO_number = 'GSE59015';
 
 [list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered] = step_1(GEO_number);
 
@@ -14,4 +14,4 @@ step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 
 adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, false);
 
-step_8(adjacency_matrix_of_gene_regulatory_network);
+network_graph = step_8(adjacency_matrix_of_gene_regulatory_network);

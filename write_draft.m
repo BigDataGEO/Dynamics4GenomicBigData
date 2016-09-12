@@ -10,17 +10,17 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   if ispc() % If running on Windows.
     options = struct('format','doc','showCode',false,'outputDir',output_folder,'stylesheet','document.xsl');
     
-    save('Paper.mat');
+    save('paper.mat');
     
-    publish('Paper.m',options);
+    publish('paper.m',options);
     
-    delete('Paper.mat');
+    delete('paper.mat');
   elseif isunix() % If running on Unix/Linux.
     options = struct('format','latex','showCode',false,'outputDir',output_folder,'stylesheet','document.xsl', 'imageFormat', 'png');
 
-    save('Paper.mat');
+    save('paper.mat');
     
-    publish('Paper.m',options);
+    publish('paper.m',options);
     
     close all;
     
@@ -31,7 +31,7 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
     % Two output arguments (x and y) are used simply to prevent the output from being printed onscreen.
     [x, y]=system([Dynamics4GenomicBigData_HOME 'latex/compile.sh ' output_folder]);
     
-    delete('Paper.mat');
+    delete('paper.mat');
   end
   
   cd(Dynamics4GenomicBigData_HOME);

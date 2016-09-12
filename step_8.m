@@ -1,4 +1,4 @@
-function step_8(adjacency_matrix_of_gene_regulatory_network)
+function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network)
 
   output = true;
 
@@ -10,9 +10,7 @@ function step_8(adjacency_matrix_of_gene_regulatory_network)
   GS(1,:) = [graph_clustercoeff(sparse(G)),graph_diameter(G),graph_meandist(G),graph_density(G)];
   NS{1} = [bridging_centrality(G),closeness_centrality(sparse(G)),eccentricity_centrality(sparse(G))'];
   SWI(1) = smallworldindex(G);
-
   
-
   adjacency_matrix = adjacency_matrix_of_gene_regulatory_network;
 
   number_of_clusters = size(adjacency_matrix,1);
@@ -44,9 +42,25 @@ function step_8(adjacency_matrix_of_gene_regulatory_network)
     end
   end
   
+  network_graph=digraph(adjacency_matrix_of_gene_regulatory_network, row_labels);
+  
   if(output)
     outputFolder = 'Step_8';
     mkdir(outputFolder);
+    
+    
+    g_plot=plot(network_graph, 'Layout','force');    
+    
+    set(gcf, 'PaperPositionMode', 'manual');
+    set(gcf, 'PaperUnits', 'centimeters');
+    set(gcf, 'PaperPosition', [0 0 30 24]);
+    set(gcf, 'PaperUnits', 'centimeters');
+    set(gcf, 'PaperSize', [30 24]);   
+
+    print('Network_plot_MATLAB.pdf','-dpdf');
+    movefile('Network_plot_MATLAB.pdf', outputFolder);
+    close all;
+    
     
     graphStatsFileName = 'Graph_Statistics.xls';
     create_exel_file(graphStatsFileName,GS,1,[],Dynamics4GenomicBigData_HOME);
@@ -71,7 +85,7 @@ function step_8(adjacency_matrix_of_gene_regulatory_network)
     for u = 1:length(adjacency_matrix_of_gene_regulatory_network)
       for v = 1:length(adjacency_matrix_of_gene_regulatory_network)
 	if(adjacency_matrix_of_gene_regulatory_network(u,v) ~= 0)
-	  fprintf(tgfFile,'"M%1.1i"	"M%1.1i"\n',v,u);
+	  fprintf(tgfFile,'"M%1.1i"	"M%1.1i"	%2.5f\n',v,u,adjacency_matrix_of_gene_regulatory_network(u,v));
 	  fprintf(sifFile,'"M%1.1i"	pp	"M%1.1i"\n',v,u);
 	end
       end
@@ -87,8 +101,9 @@ function step_8(adjacency_matrix_of_gene_regulatory_network)
     csvwrite(adjacencyMatrixCSVFilename,adjacency_matrix_of_gene_regulatory_network);
     
     if isunix()
-      [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' ', adjacencyMatrixCSVFilename]);    
-      movefile('Network_plot.pdf', outputFolder);
+      networkPlotFilename = 'Network_plot_R.pdf';
+      [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' ', adjacencyMatrixCSVFilename, ' ', networkPlotFilename]);    
+      movefile(networkPlotFilename, outputFolder);
     end
     
     movefile(adjacencyMatrixCSVFilename, outputFolder);
