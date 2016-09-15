@@ -260,7 +260,7 @@ adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time
 %       within_module_deg        - Calculate Within Module Degree.
 %
 
-step_8(adjacency_matrix_of_gene_regulatory_network);
+network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, true);
 
 %% Results
 

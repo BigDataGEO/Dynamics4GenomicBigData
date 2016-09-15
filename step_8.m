@@ -1,15 +1,7 @@
-function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network)
-
-  output = true;
+function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, output)
 
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
-  
-  G = (adjacency_matrix_of_gene_regulatory_network~=0);
-
-  GS(1,:) = [graph_clustercoeff(sparse(G)),graph_diameter(G),graph_meandist(G),graph_density(G)];
-  NS{1} = [bridging_centrality(G),closeness_centrality(sparse(G)),eccentricity_centrality(sparse(G))'];
-  SWI(1) = smallworldindex(G);
   
   adjacency_matrix = adjacency_matrix_of_gene_regulatory_network;
 
@@ -48,7 +40,7 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network)
     outputFolder = 'Step_8';
     mkdir(outputFolder);
     
-    
+    newtwork_figure=figure('units', 'centimeters', 'position', [0, 0, 35, 50]);
     g_plot=plot(network_graph, 'Layout','force');    
     
     set(gcf, 'PaperPositionMode', 'manual');
@@ -59,12 +51,16 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network)
 
     print('Network_plot_MATLAB.pdf','-dpdf');
     movefile('Network_plot_MATLAB.pdf', outputFolder);
-    close all;
     
-    
+    graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
     graphStatsFileName = 'Graph_Statistics.xls';
-    create_exel_file(graphStatsFileName,GS,1,[],Dynamics4GenomicBigData_HOME);
-    movefile('Graph_Statistics.xls', outputFolder);
+    create_exel_file(graphStatsFileName,graph_statistics,1,[],Dynamics4GenomicBigData_HOME);
+    movefile(graphStatsFileName, outputFolder);
+    
+    node_statistics = calculate_node_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
+    nodeStatsFileName = 'Node_Statistics.xls';
+    create_exel_file(nodeStatsFileName,node_statistics,1,[],Dynamics4GenomicBigData_HOME);
+    movefile(nodeStatsFileName, outputFolder);
 
     matrix_to_save = [column_labels; [row_labels dependency_matrix]];
     depMatrixFilename = 'Dependency_matrix.xls';

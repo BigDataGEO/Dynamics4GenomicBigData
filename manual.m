@@ -14,4 +14,4 @@ step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 
 adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, false);
 
-network_graph = step_8(adjacency_matrix_of_gene_regulatory_network);
+network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, false);
