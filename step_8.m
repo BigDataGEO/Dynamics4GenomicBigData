@@ -40,14 +40,14 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
     outputFolder = 'Step_8';
     mkdir(outputFolder);
     
-    newtwork_figure=figure('units', 'centimeters', 'position', [0, 0, 35, 50]);
+    newtwork_figure=figure('units', 'centimeters', 'position', [0, 0, 35, 40]);
     g_plot=plot(network_graph, 'Layout','force');    
     
     set(gcf, 'PaperPositionMode', 'manual');
     set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 30 24]);
+    set(gcf, 'PaperPosition', [0 0 60 50]);
     set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperSize', [30 24]);   
+    set(gcf, 'PaperSize', [60 50]);   
 
     print('Network_plot_MATLAB.pdf','-dpdf');
     movefile('Network_plot_MATLAB.pdf', outputFolder);
