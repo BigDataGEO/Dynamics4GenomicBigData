@@ -2,10 +2,8 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
 
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
-  
-  adjacency_matrix = adjacency_matrix_of_gene_regulatory_network;
 
-  number_of_clusters = size(adjacency_matrix,1);
+  number_of_clusters = size(adjacency_matrix_of_gene_regulatory_network,1);
 
   dependency_matrix = repmat({''}, [number_of_clusters 2]);
 
@@ -14,12 +12,12 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
   betweenFieldSeparator = ',';
 
   row_labels = repmat({''}, [number_of_clusters 1]);
-  column_labels = {'' 'Out (Influences) (Outward edges)' 'In (Influenced by) (Inward edges)'};
+  column_labels = {'' 'In (Influenced by) (Inward edges)' 'Out (Influences) (Outward edges)'};
 
   for u=1:number_of_clusters
     row_labels{u} = strcat(module_name_preffix, num2str(u));
     for v=1:number_of_clusters
-      if adjacency_matrix(u,v) ~= 0
+      if adjacency_matrix_of_gene_regulatory_network(u,v) ~= 0
 	if strcmp(dependency_matrix{u, 2}, '')
 	  dependency_matrix{u, 2} = strcat(module_name_preffix, num2str(v));
 	else
@@ -67,7 +65,7 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
     create_exel_file(depMatrixFilename,matrix_to_save,1,[],Dynamics4GenomicBigData_HOME);
     movefile(depMatrixFilename, outputFolder);
     
-    matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix)]];
+    matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix_of_gene_regulatory_network)]];
     adjacencyMatrixFilename='Adjacency_matrix.xls';
     create_exel_file(adjacencyMatrixFilename,matrix_to_save,1,[],Dynamics4GenomicBigData_HOME);
     movefile(adjacencyMatrixFilename, outputFolder);
@@ -81,8 +79,8 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
     for u = 1:length(adjacency_matrix_of_gene_regulatory_network)
       for v = 1:length(adjacency_matrix_of_gene_regulatory_network)
 	if(adjacency_matrix_of_gene_regulatory_network(u,v) ~= 0)
-	  fprintf(tgfFile,'"M%1.1i"	"M%1.1i"	%2.5f\n',v,u,adjacency_matrix_of_gene_regulatory_network(u,v));
-	  fprintf(sifFile,'"M%1.1i"	pp	"M%1.1i"\n',v,u);
+	  fprintf(tgfFile,'"M%1.1i"	"M%1.1i"	%2.5f\n',u,v,adjacency_matrix_of_gene_regulatory_network(u,v));
+	  fprintf(sifFile,'"M%1.1i"	pp	"M%1.1i"\n',u,v);
 	end
       end
     end
@@ -93,28 +91,30 @@ function network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, out
     movefile(networkTGF, outputFolder);
     movefile(networkSIF, outputFolder);
 
-    adjacencyMatrixCSVFilename = 'Network_matrix.csv';
-    csvwrite(adjacencyMatrixCSVFilename,adjacency_matrix_of_gene_regulatory_network);
+    
     
     if isunix()
+      adjacencyMatrixCSVFilename = 'Network_matrix.csv';
+      csvwrite(adjacencyMatrixCSVFilename, adjacency_matrix_of_gene_regulatory_network');
+    
       networkPlotFilename = 'Network_plot_R.pdf';
       [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' ', adjacencyMatrixCSVFilename, ' ', networkPlotFilename]);    
       movefile(networkPlotFilename, outputFolder);
+      
+      delete(adjacencyMatrixCSVFilename);
     end
-    
-    movefile(adjacencyMatrixCSVFilename, outputFolder);
     
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{adjacencyMatrixFilename} {'Adjacency matrix of the gene regulatory network (GRN) in Excel format.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{adjacencyMatrixCSVFilename} {'Adjacency matrix of the gene regulatory network (GRN) in CSV format.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{depMatrixFilename} {'Matrix of dependencies between the gene response modules (GRM) in the gene regulatory network (GRN).'}]];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{networkSIF} {'Gene regulatory network in .sif format for import into Cytoscape.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{networkTGF} {'Gene regulatory network in .tgf format for import into BioLayoutExpress3D.'}]];
     
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Network_plot.pdf'} {'Plot of the gene regulatory network (GRN).'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Network_plot_MATLAB.pdf'} {'Plot of the gene regulatory network (GRN).'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Network_plot_R.pdf'} {'Plot of the gene regulatory network (GRN).'}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 

@@ -223,7 +223,7 @@ step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 % Non-linear least squares attributable to \cite{hemker1972numerical,bard1974nonlinear} estimates the parameters $\{\hat{\alpha}_{p,q,j}\}_{p=0}^{Q}$ by minimizing the dependency between the observed measurements of the temporal gene response modules and the numerical approximation to the solution of (\ref{ODE}).
 % The initial parameter estimates are given by the non-zero $\{\hat{\beta}_{p,q,j}\}_{p=0}^{Q}$ parameters from the two-stage method the remaining parameters are set to zero. The initial states of the temporal gene response modules are $M_{q,j}(0)$ and $DM_{q,j}(0)$ for $q =1,\ldots,Q.$  
 
-adjacency_matrix_of_gene_regulatory_network = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
+[coefficients, adjacency_matrix_of_gene_regulatory_network] = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
 
 %% Obtain Network Analysis of the gene regulation networks (GRNs).
 % Graph theorists and network analysts have developed a number of metrics to characterise biological networks for an overview see \cite{huber2007graphs} and \cite{lee2004coexpression}. These metrics facilitate drug target identification and insight on potential strategies for treating various diseases. The pipeline uses the SBE Toolbox description of the metrics which are produced by the pipeline are listed in Table (\ref{Graph Metrics}).
