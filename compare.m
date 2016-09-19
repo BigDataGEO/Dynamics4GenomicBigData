@@ -52,7 +52,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
       alpha_threshold = 0.05;
 %        p_value_output_matrix = {'GRM number', 'p-value', ['p-value < ' num2str(alpha_threshold)]};
       
-      p_value_output_matrix = {'GRM number', 'p-value (Wilcoxon)', 'p-value (KS)', 'p-value (KW)', 'p-value (correlation with mean)', 'p-value (bootstrap)', 'p-value (permutation)', ['p-value < ' num2str(alpha_threshold)]};
+      p_value_output_matrix = {'GRM number', 'p-value (Wilcoxon)', 'p-value (KS)', 'p-value (KW)', 'p-value (correlation with mean)', 'p-value (bootstrap)', 'p-value (permutation)', ['p-value < ' num2str(alpha_threshold)], '', 'Variance is different in all time points?', '# of time points where variance is equal', '# of time points where variance is different'};
       
       number_of_clusters = size(list_of_cluster_means,1);
 
@@ -163,8 +163,16 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 %  	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value), num2str(p_value < alpha_threshold)}];
 
 	  significant = p_value_wilcoxon < alpha_threshold | p_value_ks < alpha_threshold | p_value_kruskalwallis < alpha_threshold | p_value_correlation_with_mean < alpha_threshold | p_value_bootstrap < alpha_threshold | p_value_permutation < alpha_threshold;
+	  
+	  variance_p_values = compare_variance_by_time_point(expression_of_first_subject, expression_of_second_subject);
+	  
+	  number_of_time_points_where_variance_is_different = nnz(variance_p_values < 0.05);
+	  
+	  number_of_time_points_where_variance_is_equal = min(size(expression_of_first_subject, 2), size(expression_of_second_subject, 2)) - number_of_time_points_where_variance_is_different;
+	  
+	  variance_is_different_in_all_time_points = (number_of_time_points_where_variance_is_equal == 0);
   
-	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value_wilcoxon), num2str(p_value_ks), num2str(p_value_kruskalwallis), num2str(p_value_correlation_with_mean), num2str(p_value_bootstrap), num2str(p_value_permutation), num2str(significant)}];
+	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value_wilcoxon), num2str(p_value_ks), num2str(p_value_kruskalwallis), num2str(p_value_correlation_with_mean), num2str(p_value_bootstrap), num2str(p_value_permutation), num2str(significant), '', num2str(variance_is_different_in_all_time_points), num2str(number_of_time_points_where_variance_is_equal), num2str(number_of_time_points_where_variance_is_different)}];
 	  
 	  print(h8,'-dpdf', ['M' num2str(currentClusterIndex) '.pdf']);
 	  
