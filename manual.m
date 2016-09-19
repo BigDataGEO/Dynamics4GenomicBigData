@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-GEO_number = 'GSE59015';
+GEO_number = 'GSE52428';
 
 [list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered] = step_1(GEO_number);
 
