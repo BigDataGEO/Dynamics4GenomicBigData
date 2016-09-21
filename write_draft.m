@@ -1,4 +1,4 @@
-function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered)
+function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, geoStruct)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -26,10 +26,26 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part1.tex'], output_folder);
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part2.tex'], output_folder);
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part3.tex'], output_folder);
-    
+  copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part4.tex'], output_folder);
+  
   draft = fopen('paper.tex', 'wt');
-    
+  
   fid = fopen('Part1.tex');
+  F = fread(fid, '*char')';
+  fclose(fid);
+    
+  fprintf(draft,'%-50s\n',F);  
+  
+  if(isfield(geoStruct.Header.Series, 'title'))
+    fprintf(draft,'%s', ['The original study associated to dataset ' GEO_number ' is titled: \textit{"' geoStruct.Header.Series.title '"}. ']);
+  end
+  
+  if(isfield(geoStruct.Header.Series, 'summary'))
+    fprintf(draft,'%s\n\n', ['The authors summarize this study as follows.']);
+    fprintf(draft,'%s\n\n', ['\textit{' geoStruct.Header.Series.summary '}']);
+  end 
+  
+  fid = fopen('Part2.tex');
   F = fread(fid, '*char')';
   fclose(fid);
     
@@ -38,7 +54,7 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   text = ['data series ' GEO_number ' for the selected condition.   '];
   fprintf(draft, '%s', text);
     
-  fid = fopen('Part2.tex');
+  fid = fopen('Part3.tex');
   F = fread(fid, '*char')';
   fclose(fid);
     
@@ -80,7 +96,7 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   text = ['\end{tabular} \caption{Node metrics of the gene regulatory network.} \label{table:nodestats} \end{table} \end{center}'];
   fprintf(draft, '%s\n\n', text);
     
-  fid = fopen('Part3.tex');
+  fid = fopen('Part4.tex');
   F = fread(fid, '*char')';
   fclose(fid);
     
@@ -97,6 +113,7 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   delete('Part1.tex');
   delete('Part2.tex');
   delete('Part3.tex');
+  delete('Part4.tex');
   
   if isunix()
     % The following line compiles the .tex file into a .pdf.

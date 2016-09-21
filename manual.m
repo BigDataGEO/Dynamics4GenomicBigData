@@ -2,7 +2,7 @@ set_paths_and_imports;
 
 GEO_number = 'GSE52428';
 
-[list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered] = step_1(GEO_number);
+[list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, geoStruct] = step_1(GEO_number);
 
 [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
 

@@ -1,8 +1,21 @@
 set_paths_and_imports;
-  
-[~,GEO_num] = xlsread('GEO_list.xlsx');
 
-GEO_number = char(GEO_num(1));
+fprintf('\n');
+display(['The pipeline analysis requires that you enter the accession number of the dataset you want to analyze.']);
+
+fprintf('\n');
+display(['The accession number is the alphanumeric code starting with ''GSE'' that identifies the dataset on the GEO.']);
+
+fprintf('\n');
+GEO_number = input(['Please enter the accession number of your dataset enclosed in single quotes (e.g., ''GSE52428''): ']);
+
+try
+  geo_struct = get_geo_data(GEO_number);
+catch
+  display(['Could not retrieve dataset ''' GEO_number ''' from the Gene Expression Omnibus.']);
+  return;
+end
+
 Preprocessing_technique = 'Default';
 
 index_of_analysis = 1;
@@ -12,7 +25,7 @@ input(prompt);
 
 while true
   
-  [list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis}] = step_1(GEO_number);
+  [list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct{index_of_analysis}] = step_1(GEO_number);
   
   fprintf('\n\n'); 
   display(['The information for the analysis of subject/condition "' condition_array{index_of_analysis} '" has been entered successfully.']);
@@ -39,7 +52,7 @@ for index_of_analysis=1:total_number_of_analyses_to_run
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" is starting.']);
 
-  write_draft(GEO_number, list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis});
+  write_draft(GEO_number, list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct{index_of_analysis});
   
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" has been completed.']);

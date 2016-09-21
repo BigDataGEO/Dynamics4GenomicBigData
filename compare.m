@@ -4,8 +4,15 @@ function compare()
   
   global Dynamics4GenomicBigData_HOME;
 
-  [~,GEO_num] = xlsread('GEO_list.xlsx');
-  GEO_number = char(GEO_num(1));
+  fprintf('\n');
+  GEO_number = input(['Please enter the accession number of your dataset enclosed in single quotes (e.g., ''GSE52428''): ']);
+  
+  try
+    geo_struct = get_geo_data(GEO_number);
+  catch
+    display(['Could not retrieve dataset ''' GEO_number ''' from the Gene Expression Omnibus.']);
+    return;
+  end
   
   [list_of_genes, raw_gene_expression, raw_time_points, name_of_first_subject, condition, gene_ID_type, number_of_top_DRGs_considered] = step_1(GEO_number);
     

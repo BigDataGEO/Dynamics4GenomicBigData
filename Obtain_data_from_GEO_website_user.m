@@ -1,19 +1,10 @@
-function [dat,gid,title,Info,PInfo,geoStruct] = Obtain_data_from_GEO_website_user(GEO_number,Preprocessing_technique)
+function [dat,gid,title,Info,PInfo] = Obtain_data_from_GEO_website_user(geoStruct)
 
 %% Read Data from the GEO website and if cell files are avaiable perform RMA normalisation
 
 %Request that the User input the GSE number 
 %prompt = 'Enter a string specifying a unique identifier for a GEO Sample (GSM), Data Set (GDS), Platform (GPL),or Series (GSE) record in the GEO database.  ';
-%GEO_number = input(prompt);
-
-%Obtain information from the GEO website 
-try
-geoStruct = get_geo_data(GEO_number);
-catch
-    prompt    = 'Provide full path to GSE... .soft file downloaded from GEO website';
-    str_ind   = input(prompt);
-    geoStruct = geosoftread(str_ind);
-end    
+%GEO_number = input(prompt);  
     
 %Extract the required information on the Study
 gid    = rownames(geoStruct.Data);  %Gene Id
