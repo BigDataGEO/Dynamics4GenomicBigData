@@ -51,7 +51,7 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
 
 	surf(gene_expression,'FaceColor','interp','EdgeColor','none');
 
-	xlim([time_points(1),length(time_points)]);
+	xlim([1,length(time_points)]);
 
 	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);

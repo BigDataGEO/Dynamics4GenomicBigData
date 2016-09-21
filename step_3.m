@@ -78,7 +78,7 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
     for sub = 1:1
 
 	surf(smooth_gene_expression','FaceColor','interp','EdgeColor','none');
-	xlim([time_points(1),length(time_points)]);
+	xlim([1,length(time_points)]);
 	
 	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);

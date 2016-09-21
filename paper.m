@@ -26,7 +26,15 @@ load('paper.mat');
 % Guanine Cytosine Robust Multi-Array Analysis (GCRMA).
 %%
 
-[gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, true);
+
+%% 
+% <latex>
+% \begin{figure}
+% \label{fig:all_genes}
+% \includegraphics [width=4in]{Step_2/Paper_01.png}
+% \caption{All genes}
+% \end{figure}
+% </latex>
 
 %%
 % Lets assume that the centred expression profile of the $i^{th}$ gene, belonging to subject $j$,
@@ -98,7 +106,14 @@ load('paper.mat');
 %%
 
 
-[list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, fd_smooth_coefficients] = step_3(list_of_genes, gene_expression, time_points, number_of_top_DRGs_considered, smooth_gene_trajectories, true);
+%% 
+% <latex>
+% \begin{figure}
+% \label{fig:all_genes}
+% \includegraphics [width=4in]{Step_3/Paper_03.pdf}
+% \caption{Smooth expression gene curves}
+% \end{figure}
+% </latex>
 
 
 
@@ -120,7 +135,7 @@ load('paper.mat');
 % #  Repeat Step 2 until the between-cluster correlations are less than $\alpha$.
 %
 
-[list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, true);
+%  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, true);
 
 %%
 % Moreover, these temporal gene response modules can be classified into single-gene modules (SGM) with only one gene in each cluster,
@@ -150,7 +165,7 @@ load('paper.mat');
 % The threshold of EASE Score, a modified Fisher Exact P-Value, for gene-enrichment analysis. It ranges from 0 to 1.
 % Fisher Exact P-Value = 0 represents perfect enrichment. Usually P-Value is equal or smaller than 0.05 to be considered strongly enriched in the annotation categories. Default is 0.1.
 
-step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
+%  step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 
 %% Construct high-dimensional gene regulation networks (GRNs) using differential equation models
 %
@@ -223,7 +238,7 @@ step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 % Non-linear least squares attributable to \cite{hemker1972numerical,bard1974nonlinear} estimates the parameters $\{\hat{\alpha}_{p,q,j}\}_{p=0}^{Q}$ by minimizing the dependency between the observed measurements of the temporal gene response modules and the numerical approximation to the solution of (\ref{ODE}).
 % The initial parameter estimates are given by the non-zero $\{\hat{\beta}_{p,q,j}\}_{p=0}^{Q}$ parameters from the two-stage method the remaining parameters are set to zero. The initial states of the temporal gene response modules are $M_{q,j}(0)$ and $DM_{q,j}(0)$ for $q =1,\ldots,Q.$  
 
-[coefficients, adjacency_matrix_of_gene_regulatory_network] = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
+%  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
 
 %% Obtain Network Analysis of the gene regulation networks (GRNs).
 % Graph theorists and network analysts have developed a number of metrics to characterise biological networks for an overview see \cite{huber2007graphs} and \cite{lee2004coexpression}. These metrics facilitate drug target identification and insight on potential strategies for treating various diseases. The pipeline uses the SBE Toolbox description of the metrics which are produced by the pipeline are listed in Table (\ref{Graph Metrics}).
@@ -260,7 +275,16 @@ step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 %       within_module_deg        - Calculate Within Module Degree.
 %
 
-network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, true);
+%  network_graph = step_8(adjacency_matrix_of_gene_regulatory_network, true);
+
+%% 
+% <latex>
+% \begin{figure}
+% \label{fig:all_genes}
+% \includegraphics [width=4in]{Step_8/Network_plot_MATLAB.pdf}
+% \caption{Gene regulatory network}
+% \end{figure}
+% </latex>
 
 %% Results
 
