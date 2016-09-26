@@ -100,7 +100,6 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
 
     print('Paper_03.pdf','-dpdf');
     movefile('Paper_03.pdf', outputFolder);
-
   
     col_hed = {'Df','GCV','log10(\lambda)','Std Error'};
     row_hed = strcat(repmat({'Subject '},1,1),cellstr(arrayfun(@num2str, 1:1, 'UniformOutput', false))');

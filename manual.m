@@ -10,7 +10,7 @@ GEO_number = 'GSE52428';
 
 [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, false);
 
-step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
+[chartReport, tableReport] = step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 
 [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, false);
 

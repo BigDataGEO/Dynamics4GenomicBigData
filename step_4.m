@@ -97,10 +97,13 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
     hold off;
+    
+    saveas(gcf, 'Paper_04.png');
+    movefile('Paper_04.png', outputFolder);
 
     
-    create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
-    movefile('Cluster_IDX.xls', outputFolder);
+%      create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
+%      movefile('Cluster_IDX.xls', outputFolder);
 
   
   
@@ -137,7 +140,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 	  set(gcf, 'PaperUnits', 'centimeters');
 	  set(gcf, 'PaperPosition', [0 0 75 50]);
 	  set(gcf, 'PaperUnits', 'centimeters');
-	  set(gcf, 'PaperSize', [85 50]);
+	  set(gcf, 'PaperSize', [75 50]);
 
 	  for gen = 1:number_of_plots_in_current_page
 
@@ -178,9 +181,10 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
 	  end
 
-	  print(h8,'-dpsc2', '-append', 'Cluster.ps');
+	  print(h8,'-dpdf', ['GRMs_' num2str(b) '.pdf']);
+	  movefile(['GRMs_' num2str(b) '.pdf'], outputFolder);
       end
-    movefile('Cluster.ps', outputFolder);
+    
 
     GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
 
@@ -190,7 +194,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     set(gcf, 'PaperUnits', 'centimeters');
     set(gcf, 'PaperPosition', [0 -2 50 40]);
     set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperSize', [65 40]);
+    set(gcf, 'PaperSize', [60 40]);
     set(gca,'FontSize',11);
 
     Figure1 = subplot(2,2,1);
@@ -268,9 +272,11 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     title('SGM');
 
-    print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
+%      print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
     
-    movefile('GRMs.ps', outputFolder);
+    print(GRMFigure,'-dpdf', 'GRMs.pdf');
+    
+    movefile('GRMs.pdf', outputFolder);
 
     % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
@@ -285,9 +291,9 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster.ps'} {'Cluster plots.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.ps'} {'Clusters plotted by size.'}]];
+%      matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Clusters_X.pdf'} {'Cluster plots.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.pdf'} {'Clusters plotted by size.'}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
