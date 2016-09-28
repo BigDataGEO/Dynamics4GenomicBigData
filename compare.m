@@ -77,6 +77,8 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	
       currentClusterIndex = 1;
       
+      save('BeforeTEzt.mat')
+      
       for b = 1:number_of_pages
 	
 	number_of_plots_in_current_page = number_of_subplots_per_page;

@@ -19,9 +19,9 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
     
   [chartReport, tableReport] = step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
 
-  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_7(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
+  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_6(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, true);
 
-  [network_graph, graph_statistics, node_statistics] = step_8(adjacency_matrix_of_gene_regulatory_network, true);
+  [network_graph, graph_statistics, node_statistics] = step_7(adjacency_matrix_of_gene_regulatory_network, true);
 
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part1.tex'], output_folder);
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part2.tex'], output_folder);
