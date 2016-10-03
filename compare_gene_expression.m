@@ -1,4 +1,4 @@
-function [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation] = compare_gene_expression(expression_of_first_subject, expression_of_second_subject, time_points)
+function [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation, spearman_correlation_coefficient] = compare_gene_expression(expression_of_first_subject, expression_of_second_subject, time_points)
   
   first_data_set = mean(expression_of_first_subject, 1)';
   
@@ -17,6 +17,9 @@ function [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlati
   p_value_bootstrap = compare_curves_bootstrap(first_data_set, second_data_set, time_points);%requires column vectors
   
   p_value_permutation = compare_curves_permutation(first_data_set, second_data_set, time_points);%requires column vectors
+  
+  spearman_correlation_coefficient = corr(first_data_set, second_data_set, 'type', 'Spearman');
+  
 end
 
 
