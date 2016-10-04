@@ -39,7 +39,7 @@ function compare()
   [list_of_DRGs_2, indices_of_DRGs_2, indices_of_genes_sorted_by_F_value_2, smooth_gene_expression_2, fd_smooth_coefficients_2] = step_3(list_of_genes_2, gene_expression_2, time_points_2, number_of_top_DRGs_considered_2, smooth_gene_trajectories_2, false);
   [list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2] = step_4(gene_expression_2, time_points_2, list_of_DRGs_2, indices_of_DRGs_2, indices_of_genes_sorted_by_F_value_2, smooth_gene_expression_2, number_of_top_DRGs_considered_2, false);
   
-  output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs);
+  output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, zscore(gene_expression_2')', indices_of_DRGs);
     
   plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
     
@@ -55,10 +55,10 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
       mkdir(output_folder);
       cd(output_folder);
       
-      p_values = [];
       alpha_threshold = 0.05;
       
-      p_value_output_matrix = {'GRM number', 'Spearman correlation coefficient', 'Coefficient > 0.75?'};
+      p_value_output_matrix = {'GRM number', 'p-value (Wilcoxon)', 'p-value (KS)', 'p-value (KW)', 'p-value (correlation with mean)', 'p-value (bootstrap)', 'p-value (permutation)', ['p-value < ' num2str(alpha_threshold)], '', 'Spearman correlation coefficient', 'Coefficient < 0.75?'};
+
       
       number_of_clusters = size(list_of_cluster_means,1);
 
@@ -161,9 +161,12 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  
 	  [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation, spearman_correlation_coefficient] = compare_gene_expression(expression_of_first_subject, expression_of_second_subject, time_points);
 	  
-	  p_values = [p_values; [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation]];
+	  significant = p_value_wilcoxon < alpha_threshold | p_value_ks < alpha_threshold | p_value_kruskalwallis < alpha_threshold | p_value_correlation_with_mean < alpha_threshold | p_value_bootstrap < alpha_threshold | p_value_permutation < alpha_threshold;
+
 	  
-	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(spearman_correlation_coefficient), num2str(spearman_correlation_coefficient > 0.75)}];
+%  	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(spearman_correlation_coefficient), num2str(spearman_correlation_coefficient > 0.75)}];
+	  
+	  p_value_output_matrix = [p_value_output_matrix; {['M' num2str(currentClusterIndex)], num2str(p_value_wilcoxon), num2str(p_value_ks), num2str(p_value_kruskalwallis), num2str(p_value_correlation_with_mean), num2str(p_value_bootstrap), num2str(p_value_permutation), num2str(significant), '', num2str(spearman_correlation_coefficient), num2str(spearman_correlation_coefficient < 0.75)}];
 	  
 	  print(h8,'-dpdf', ['M' num2str(currentClusterIndex) '.pdf']);
 	  

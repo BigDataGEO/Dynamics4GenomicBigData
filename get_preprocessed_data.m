@@ -32,9 +32,9 @@ function [preprocessed_gene_expression, preprocessed_time_points] = get_preproce
   tmp = tmp(tmp>-1);
 
   %Check for replicates
-  tb       = tabulate(tmp);
+  tb = tabulate(tmp);
   preprocessed_time_points  = tb(tb(:,2)>0,1);
-  nt       = length(preprocessed_time_points);
+  nt = length(preprocessed_time_points);
 
   if(max(tb(:,2))>1)
     for j = 1:nt
@@ -42,13 +42,13 @@ function [preprocessed_gene_expression, preprocessed_time_points] = get_preproce
       idx = find(tb(j,1)==tmp);
 
       if(any(raw_gene_expression(:,ind(ix(idx)))<0))
-	gexp(:,j)      = nanmean((raw_gene_expression(:,ind(ix(idx)))),2);
+	gexp(:,j) = nanmean((raw_gene_expression(:,ind(ix(idx)))),2);
       else
-	gexp(:,j)      = nanmean(log2(raw_gene_expression(:,ind(ix(idx)))),2);
+	gexp(:,j) = nanmean(log2(raw_gene_expression(:,ind(ix(idx)))),2);
       end
     end
   else
-    gexp  = raw_gene_expression(:,ind(ix));
+    gexp = raw_gene_expression(:,ind(ix));
   end
   preprocessed_gene_expression = gexp - repmat(nanmean(gexp,2),1,nt);
 end

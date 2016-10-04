@@ -38,22 +38,13 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
     derivatives_of_smooth_gene_expression_curves       = eval_fd(time_points, fd_smooth_coefficients,1);
     STDERR      = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-dfgenens)));
   end
-  
-  F    = [];
-  indices_of_genes_sorted_by_F_value = [];
 
-  for i = 1:1
-    F = Ftest(gene_expression, time_points,  fd_smooth_coefficients, dfgenens);
-    [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
-  end
+  F = Ftest(gene_expression, time_points,  fd_smooth_coefficients, dfgenens);
+  [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
   
-  for i = 1:1
-    indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
-    list_of_DRGs = list_of_genes(indices_of_DRGs);
-    DRG= gene_expression(indices_of_DRGs,:)';
-  end
-  
-  
+  indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
+  list_of_DRGs = list_of_genes(indices_of_DRGs);
+  DRG = gene_expression(indices_of_DRGs,:)';
   
   if(output)
   

@@ -16,8 +16,9 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   %Theshold
   alpha = 0.75;
 
-  std_data     = zscore(gene_expression(indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered),:)')';
-  [list_of_gene_clusters,rmclusters,c,list_of_cluster_means,gene_expression_by_cluster] = IHC(std_data,alpha);
+  std_data = zscore(gene_expression(indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered),:)')';
+
+  [list_of_gene_clusters, rmclusters, c, list_of_cluster_means, gene_expression_by_cluster] = IHC(std_data, alpha);
       
       
   % The following four lines sort the clusters by size.

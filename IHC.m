@@ -1,4 +1,4 @@
-function [fidxcluster,rmclusters,c,mean_clusters_mat,clusters]=IHC(data,alpha,dist,link)
+function [fidxcluster, rmclusters, c, mean_clusters_mat, clusters] = IHC(data, alpha, dist, link)
 
 tic;
 
