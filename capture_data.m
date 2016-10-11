@@ -1,4 +1,4 @@
-function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(GEO_number, raw_gene_expression_data_in_all_samples, gid, titles, metadata_for_all_samples, PInfo, geoStruct)
+function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type, index_of_gpl_column_with_gene_ids] = capture_data(GEO_number, raw_gene_expression_data_in_all_samples, gid, titles, metadata_for_all_samples, PInfo, geoStruct, platform_struct)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
@@ -64,6 +64,8 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     end
     Subject = repmat(1, 1, size(raw_time_points,2));
     
+    index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_gene_ids(platform_struct);
+    
     [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
     
     [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
@@ -106,6 +108,8 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     end
     Subject = repmat(1, 1, size(raw_time_points,2));
     
+    index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_gene_ids(platform_struct);
+    
     [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
     
     [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
@@ -117,7 +121,6 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
   condition = strrep(condition,'.','_');
     
 end
-
 
 function [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, total_number_of_genes)
     prompt = ['Dataset ' GEO_number ' contains a total of ' num2str(total_number_of_genes) ' genes.\n\nEnter the number of top DRGs you want to consider in the analysis (or -1 to include them all): '];

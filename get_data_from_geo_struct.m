@@ -1,4 +1,4 @@
-function [dat,gid,title,Info,PInfo] = Obtain_data_from_GEO_website_user(geoStruct)
+function [dat, row_identifiers_of_gse_matrix, title, Info, PInfo] = get_data_from_geo_struct(geoStruct)
 
 %% Read Data from the GEO website and if cell files are avaiable perform RMA normalisation
 
@@ -7,7 +7,7 @@ function [dat,gid,title,Info,PInfo] = Obtain_data_from_GEO_website_user(geoStruc
 %GEO_number = input(prompt);  
     
 %Extract the required information on the Study
-gid    = rownames(geoStruct.Data);  %Gene Id
+row_identifiers_of_gse_matrix = rownames(geoStruct.Data);
 sam_id = colnames(geoStruct.Data);  %Sample Id
 
 %Supplementary_file = geoStruct.Header.Series.supplementary_file; %http for supplementary_files
@@ -16,16 +16,18 @@ sam_id = colnames(geoStruct.Data);  %Sample Id
 Data_type = unique(geoStruct.Header.Samples.type);  %Data Type 
 
 Normalisation_technique = [];
+
 if(isfield(geoStruct.Header.Samples,'data_processing'))
-Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique 
+  Normalisation_technique = unique(geoStruct.Header.Samples.data_processing); %Normalisation technique 
 end
 
 Organism = [];
+
 if(isfield(geoStruct.Header.Samples,'organism_ch1'))
-Organism = unique(geoStruct.Header.Samples.organism_ch1); %Organism
+  Organism = unique(geoStruct.Header.Samples.organism_ch1); %Organism
 end
 
-PInfo = {Data_type,Normalisation_technique,Organism};
+PInfo = {Data_type, Normalisation_technique, Organism};
 
 Info = [];
 names = fieldnames(geoStruct.Header.Samples);
@@ -33,21 +35,21 @@ index = find(~cellfun(@isempty,strfind(names,'ch')));
 index2 = find(~cellfun(@isempty,strfind(names,'description')));
 
 if(isfield(geoStruct.Header.Samples,'characteristics_ch1'))
-Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
+  Info = geoStruct.Header.Samples.characteristics_ch1; %Obtain the Charateristics of the Data
 elseif(~isempty(index))
-tmp   = struct2cell(geoStruct.Header.Samples);
-tmp   = tmp(index);
-Info  = vertcat(tmp{:});
-if(~isempty(index2))
-    tmp   = struct2cell(geoStruct.Header.Samples);
-    tmp   = tmp(index2);
-    Info  = [Info;vertcat(tmp{:})];
-end
+  tmp   = struct2cell(geoStruct.Header.Samples);
+  tmp   = tmp(index);
+  Info  = vertcat(tmp{:});
+  if(~isempty(index2))
+      tmp   = struct2cell(geoStruct.Header.Samples);
+      tmp   = tmp(index2);
+      Info  = [Info;vertcat(tmp{:})];
+  end
 end
 
 title =[];
 if(isfield(geoStruct.Header.Samples,'title'))
-title = geoStruct.Header.Samples.title;
+  title = geoStruct.Header.Samples.title;
 end
 % for i = 1:size(Info,1)
 %     %if(length(unique(Info(i,:)))==1)
@@ -145,7 +147,7 @@ end
 % dmwrite(Expression, 'Data.txt')
 % 
 % dat    = double(Expression);
-% gid    = rownames(Expression);
+% row_identifiers_of_gse_matrix    = rownames(Expression);
 % sam_id = colnames(Expression);
 % 
 % end

@@ -28,7 +28,7 @@ while true
   [list_of_genes_array{index_of_analysis}, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct{index_of_analysis}] = step_1(GEO_number);
   
   fprintf('\n\n'); 
-  display(['The information for the analysis of subject/condition "' condition_array{index_of_analysis} '" has been entered successfully.']);
+  display(['The information for the analysis of subject/condition "' condition_array{index_of_analysis} '" has been loaded successfully.']);
   
   prompt = '\nWould you like to also run another analysis with a different subject/condition? ([1 "yes", 0 "no"]) ';
   continue_analysis   = input(prompt);
