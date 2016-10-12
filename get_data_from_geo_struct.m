@@ -1,4 +1,4 @@
-function [dat, row_identifiers_of_gse_matrix, title, Info, PInfo] = get_data_from_geo_struct(geoStruct)
+function [dat, title, Info, PInfo] = get_data_from_geo_struct(geoStruct)
 
 %% Read Data from the GEO website and if cell files are avaiable perform RMA normalisation
 

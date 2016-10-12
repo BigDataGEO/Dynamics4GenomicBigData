@@ -1,11 +1,11 @@
-function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type, index_of_gpl_column_with_gene_ids] = capture_data(GEO_number, raw_gene_expression_data_in_all_samples, gid, titles, metadata_for_all_samples, PInfo, geoStruct, platform_struct)
+function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(geoStruct, raw_gene_expression_data_in_all_samples, titles, metadata_for_all_samples, PInfo)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
   list_of_sample_record_titles = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
   display(list_of_sample_record_titles);    
 	
-  display(sprintf('\n\nAll the samples associated to %s are listed above. You must now specify the samples that you want to include in the analysis.\n', GEO_number));
+  display(sprintf('\n\nAll the samples associated to %s are listed above. You must now specify the samples that you want to include in the analysis.\n', geoStruct.Header.Series.geo_accession));
   display(sprintf('You must do this by entering a term or string that is common ONLY to the desired samples from the list above.\n'));
   prompt = 'Which samples would you like to include in the analysis? (enter the common string) ';
   common_string_identifying_subject_samples = input(prompt);
@@ -64,11 +64,9 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     end
     Subject = repmat(1, 1, size(raw_time_points,2));
     
-    index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_gene_ids(platform_struct);
+    [number_of_top_DRGs] = capture_top_number_of_DRGs(geoStruct.Header.Series.geo_accession, size(raw_gene_expression, 1));
     
-    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
-    
-    [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
+    [gene_ID_type] = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
     
   else
     % New case where time points must be read from title field or somewhere else.      
@@ -108,11 +106,9 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     end
     Subject = repmat(1, 1, size(raw_time_points,2));
     
-    index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_gene_ids(platform_struct);
+    [number_of_top_DRGs] = capture_top_number_of_DRGs(geoStruct.Header.Series.geo_accession, size(raw_gene_expression, 1));
     
-    [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, size(raw_gene_expression, 1));
-    
-    [gene_ID_type] = capture_type_of_gene_ID(GEO_number);
+    [gene_ID_type] = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
   end
   
   [~, ~, condition] = LCS(char(tb(indices_of_selected_sample_record_titles(1),1)),char(tb(indices_of_selected_sample_record_titles(end),1)));
