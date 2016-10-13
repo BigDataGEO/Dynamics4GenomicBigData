@@ -1,4 +1,4 @@
-function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, gene_ID_type] = capture_data(geoStruct, raw_gene_expression_data_in_all_samples, titles, metadata_for_all_samples, PInfo)
+function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs] = capture_data(geoStruct, raw_gene_expression_data_in_all_samples, titles, metadata_for_all_samples, PInfo)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
@@ -66,8 +66,6 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     
     [number_of_top_DRGs] = capture_top_number_of_DRGs(geoStruct.Header.Series.geo_accession, size(raw_gene_expression, 1));
     
-    [gene_ID_type] = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
-    
   else
     % New case where time points must be read from title field or somewhere else.      
     timePointsMatrix = ExtractTimePoints(list_of_sample_record_titles(indices_of_selected_sample_record_titles));
@@ -107,8 +105,6 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     Subject = repmat(1, 1, size(raw_time_points,2));
     
     [number_of_top_DRGs] = capture_top_number_of_DRGs(geoStruct.Header.Series.geo_accession, size(raw_gene_expression, 1));
-    
-    [gene_ID_type] = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
   end
   
   [~, ~, condition] = LCS(char(tb(indices_of_selected_sample_record_titles(1),1)),char(tb(indices_of_selected_sample_record_titles(end),1)));
@@ -123,60 +119,5 @@ function [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, total_num
     number_of_top_DRGs = input(['\n' prompt]);
     if(~isnumeric(number_of_top_DRGs))
       number_of_top_DRGs = -1;
-    end
-end
-
-
-function [gene_ID_type] = capture_type_of_gene_ID(GEO_number)
-    idTypes = {
-	      'AFFYMETRIX_3PRIME_IVT_ID'
-	      'AFFYMETRIX_EXON_GENE_ID'
-	      'AFFYMETRIX_SNP_ID'
-	      'AGILENT_CHIP_ID'
-	      'AGILENT_ID'
-	      'AGILENT_OLIGO_ID'
-	      'ENSEMBL_GENE_ID'
-	      'ENSEMBL_TRANSCRIPT_ID'
-	      'ENTREZ_GENE_ID'
-	      'FLYBASE_GENE_ID'
-	      'FLYBASE_TRANSCRIPT_ID'
-	      'GENBANK_ACCESSION'
-	      'GENOMIC_GI_ACCESSION'
-	      'GENPEPT_ACCESSION'
-	      'ILLUMINA_ID'
-	      'IPI_ID'
-	      'MGI_ID'
-	      'PFAM_ID'
-	      'PIR_ID'
-	      'PROTEIN_GI_ACCESSION'
-	      'REFSEQ_GENOMIC'
-	      'REFSEQ_MRNA'
-	      'REFSEQ_PROTEIN'
-	      'REFSEQ_RNA'
-	      'RGD_ID'
-	      'SGD_ID'
-	      'TAIR_ID'
-	      'UCSC_GENE_ID'
-	      'UNIGENE'
-	      'UNIPROT_ACCESSION'
-	      'UNIPROT_ID'
-	      'UNIREF100_ID'
-	      'WORMBASE_GENE_ID'
-	      'WORMPEP_ID'
-	      'ZFIN_ID'};
-    
-
-    fprintf('\n\n');
-    
-    for indx = 1:size(idTypes,1)
-      display([num2str(indx) ': ' idTypes{indx} '']);
-    end
-    
-    prompt = ['Enter the type of gene ID used in the study associated to ' GEO_number ' (e.g., enter 9 for ENSEMBL_GENE_ID): '];
-    index_of_gene_ID_type = input(['\n\n' prompt]);
-    
-    gene_ID_type = idTypes{1};
-    if(isnumeric(index_of_gene_ID_type) & index_of_gene_ID_type > 0 & index_of_gene_ID_type <= size(idTypes,1))
-      gene_ID_type = idTypes{index_of_gene_ID_type};
     end
 end

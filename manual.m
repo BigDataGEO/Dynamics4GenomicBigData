@@ -1,10 +1,10 @@
 set_paths_and_imports;
 
-GEO_number = 'GSE46045';
+GEO_number = 'GSE59015';
 
-[geoStruct, list_of_genes] = get_list_of_gene_ids(GEO_number);
+[geoStruct, list_of_genes, gene_ID_type] = get_geo_data(GEO_number);
 
-[raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered] = step_1(geoStruct);
+[raw_gene_expression, raw_time_points, subject_name, condition, number_of_top_DRGs_considered] = step_1(geoStruct);
 
 [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
 
