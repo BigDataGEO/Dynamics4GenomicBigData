@@ -62,13 +62,17 @@ function [network_graph, graph_statistics, node_statistics] = step_7(adjacency_m
     movefile(nodeStatsFileName, outputFolder);
 
     matrix_to_save = [column_labels; [row_labels dependency_matrix]];
-    depMatrixFilename = 'Dependency_matrix.xls';
-    create_exel_file(depMatrixFilename,matrix_to_save,1,[],Dynamics4GenomicBigData_HOME);
+    matrix_to_save = cell2table(matrix_to_save);
+    
+    depMatrixFilename = 'Dependency_matrix.csv';
+    writetable(matrix_to_save, depMatrixFilename, 'WriteVariableNames', false);
     movefile(depMatrixFilename, outputFolder);
     
     matrix_to_save = [[{''} row_labels']; [row_labels num2cell(adjacency_matrix_of_gene_regulatory_network)]];
-    adjacencyMatrixFilename='Adjacency_matrix.xls';
-    create_exel_file(adjacencyMatrixFilename,matrix_to_save,1,[],Dynamics4GenomicBigData_HOME);
+    matrix_to_save = cell2table(matrix_to_save);
+    
+    adjacencyMatrixFilename='Adjacency_matrix.csv';
+    writetable(matrix_to_save, adjacencyMatrixFilename, 'WriteVariableNames', false);
     movefile(adjacencyMatrixFilename, outputFolder);
 
     networkTGF='Network.tgf';

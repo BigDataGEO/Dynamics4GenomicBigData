@@ -23,6 +23,7 @@ function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_6(li
   coefficients = adjacency_matrix_of_gene_regulatory_network';
   
   if(output)
+  
     outputFolder = 'Step_6';
     mkdir(outputFolder);
     
@@ -38,14 +39,16 @@ function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_6(li
     end
     
     coefficientsToFile = [row_labels num2cell(coefficients)];
-    coefficientsToFile = [column_labels'; coefficientsToFile];
+    coefficientsToFile = [column_labels'; coefficientsToFile];    
+    coefficientsToFile = cell2table(coefficientsToFile);
     
-    create_exel_file('Coefficients.xls', coefficientsToFile, 1, [], Dynamics4GenomicBigData_HOME);
-    movefile('Coefficients.xls', outputFolder);
+    writetable(coefficientsToFile, 'Coefficients.csv', 'WriteVariableNames', false, 'Delimiter', ',');
+    
+    movefile('Coefficients.csv', outputFolder);
 
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Coefficients.xls'} {'Full matrix of coeffients of the ODE obtained by the two-stage method.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Coefficients.csv'} {'Full matrix of coeffients of the ODE obtained by the two-stage method.'}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
