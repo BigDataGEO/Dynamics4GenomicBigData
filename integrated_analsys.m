@@ -1,4 +1,4 @@
-function kompare()
+function integrated_analysis()
 
   set_paths_and_imports;
   
@@ -35,38 +35,37 @@ function kompare()
   
   cd(Dynamics4GenomicBigData_HOME);
   
-%    for i = 1:size(input,1) 
-%       
-%      % One to one analyses, that are perfomed only between conditions belonging to the same series.
-%      for j = 1:size(input,1)
-%        if (i~=j)
-%        
-%  	% Get the condition's analysis data.
-%  	[gene_expression_1, time_points_1, list_of_DRGs_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, coefficients_1, adjacency_matrix_of_gene_regulatory_network_1, network_graph_1, graph_statistics_1, node_statistics_1, subject_name_1, gene_ID_type_1, indices_of_DRGs_1] = load_analysis(input{i,1}, input{i,2});
-%      
-%  	% Get the second condition's analysis data.
-%  	[gene_expression_2, time_points_2, list_of_DRGs_2, list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2, coefficients_2, adjacency_matrix_of_gene_regulatory_network_2, network_graph_2, graph_statistics_2, node_statistics_2, subject_name_2, gene_ID_type_2, indices_of_DRGs_2] = load_analysis(input{j,1}, input{j,2});
-%  	
-%  	one_to_one_comparison_folder = [general_comparison_folder, '/', input{i,1}, '_vs_', input{j,1} '/', input{i,2}, '_vs_', input{j,2}];
-%  	
-%  	if(strcmp(input{i,1}, input{j,1}))
-%  	  one_to_one_comparison_folder = [general_comparison_folder, '/', input{i,1}, '/', input{i,2}, '_vs_', input{j,2}];
-%  	  
-%  	  mkdir(one_to_one_comparison_folder);
-%  	  cd(one_to_one_comparison_folder);
-%  	  
-%  	  output_comparison_plots(subject_name_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, zscore(gene_expression_2')', indices_of_DRGs_1);
-%  
-%  	  plot_cluster_matches(subject_name_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
-%  	  
-%  	  cd(Dynamics4GenomicBigData_HOME);
-%  	end
-%        end
-%      end
-%    end
+  for i = 1:size(input,1) 
+     
+    % One to one analyses, that are perfomed only between conditions belonging to the same series.
+    for j = 1:size(input,1)
+      if (i~=j)
+      
+	% Get the condition's analysis data.
+	[gene_expression_1, time_points_1, list_of_DRGs_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, coefficients_1, adjacency_matrix_of_gene_regulatory_network_1, network_graph_1, graph_statistics_1, node_statistics_1, subject_name_1, gene_ID_type_1, indices_of_DRGs_1] = load_analysis(input{i,1}, input{i,2});
+    
+	% Get the second condition's analysis data.
+	[gene_expression_2, time_points_2, list_of_DRGs_2, list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2, coefficients_2, adjacency_matrix_of_gene_regulatory_network_2, network_graph_2, graph_statistics_2, node_statistics_2, subject_name_2, gene_ID_type_2, indices_of_DRGs_2] = load_analysis(input{j,1}, input{j,2});
+	
+	one_to_one_comparison_folder = [general_comparison_folder, '/', input{i,1}, '_vs_', input{j,1} '/', input{i,2}, '_vs_', input{j,2}];
+	
+	if(strcmp(input{i,1}, input{j,1}))
+	  one_to_one_comparison_folder = [general_comparison_folder, '/', input{i,1}, '/', input{i,2}, '_vs_', input{j,2}];
+	  
+	  mkdir(one_to_one_comparison_folder);
+	  cd(one_to_one_comparison_folder);
+	  
+	  output_comparison_plots(subject_name_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, zscore(gene_expression_2')', indices_of_DRGs_1);
+
+	  plot_cluster_matches(subject_name_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
+	  
+	  cd(Dynamics4GenomicBigData_HOME);
+	end
+      end
+    end
+  end
  
 end
-
 
 function common_genes =  get_common_genes_across_conditions(DRGs)
 
@@ -102,7 +101,6 @@ function common_genes =  get_common_genes_across_conditions(DRGs)
   end
 end
 
-
 function output_common_genes_reports(common_genes, list_of_conditions)
   
   for size_of_output_combinations = 1:length(list_of_conditions)
@@ -110,7 +108,6 @@ function output_common_genes_reports(common_genes, list_of_conditions)
   end
   
 end
-
 
 function output_common_genes_report_for_one_combination(common_genes, size_of_output_combinations, list_of_conditions)
   output_matrix_by_combination_size = [repmat({'Condition'}, 1, size_of_output_combinations) {'#of DRGs in Common'} {'DRG file'}];
@@ -126,7 +123,6 @@ function output_common_genes_report_for_one_combination(common_genes, size_of_ou
   end
   writetable(cell2table(output_matrix_by_combination_size), ['Common_genes_' num2str(size_of_output_combinations) '.csv'], 'WriteVariableNames', false);
 end
-
 
 % This function returns the intersection of all the rows in sets. That is to say, each row is a set. Each row is a cell array.
 
