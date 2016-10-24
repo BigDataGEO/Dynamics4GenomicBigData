@@ -1,4 +1,4 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, smooth_gene_expression, output)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -16,7 +16,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   %Theshold
   alpha = 0.75;
 
-  std_data = zscore(gene_expression(indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered),:)')';
+  std_data = zscore(gene_expression(indices_of_DRGs,:)')';
 
   [list_of_gene_clusters, rmclusters, c, list_of_cluster_means, gene_expression_by_cluster] = IHC(std_data, alpha);
       
@@ -87,7 +87,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     set(gca,'YTick',1:length(time_points),'Yticklabel',time_points);
     set(gca,'FontSize',11);
 
-    xlim([1,number_of_top_DRGs_considered]);
+    xlim([1,length(indices_of_DRGs)]);
 
     zlim([min(min(smooth_gene_expression(:,indices_of_DRGs))),max(max(smooth_gene_expression(:,indices_of_DRGs)))]);
     hold on;
@@ -185,7 +185,6 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 	  print(h8,'-dpdf', ['GRMs_' num2str(b) '.pdf']);
 	  movefile(['GRMs_' num2str(b) '.pdf'], outputFolder);
       end
-    
 
     GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
 
@@ -263,7 +262,9 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     ylim([1,size(sin_ts{1},2)]);
 
-    xlim([1,size(sin_ts{1},1)]);
+    if(size(sin_ts{1},1) > 1)
+      xlim([1,size(sin_ts{1},1)]);
+    end
 
     zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))]);
 

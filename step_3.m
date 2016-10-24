@@ -10,7 +10,7 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
 
   %  -----------------------------------------------------------------------
   fd_smooth_coefficients    = [];
-  dfgenens    = [];
+  degrees_of_freedom    = [];
   gcvgenens   = [];
   lambdagenes = [];
   smooth_gene_expression        = [];
@@ -33,16 +33,29 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
     R              = eval_penalty(basisobj,2);
     lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
     fdParobj       = fdPar(basisobj, 2, lambdagenes);
-    [fd_smooth_coefficients, dfgenens, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
+    [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
+    
+    % The F test requires the degrees of freedom as an integer value. And the smooth_basis function does not always return integer values.
+    % It is safe to round down to the nearest integer.
+    degrees_of_freedom = floor(degrees_of_freedom);
+    
     smooth_gene_expression        = eval_fd(time_points, fd_smooth_coefficients);
     derivatives_of_smooth_gene_expression_curves       = eval_fd(time_points, fd_smooth_coefficients,1);
-    STDERR      = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-dfgenens)));
+    STDERR      = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-degrees_of_freedom)));
   end
 
-  F = Ftest(gene_expression, time_points,  fd_smooth_coefficients, dfgenens);
+  [F, F_critic] = Ftest(gene_expression, time_points,  fd_smooth_coefficients, degrees_of_freedom);
   [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
   
-  indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
+  % The DRGs will be determined through an upper one-tailed F test.
+  % The DRGs will be those whose F statistics are greater than the F_critic (F_{0.05, numerator_df, denominator_df})
+  indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:length(find(SF>F_critic)));
+  
+  % However, if a fixed number of DRGs was specified, then this overrides the above.
+  if(number_of_top_DRGs_considered > 0)
+    indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
+  end
+  
   list_of_DRGs = list_of_genes(indices_of_DRGs);
   DRG = gene_expression(indices_of_DRGs,:)';
   
@@ -94,7 +107,7 @@ function [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smo
   
     col_hed = {'Df','GCV','log10(\lambda)','Std Error'};
     row_hed = strcat(repmat({'Subject '},1,1),cellstr(arrayfun(@num2str, 1:1, 'UniformOutput', false))');
-    tmp = round2([dfgenens, mean(gcvgenens,2),log10(lambdagenes),sum(STDERR,2)]);
+    tmp = round2([degrees_of_freedom, mean(gcvgenens,2),log10(lambdagenes),sum(STDERR,2)]);
 %      makeHtmlTable(tmp,[],row_hed,col_hed);
   
     Col = 'A':'X';
