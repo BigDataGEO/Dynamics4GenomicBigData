@@ -13,8 +13,8 @@ GEO_number = 'GSE52428';
 
 [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, smooth_gene_expression, false);
 
-[chartReport, tableReport] = step_5(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
+[coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, false);
 
-[coefficients, adjacency_matrix_of_gene_regulatory_network] = step_6(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, false);
+[network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, false);
 
-[network_graph, graph_statistics, node_statistics] = step_7(adjacency_matrix_of_gene_regulatory_network, false);
+[chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);

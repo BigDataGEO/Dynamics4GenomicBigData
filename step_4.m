@@ -93,7 +93,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     hold on;
 	
     ylabel('Time', 'FontSize', axisLabelFontSize);
-    xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
+    xlabel('Dynamic response genes', 'FontSize', axisLabelFontSize);
     zlabel('Expression', 'FontSize', axisLabelFontSize);
 
     title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);

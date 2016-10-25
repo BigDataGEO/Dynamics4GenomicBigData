@@ -39,6 +39,18 @@ function [geoStruct, list_of_genes, gene_ID_type] = get_geo_data(GEO_number)
   end
 end
 
+function platform_struct = get_geo_platfom_data(platform_id)
+  cache_folder_name = 'GEO_cache';
+  path_to_cached_file = [cache_folder_name '/' platform_id '.soft'];
+  
+  if(exist(cache_folder_name, 'dir') && exist(path_to_cached_file, 'file'))
+    platform_struct = geosoftread(path_to_cached_file);
+  else
+    mkdir(cache_folder_name);
+    platform_struct = getgeodata(platform_id, 'ToFile', path_to_cached_file);
+  end
+end
+
 function list_of_genes = get_list_of_gene_ids(geoStruct)
 
   try
@@ -47,7 +59,9 @@ function list_of_genes = get_list_of_gene_ids(geoStruct)
     
     platform_id = geoStruct.Header.Series.platform_id;
     
-    platform_struct = getgeodata(platform_id);
+%      platform_struct = getgeodata(platform_id);
+    
+    platform_struct = get_geo_platfom_data(platform_id);
     
     index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_gene_ids(platform_struct);
     
@@ -67,6 +81,8 @@ function list_of_genes = get_list_of_gene_ids(geoStruct)
     throw(baseException);
   end
 end
+
+
 
 function list_of_genes = get_list_of_genes_from_gpl(platform_struct, index_of_gpl_column_with_gene_ids, row_identifiers_of_gse_matrix)
 
