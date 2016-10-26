@@ -1,4 +1,4 @@
-function [network_graph, graph_statistics, node_statistics] = step_7(adjacency_matrix_of_gene_regulatory_network, output)
+function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, output)
 
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
@@ -51,7 +51,6 @@ function [network_graph, graph_statistics, node_statistics] = step_7(adjacency_m
 
     print('Network_plot_MATLAB.pdf','-dpdf');
     movefile('Network_plot_MATLAB.pdf', outputFolder);
-    
     
     graphStatsFileName = 'Graph_Statistics.xls';
     create_exel_file(graphStatsFileName,graph_statistics,1,[],Dynamics4GenomicBigData_HOME);

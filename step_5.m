@@ -1,4 +1,4 @@
-function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_6(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, output)
+function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, output)
   
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
