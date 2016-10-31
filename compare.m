@@ -31,13 +31,14 @@ function compare()
     
   % Steps 2, 3, and 4 of the pipeline are run for the first subject.
   [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
-  [list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, fd_smooth_coefficients] = step_3(list_of_genes, gene_expression, time_points, number_of_top_DRGs_considered, smooth_gene_trajectories, false);
-  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, indices_of_genes_sorted_by_F_value, smooth_gene_expression, number_of_top_DRGs_considered, false);
+  [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_DRGs, list_of_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, false);
+  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, smooth_gene_expression, false);
     
   % Steps 2, 3, and 4 of the pipeline are run for the second subject.    
   [gene_expression_2, time_points_2, smooth_gene_trajectories_2] = step_2(raw_gene_expression_2, raw_time_points_2, false);
-  [list_of_DRGs_2, indices_of_DRGs_2, indices_of_genes_sorted_by_F_value_2, smooth_gene_expression_2, fd_smooth_coefficients_2] = step_3(list_of_genes, gene_expression_2, time_points_2, number_of_top_DRGs_considered_2, smooth_gene_trajectories_2, false);
-  [list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2] = step_4(gene_expression_2, time_points_2, list_of_DRGs_2, indices_of_DRGs_2, indices_of_genes_sorted_by_F_value_2, smooth_gene_expression_2, number_of_top_DRGs_considered_2, false);
+  [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression_2, fd_smooth_coefficients_2, indices_of_DRGs_2, list_of_DRGs_2] = step_3(list_of_genes, gene_expression_2, time_points_2, smooth_gene_trajectories_2, number_of_top_DRGs_considered, false);  
+  [list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2] = step_4(gene_expression_2, time_points_2, list_of_DRGs_2, indices_of_DRGs_2, smooth_gene_expression_2, false);
+  
   
   output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, zscore(gene_expression_2')', indices_of_DRGs);
     

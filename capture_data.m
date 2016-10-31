@@ -117,7 +117,8 @@ end
 function [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, total_number_of_genes)
     prompt = ['Dataset ' GEO_number ' contains a total of ' num2str(total_number_of_genes) ' genes.\n\nEnter the number of top DRGs you want to consider in the analysis (or -1 to include them all): '];
     number_of_top_DRGs = input(['\n' prompt]);
-    if(~isnumeric(number_of_top_DRGs))
-      number_of_top_DRGs = -1;
+    if(~isnumeric(number_of_top_DRGs) | number_of_top_DRGs < 1)
+      number_of_top_DRGs = 3000;
     end
+    number_of_top_DRGs = ceil(number_of_top_DRGs);
 end

@@ -62,11 +62,11 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 
-	ylabel('Genes', 'FontSize', axisLabelFontSize);
+	ylabel('All genes', 'FontSize', axisLabelFontSize);
 
 	zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-	title(['All genes'], 'FontSize', axisLabelFontSize);
+	title(['Expression of all genes'], 'FontSize', axisLabelFontSize);
 
 	hold on;
 

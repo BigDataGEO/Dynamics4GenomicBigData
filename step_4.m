@@ -71,43 +71,6 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     global Dynamics4GenomicBigData_HOME;
     outputFolder = 'Step_4';
     mkdir(outputFolder);
-  
-    %  ---------------  Surfaces of Top Genes from F-test  ------------------------
-    
-    axisLabelFontSize = 30;
-
-    h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
-
-    ind= 0 ;
-
-    surf(smooth_gene_expression(:,indices_of_DRGs),'FaceColor','interp','EdgeColor','none');
-
-    ylim([1,length(time_points)]);
-
-    set(gca,'YTick',1:length(time_points),'Yticklabel',time_points);
-    set(gca,'FontSize',11);
-
-    xlim([1,length(indices_of_DRGs)]);
-
-    zlim([min(min(smooth_gene_expression(:,indices_of_DRGs))),max(max(smooth_gene_expression(:,indices_of_DRGs)))]);
-    hold on;
-	
-    ylabel('Time', 'FontSize', axisLabelFontSize);
-    xlabel('Dynamic response genes', 'FontSize', axisLabelFontSize);
-    zlabel('Expression', 'FontSize', axisLabelFontSize);
-
-    title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
-    hold off;
-    
-    saveas(gcf, 'Paper_04.png');
-    movefile('Paper_04.png', outputFolder);
-
-    
-%      create_exel_file('Cluster_IDX.xls',Cluster_IDX',1,[],Dynamics4GenomicBigData_HOME);    
-%      movefile('Cluster_IDX.xls', outputFolder);
-
-  
-  
 
       [s,ind]=sort(cell2mat(n_clusters),'descend');
       
