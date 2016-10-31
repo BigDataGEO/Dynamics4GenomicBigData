@@ -1,4 +1,4 @@
-function integrated_analysis()
+function kompare()
 
   set_paths_and_imports;
   
@@ -13,34 +13,28 @@ function integrated_analysis()
   inputData = readtable(input_file_name, 'Delimiter', ',');
   inputData = table2cell(inputData);
   
-  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/Comparison/', output_dir];
-  mkdir(general_comparison_folder);
-    
-  statistics_of_analyses = {'Series', 'Condition', '# of time points', '# of DRGs', '# of Top DRGs for comparison', '# of GRMs'};
-  
-  DRGs = {};
-  GRMs = {};
-
-  for i = 1:size(inputData,1)  
-    [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs] = load_analysis(inputData{i,1}, inputData{i,2});
-    
-    statistics_of_current_analysis = {inputData{i,1}, inputData{i,2}, num2str(size(time_points,1)), num2str(number_of_statistically_significant_DRGs), num2str(size(list_of_DRGs,1)), num2str(size(list_of_gene_clusters,2))};    
-    statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];
-    
-    DRGs{i} = list_of_DRGs;    
-    GRMs{i} = list_of_gene_clusters;    
+  for i = 1:size(inputData,1)
+    condition{i} = inputData{i,2};
+    GEO_number{i} = inputData{i,1};
+    [gene_expression{i}, time_points{i}, list_of_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_DRGs{i}, number_of_statistically_significant_DRGs{i}] = load_analysis(GEO_number{i}, condition{i});
   end
   
-  common_genes =  get_common_genes_across_conditions(DRGs);
-  list_of_conditions = inputData(:,2)';
   
-  cd(general_comparison_folder);
-  
-  output_common_genes_reports(common_genes, list_of_conditions);
-  writetable(cell2table(statistics_of_analyses), 'Comparison.csv', 'WriteVariableNames', false);
-  
-  cd(Dynamics4GenomicBigData_HOME);
- 
+  for i = 1:size(inputData,1)
+    for j = 1:size(inputData,1)
+      if(i ~= j)
+	output_folder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number{i},'/',condition{i});
+	mkdir(output_folder);
+	cd(output_folder);
+	
+	output_comparison_plots(subject_name{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, time_points{i}, subject_name{j}, zscore(gene_expression{j}')', indices_of_DRGs{i});
+	
+	plot_cluster_matches(subject_name{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, time_points{i}, subject_name{j}, gene_expression_by_cluster{j}, list_of_cluster_means{j}, time_points{j});
+	
+	cd(Dynamics4GenomicBigData_HOME)
+      end
+    end
+  end 
 end
 
 function output_common_genes_reports(common_genes, list_of_conditions)

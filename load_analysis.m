@@ -1,4 +1,4 @@
-function [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs] = load_analysis(GEO_number, condition)
+function [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs] = load_analysis(GEO_number, condition)
 
   
   path_to_results_file = ['Results/' GEO_number '/' condition '/' 'Results.mat'];
@@ -9,7 +9,7 @@ function [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gen
     baseException = MException(msgID,msg);    
     throw(baseException);    
   else
-    load(path_to_results_file, 'gene_expression', 'time_points', 'list_of_DRGs', 'list_of_gene_clusters', 'gene_expression_by_cluster', 'list_of_cluster_means', 'coefficients', 'adjacency_matrix_of_gene_regulatory_network', 'network_graph', 'graph_statistics', 'node_statistics', 'subject_name', 'gene_ID_type', 'indices_of_DRGs');
+    load(path_to_results_file, 'gene_expression', 'time_points', 'list_of_DRGs', 'list_of_gene_clusters', 'gene_expression_by_cluster', 'list_of_cluster_means', 'coefficients', 'adjacency_matrix_of_gene_regulatory_network', 'network_graph', 'graph_statistics', 'node_statistics', 'subject_name', 'gene_ID_type', 'indices_of_DRGs', 'number_of_statistically_significant_DRGs');
   end
   
 end
