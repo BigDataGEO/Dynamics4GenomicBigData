@@ -1,17 +1,28 @@
 function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2)
 
+    global Dynamics4GenomicBigData_HOME;
+
     x = list_of_cluster_means;
     y = list_of_cluster_means_2;
     
-    z = corr(x', y');
+    z = corr(x', y', 'type', 'Spearman');
     
     output_folder = 'GRM_matching';
     mkdir(output_folder);
     cd(output_folder);
     
+    save('Lok.mat')
+    
     for current_cluster = 1:size(z,1)
-      module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)));
-      module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)));
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      [sorted_values sorted_indices] = sort(z(current_cluster,:), 'descend');
+      correlations_of_current_cluster = [{['Modules from ' name_of_second_subject]} {['Spearman correlation with ' name_of_first_subject '''s M' num2str(current_cluster)]}];
+      correlations_of_current_cluster = [correlations_of_current_cluster; [strcat('M', strread(num2str(sorted_indices),'%s')')' strread(num2str(sorted_values),'%s')]];
+      create_exel_file(['M' num2str(current_cluster) '.xls'],correlations_of_current_cluster,1,[],Dynamics4GenomicBigData_HOME);
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+      module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
+      module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
       
       expression_of_first_subjects_current_cluster = gene_expression_by_cluster{current_cluster};      
       expression_of_second_subjects_1st_cluster = gene_expression_by_cluster_2{module_with_lowest_correlation};      
