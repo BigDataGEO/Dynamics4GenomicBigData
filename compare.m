@@ -3,47 +3,36 @@ function compare()
   set_paths_and_imports;
   
   global Dynamics4GenomicBigData_HOME;
-
-  fprintf('\n');
-  GEO_number = input(['Please enter the accession number of your dataset enclosed in single quotes (e.g., ''GSE52428''): ']);
   
-  try
-    [geoStruct, list_of_genes, gene_ID_type] = get_geo_data(GEO_number);
-  catch
-    display(['Could not retrieve dataset ''' GEO_number ''' from the Gene Expression Omnibus.']);
-    return;
+  input_file_name = input('Enter the input file name: ');
+  
+  parts = strsplit(input_file_name, '.');
+  
+  output_dir = parts{1};
+
+  inputData = readtable(input_file_name, 'Delimiter', ',');
+  inputData = table2cell(inputData);
+  
+  for i = 1:size(inputData,1)
+    condition{i} = inputData{i,2};
+    GEO_number{i} = inputData{i,1};
+    [gene_expression{i}, time_points{i}, list_of_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_DRGs{i}, number_of_statistically_significant_DRGs{i}] = load_analysis(GEO_number{i}, condition{i});
   end
-
-  [raw_gene_expression, raw_time_points, name_of_first_subject, condition, number_of_top_DRGs_considered] = step_1(geoStruct);
-    
-  display(sprintf('\nYou have successfully entered the data for the first subject.'));
-    
-  prompt = '\nNow you will be required to enter the same information for the second subject (press enter to continue).';
-  
-  uselessVariable = input(prompt);
-  
-  [raw_gene_expression_2, raw_time_points_2, name_of_second_subject, condition_2, number_of_top_DRGs_considered_2] = step_1(geoStruct);
-    
-  output_folder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number,'/',condition);
-    
-  mkdir(output_folder);
-  cd(output_folder);
-    
-  % Steps 2, 3, and 4 of the pipeline are run for the first subject.
-  [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
-  [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_DRGs, list_of_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, false);
-  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, smooth_gene_expression, false);
-    
-  % Steps 2, 3, and 4 of the pipeline are run for the second subject.    
-  [gene_expression_2, time_points_2, smooth_gene_trajectories_2] = step_2(raw_gene_expression_2, raw_time_points_2, false);
-  [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression_2, fd_smooth_coefficients_2, indices_of_DRGs_2, list_of_DRGs_2] = step_3(list_of_genes, gene_expression_2, time_points_2, smooth_gene_trajectories_2, number_of_top_DRGs_considered, false);  
-  [list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2] = step_4(gene_expression_2, time_points_2, list_of_DRGs_2, indices_of_DRGs_2, smooth_gene_expression_2, false);
   
   
-  output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, zscore(gene_expression_2')', indices_of_DRGs);
-    
-  plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
-    
-  close all;
-  cd(Dynamics4GenomicBigData_HOME);
+  for i = 1:size(inputData,1)
+    for j = 1:size(inputData,1)
+      if(i ~= j)
+	output_folder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number{i},'/',condition{i});
+	mkdir(output_folder);
+	cd(output_folder);
+	
+	output_comparison_plots(subject_name{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, time_points{i}, subject_name{j}, zscore(gene_expression{j}')', indices_of_DRGs{i});
+	
+	plot_cluster_matches(subject_name{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, time_points{i}, subject_name{j}, gene_expression_by_cluster{j}, list_of_cluster_means{j}, time_points{j});
+	
+	cd(Dynamics4GenomicBigData_HOME)
+      end
+    end
+  end 
 end
