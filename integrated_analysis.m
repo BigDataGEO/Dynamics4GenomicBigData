@@ -22,7 +22,7 @@ function integrated_analysis()
   GRMs = {};
 
   for i = 1:size(inputData,1)  
-    [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs] = load_analysis(inputData{i,1}, inputData{i,2});
+    [gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs, list_of_genes, list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value] = load_analysis(inputData{i,1}, inputData{i,2});
     
     statistics_of_current_analysis = {inputData{i,1}, inputData{i,2}, num2str(size(time_points,1)), num2str(number_of_statistically_significant_DRGs), num2str(size(list_of_DRGs,1)), num2str(size(list_of_gene_clusters,2))};    
     statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];

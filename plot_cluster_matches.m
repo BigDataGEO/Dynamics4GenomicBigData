@@ -11,16 +11,14 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
     mkdir(output_folder);
     cd(output_folder);
     
-    save('Lok.mat')
-    
     for current_cluster = 1:size(z,1)
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % The following lines output the correlation of the current module (from the first subject) against all the modules from the second subject.
       [sorted_values sorted_indices] = sort(z(current_cluster,:), 'descend');
       correlations_of_current_cluster = [{['Modules from ' name_of_second_subject]} {['Spearman correlation with ' name_of_first_subject '''s M' num2str(current_cluster)]}];
       correlations_of_current_cluster = [correlations_of_current_cluster; [strcat('M', strread(num2str(sorted_indices),'%s')')' strread(num2str(sorted_values),'%s')]];
       create_exel_file(['M' num2str(current_cluster) '.xls'],correlations_of_current_cluster,1,[],Dynamics4GenomicBigData_HOME);
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+      % The following lines plot the current module against the second individual's modules with the lowest and highest correlation.
       module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
       module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
       

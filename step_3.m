@@ -96,7 +96,7 @@ function [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, nu
 
 	hold on;
 
-	title(['Smooth gene expression curves'], 'FontSize', 20);
+	title(['Smooth gene expression of all genes'], 'FontSize', 20);
 
 	hold off;
 
@@ -127,11 +127,40 @@ function [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, nu
     xlabel('Dynamic response genes', 'FontSize', axisLabelFontSize);
     zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-    title(['Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
+    title(['Expression of the Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
     hold off;
     
     saveas(gcf, 'Paper_04.png');
     movefile('Paper_04.png', outputFolder);
+    
+    
+    axisLabelFontSize = 30;
+
+    h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
+
+    ind= 0 ;
+
+    surf(smooth_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered, :)','FaceColor','interp','EdgeColor','none');
+
+    ylim([1,length(time_points)]);
+
+    set(gca,'YTick',1:length(time_points),'Yticklabel',time_points);
+    set(gca,'FontSize',11);
+
+    xlim([1,number_of_top_DRGs_considered]);
+
+    zlim([min(min(smooth_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered, :)')),max(max(smooth_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered, :)'))]);
+    hold on;
+	
+    ylabel('Time', 'FontSize', axisLabelFontSize);
+    xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
+    zlabel('Expression', 'FontSize', axisLabelFontSize);
+
+    title(['Expression of the top ranking genes'], 'FontSize', axisLabelFontSize);
+    hold off;
+    
+    saveas(gcf, 'Paper_05.png');
+    movefile('Paper_05.png', outputFolder);
     
     Col = 'A':'X';
     xlRange = [Col(1) '1'];
@@ -152,6 +181,8 @@ function [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, nu
 
     matrix_of_files_descs = [{'File name'} {'Description.'}];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_03.pdf'} {'Smooth expression curves.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_04.png'} {'Smooth expression of the statistically significant DRGs.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_05.png'} {['Smooth expression of the top ' number_of_top_DRGs_considered ' genes, sorted by F-score.']}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'F_value.xls'} {'F statistics.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest.xls'} {'Index of F statistics.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Fitted_curves.xls'} {'Fitted Curves.'}]];

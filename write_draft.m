@@ -24,7 +24,8 @@ function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_po
   [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
   
   path_to_results_file = ['Results.mat'];
-  save(path_to_results_file, 'gene_expression', 'time_points', 'list_of_DRGs', 'list_of_gene_clusters', 'gene_expression_by_cluster', 'list_of_cluster_means', 'coefficients', 'adjacency_matrix_of_gene_regulatory_network', 'network_graph', 'graph_statistics', 'node_statistics', 'subject_name', 'gene_ID_type', 'indices_of_DRGs', 'number_of_statistically_significant_DRGs');
+  
+  save(path_to_results_file, 'gene_expression', 'time_points', 'list_of_DRGs', 'list_of_gene_clusters', 'gene_expression_by_cluster', 'list_of_cluster_means', 'coefficients', 'adjacency_matrix_of_gene_regulatory_network', 'network_graph', 'graph_statistics', 'node_statistics', 'subject_name', 'gene_ID_type', 'indices_of_DRGs', 'number_of_statistically_significant_DRGs', 'list_of_genes', 'list_of_genes_sorted_by_F_value', 'gene_expression_sorted_by_F_value');
 
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part1.tex'], output_folder);
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Part2.tex'], output_folder);

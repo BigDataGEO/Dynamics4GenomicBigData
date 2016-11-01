@@ -1,4 +1,4 @@
-function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs)
+function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes)
 
       global Dynamics4GenomicBigData_HOME;
   
@@ -50,6 +50,38 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  
 	  expression_of_first_subject = gene_expression_by_cluster{currentClusterIndex};
 	  expression_of_second_subject = gene_expression_2(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}),:);
+	  
+	  
+	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  
+	  % This section calculates the Spearman correlation between each gene's expression in the first individual and the expression in the second individual.
+	  % The information is output to a spreadsheet.
+	  
+	  genes_in_current_cluster = list_of_genes(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}));
+	  
+	  correlations_of_current_cluster_header = [{['Gene']} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
+	  correlations_of_current_cluster = [];
+	  scores = [];
+	  
+	  for index_of_genes_in_current_cluster=1:size(expression_of_first_subject,1)
+	    exp1 = expression_of_first_subject(index_of_genes_in_current_cluster,:)';
+	    exp2 = expression_of_second_subject(index_of_genes_in_current_cluster,:)';
+	    
+	    z = corr(exp1, exp2, 'type', 'Spearman');
+	    
+	    correlations_of_current_cluster = [correlations_of_current_cluster; [ {genes_in_current_cluster{index_of_genes_in_current_cluster}} {num2str(z)} ]];
+	    
+	    scores = [scores; {z}];
+	  end
+	  
+	  [values indices] = sort(cell2mat(scores), 'descend');
+	  correlations_of_current_cluster = correlations_of_current_cluster(indices,:);
+	  correlations_of_current_cluster = [correlations_of_current_cluster_header; correlations_of_current_cluster];
+	  
+	  create_exel_file(['M' num2str(currentClusterIndex) '.xls'],correlations_of_current_cluster,1,[],Dynamics4GenomicBigData_HOME);
+
+	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  
 
 	  % Plot the expression of the first individual
 
