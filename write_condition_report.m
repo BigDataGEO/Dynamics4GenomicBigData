@@ -1,4 +1,4 @@
-function write_draft(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, geoStruct)
+function write_condition_report(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, geoStruct)
 
   global Dynamics4GenomicBigData_HOME;
   

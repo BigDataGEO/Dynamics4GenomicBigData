@@ -59,7 +59,7 @@ for index_of_analysis=1:total_number_of_analyses_to_run
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" is starting.']);
 
-  write_draft(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct);
+  write_condition_report(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct);
   
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" has been completed.']);
