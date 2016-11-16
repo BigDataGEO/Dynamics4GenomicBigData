@@ -128,7 +128,7 @@ function [indices, not_found] = find_in_cell_array_of_strings(cell_array_to_sear
     idx = find(strcmp([cell_array_to_search(:)], strtrim(cell_array_to_search_for{i})));
       
     if(mod(i,1000)==0)
-      display(['Scanned ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
+      display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
     end
       
     if(isempty(idx))
@@ -138,7 +138,7 @@ function [indices, not_found] = find_in_cell_array_of_strings(cell_array_to_sear
       indices = [indices; idx];
     end
   end
-  display(['Scanned ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
+  display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
 end
 
 function gene_ID_type = capture_type_of_gene_ID(GEO_number)

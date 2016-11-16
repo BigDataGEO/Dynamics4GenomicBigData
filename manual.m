@@ -18,3 +18,18 @@ GEO_number = 'GSE52428';
 [network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, false);
 
 [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type);
+
+
+% OPTIONAL
+% Further data manipulation that could be carried out after the pipeline steps.
+
+% 1. Plotting the expression of a particular cluster of genes.
+cluster_index = 10;
+gene_expression_plot(gene_expression(list_of_gene_clusters{cluster_index},:), time_points, 'Gene expression', 'Time', 'Genes', 'Expression');
+
+% 2. To plot the expression of list of genes read from a file.
+filename = 'Genes_in_M1.txt';
+cell_array_of_strings_to_find = table2cell(readtable(filename, 'Delimiter', ','));
+indices = find_strings_in_cell_array(list_of_genes, cell_array_of_strings_to_find);
+gene_expression_plot(gene_expression(indices,:), time_points, 'Gene expression', 'Time', 'Genes', 'Expression');
+print(gcf,'-dpdf', ['Gene_expression.pdf']);
