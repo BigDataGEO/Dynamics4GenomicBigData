@@ -1,7 +1,7 @@
 \subsection{Identification of the dynamic response genes (DRG)}
 \label{section:identification_of_drgs}
 
-Let us assume that the centered expression profile of the $i^{th}$ gene, belonging to subject $j$, $X_{i,j}(t)$, is a smooth function over time and that the time course gene expression measurements are discrete observations from this smooth function, which have been distorted by noise, i.e., $Y_{i,j}(t_{k}) -\mu_{i,j} =X_{i,j}(t_{k})+\epsilon_{i,j}(t_{k})$, for $i=1,\ldots,n,$ $j=1,\ldots,N$ and $k=1,\ldots,K_{i,j},$ where $n$ is the number of genes, $N$ is the number of subjects, and $K_{i,j}$ is the number of time points observed for the $i^{th}$ gene, belonging to subject $j$. The noise denoted by $\epsilon_{i,j}(t_{k})$ is assumed to be an independently identically distributed (i.i.d.) random variable with mean $0$ and variance $\sigma^{2}$. The pipeline (Carey et al., 2016) obtains the functional entity $X_{i,j}(t)$ by spline smoothing (\cite{green1993nonparametric,silverman2005functional}). Spline smoothing involves minimizing the following penalized residual sum of squares 
+Let us assume that the centered expression profile of the $i^{th}$ gene, belonging to subject $j$, $X_{i,j}(t)$, is a smooth function over time and that the time course gene expression measurements are discrete observations from this smooth function, which have been distorted by noise, i.e., $Y_{i,j}(t_{k}) -\mu_{i,j} =X_{i,j}(t_{k})+\epsilon_{i,j}(t_{k})$, for $i=1,\ldots,n,$ $j=1,\ldots,N$ and $k=1,\ldots,K_{i,j},$ where $n$ is the number of genes, $N$ is the number of subjects, and $K_{i,j}$ is the number of time points observed for the $i^{th}$ gene, belonging to subject $j$. The noise denoted by $\epsilon_{i,j}(t_{k})$ is assumed to be an independently identically distributed (i.i.d.) random variable with mean $0$ and variance $\sigma^{2}$. The pipeline (Carey et al., 2016) obtains the functional entity $X_{i,j}(t)$ by spline smoothing \citep{green1993nonparametric,silverman2005functional}. Spline smoothing involves minimizing the following penalized residual sum of squares 
 
 \begin{equation}
 \label{eq:res_sum_squares}
@@ -12,7 +12,7 @@ The first term defines the discrepancy between the observed centred gene express
 
 As the majority of the genes have a relatively flat expression profile over time estimating the smoothing parameter by pooling all the genes together is not ideal as it will tend to over smooth the data. Therefore, the pipeline chooses a subset of the genes that exhibit time course patters that have relatively smooth trajectories that do not fluctuate widely. Then these genes are ranked by their interquartile range and select the top genes for the estimation subset. Figure~\ref{fig:smoothexp} illustrates the genes expresion curves in the estimation subset over time for each subject. 
 
-The majority of the genes have a relatively flat expression levels over time thus estimating the regularity parameter $\lambda$ using all of the genes together is not ideal as it will tend select a $\lambda$ that is too large in order to minimize the prediction error for the majority of the unresponsive genes. As we are interested in obtaining an appropriate amount of regularity for the responsive genes we apply an approach similar to \cite{yao2005functional} and \cite{wu2013more} we choose a subset of the genes that exhibit time course patterns that have relatively smooth trajectories that do not fluctuate widely. Then we rank these genes by their interquartile range and select the top genes for our subset. The regularity parameter is estimated by minimizing the generalized cross validation (the prediction error) of the responsive genes in our estimation subset.
+The majority of the genes have a relatively flat expression levels over time thus estimating the regularity parameter $\lambda$ using all of the genes together is not ideal as it will tend select a $\lambda$ that is too large in order to minimize the prediction error for the majority of the unresponsive genes. As we are interested in obtaining an appropriate amount of regularity for the responsive genes we apply an approach similar to that of \cite{yao2005functional} and \cite{wu2013more} we choose a subset of the genes that exhibit time course patterns that have relatively smooth trajectories that do not fluctuate widely. Then we rank these genes by their interquartile range and select the top genes for our subset. The regularity parameter is estimated by minimizing the generalized cross validation (the prediction error) of the responsive genes in our estimation subset.
 
 The smoothing parameter is estimated by the conventional generalized cross validation approach using the genes in our estimation subset. Once the smoothing parameter is selected one can proceed to the estimate the functional entity $X_{i,j}(t)$ using all gene expression profiles. Table 1 provides the optimal smoothing parameters, the corresponding degrees of freedom, the generalized cross validation and the sum of squared errors for the fitted curves $X_{i,j}(t)$ for each subject in the study respectively.
 
@@ -53,7 +53,7 @@ are the residual sum of squares under the null and the alternative models for th
 \subsection{Clustering the DRGs into temporal gene response modules (GRMs)}
 \label{section:identification_of_grms}
 
-As many of the DRGs exhibit similar expression patterns over time we wish to cluster them into temporal gene response modules (groups of genes which have similar gene expression profiles over time). In order to achieve this we adopt the Iterative Hierarchal Clustering (IHC) method \cite{careycluster}. The IHC algorithm can identify inhomogeneous clusters, capture both the large and very small clusters and provides an automated selection of the optimal number of clusters. The IHC algorithm is only reliant on a single parameter, $\alpha$, which controls the trade-off for the between- and within-cluster correlations and is outlined below:
+As many of the DRGs exhibit similar expression patterns over time we wish to cluster them into temporal gene response modules (groups of genes which have similar gene expression profiles over time). In order to achieve this we adopt the Iterative Hierarchal Clustering (IHC) method \citep{careycluster}. The IHC algorithm can identify inhomogeneous clusters, capture both the large and very small clusters and provides an automated selection of the optimal number of clusters. The IHC algorithm is only reliant on a single parameter, $\alpha$, which controls the trade-off for the between- and within-cluster correlations and is outlined below:
 
 \begin{enumerate}
    \item Initialization: Cluster the gene expression curves using hierarchical clustering. Let the distance metric be the Spearman correlation with a threshold of $\alpha$.
@@ -84,7 +84,7 @@ Although the model size Q is comparably smaller than that of the original model 
     \begin{equation} \frac{d\hat{M}_{q,j}}{dt} = \beta_{0,q,j} + \sum_{p=1}^{P} \beta_{p,q,j}\hat{M}_{p,j} + \epsilon_{p,j}, \end{equation}
 \end{enumerate}
 
-for $q=1,...,Q$. For linear regression models, many penalized methods have been proposed in the regularization framework to conduct variable selection and estimation, such as the least absolute shrinkage and selection operator (LASSO) (\cite{tibshirani1996regression}), smoothly clipped absolute deviation (SCAD) (Fan and Li, 2001) and so on. Here we use LASSO regularization to conduct variable selection and estimation using the the follwing following penalized objective function
+for $q=1,...,Q$. For linear regression models, many penalized methods have been proposed in the regularization framework to conduct variable selection and estimation, such as the least absolute shrinkage and selection operator (LASSO) \citep{tibshirani1996regression}, smoothly clipped absolute deviation (SCAD) (Fan and Li, 2001) and so on. Here we use LASSO regularization to conduct variable selection and estimation using the the follwing following penalized objective function
 
 \begin{equation} \epsilon_{p,j} + \lambda \sum_{p=0}^{P} \| \beta_{p,q,j} \| \end{equation}
 
@@ -94,10 +94,26 @@ The two-stage smoothing-based estimation method is employed to simplify the comp
 
 To overcome the estimation deficiency and the decoupling effect of the two-stage method, we propose to refine the parameter estimates for the selected ODE model using the nonlinear least squares (NLS) method. The parameter estimates from the two-stage method are used to estimate the sturcture of the estimates only, that is, to inform us which parameters are non-zero.
 
+
+\subsection{Annotation of the GRMs}
+\label{section:david}
+
+The genes in all the GRMs can be annotated using the \textit{Database for Annotation, Visualization and Integrated Discovery (DAVID)} \citep{huang2009systematic,huang2009bioinformatics}. The annotation returned by \textit{DAVID} is composed of the following reports.
+
+\begin{enumerate}
+\item Cluster Report
+\item Chart Report
+\item Table Report   
+\end{enumerate}
+
 \section{Results}
 \label{section:results}
 
-\subsection{Identification of DRGs, GRMs, and discovery of the GRN}
-\label{section:results1}
+\subsection{General results from all conditions}
+\label{section:general_results}
 
-\par Figure~\ref{fig:allgenes} shows the expression of all the genes found in 
+\par Summary statistics are displayed in Table~\ref{table:summary}.\footnote{Full data can be found in supplementary file \href{Summary.csv}{Summary.csv}.}
+
+\par Frequency of DRGs across all analyzed conditions are listed in Table~\ref{table:frequent_DRGs}.\footnote{Full data can be found in supplementary file \href{Frequency\_of\_DRGs.csv}{Frequency\_of\_DRGs.csv}.}
+
+

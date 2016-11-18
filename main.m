@@ -59,17 +59,22 @@ for index_of_analysis=1:total_number_of_analyses_to_run
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" is starting.']);
 
-  write_condition_report(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct);
+  run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct);
   
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" has been completed.']);
   
   fprintf('\n');
-  display(['Results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/' condition_array{index_of_analysis} '/']);
+  display(['Results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/Conditions/' condition_array{index_of_analysis} '/']);
 end
 
 fprintf('\n');
 display('The analysis is complete for all the subjects/conditions.');
 
 fprintf('\n');
-display(['All results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/']);
+display(['All condition analysis files have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/Conditions/']);
+
+write_study_report(GEO_number);
+
+fprintf('\n');
+display(['A consolidated report on all conditions can be found in ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/paper.pdf']);
