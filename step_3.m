@@ -1,10 +1,10 @@
-function [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_DRGs, list_of_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, output)
+function [gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs_in_series_matrix, list_of_top_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, output)
   
   global Dynamics4GenomicBigData_HOME;
 
   flder = pwd;
   
-  total_number_of_genes_in_geo_record = size(list_of_genes,1);
+  total_number_of_genes_in_geo_record = size(gene_expression,1);
   
   %  -----------------------------------------------------------------------
 
@@ -22,40 +22,40 @@ function [list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, nu
 
   options = optimset('LargeScale',  'off', 'Display',     'on', 'Diagnostics', 'off', 'GradObj',     'off', 'Hessian',     'off', 'TolFun', 1e-8, 'TolX',        1e-8);
   
-  for i = 1:1
-    
-    %  ---------------  set up the b-spline basis  ------------------------
-    knots    = time_points';
-    norder   = 3;
-    nbasis   = length(time_points) + norder - 1;
-    basisobj = create_bspline_basis([min(time_points) max(time_points)], nbasis, norder, knots);
+  %  ---------------  set up the b-spline basis  ------------------------
+  knots    = time_points';
+  norder   = 3;
+  nbasis   = length(time_points) + norder - 1;
+  basisobj = create_bspline_basis([min(time_points) max(time_points)], nbasis, norder, knots);
 
-    %  -----------  Otain optimal smoothing parameter  -----------------
-    B              = eval_basis(time_points,basisobj);
-    R              = eval_penalty(basisobj,2);
-    lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
-    fdParobj       = fdPar(basisobj, 2, lambdagenes);
-    [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
+  %  -----------  Otain optimal smoothing parameter  -----------------
+  B              = eval_basis(time_points,basisobj);
+  R              = eval_penalty(basisobj,2);
+  lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
+  fdParobj = fdPar(basisobj, 2, lambdagenes);
+  [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
     
-    % The F test requires the degrees of freedom as an integer value. And the smooth_basis function does not always return integer values.
-    % It is safe to round down to the nearest integer.
-    degrees_of_freedom = floor(degrees_of_freedom);
+  % The F test requires the degrees of freedom as an integer value. And the smooth_basis function does not always return integer values.
+  % It is safe to round down to the nearest integer.
+  degrees_of_freedom = floor(degrees_of_freedom);
     
-    smooth_gene_expression        = eval_fd(time_points, fd_smooth_coefficients);
-    smooth_gene_expression = smooth_gene_expression';
-    derivatives_of_smooth_gene_expression_curves = eval_fd(time_points, fd_smooth_coefficients,1);
-    derivatives_of_smooth_gene_expression_curves = derivatives_of_smooth_gene_expression_curves';
-    STDERR      = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-degrees_of_freedom)));
-  end
+  smooth_gene_expression = eval_fd(time_points, fd_smooth_coefficients);
+  smooth_gene_expression = smooth_gene_expression';
+  derivatives_of_smooth_gene_expression_curves = eval_fd(time_points, fd_smooth_coefficients,1);
+  derivatives_of_smooth_gene_expression_curves = derivatives_of_smooth_gene_expression_curves';
+  STDERR = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-degrees_of_freedom)));
 
   [F, F_critic] = Ftest(gene_expression, time_points,  fd_smooth_coefficients, degrees_of_freedom);
   
   [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
-  indices_of_DRGs = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
-  list_of_DRGs = list_of_genes(indices_of_DRGs);
+  indices_of_top_DRGs_in_series_matrix = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
+  list_of_top_DRGs = list_of_genes(indices_of_top_DRGs_in_series_matrix);
+  list_of_probe_ids_sorted_by_F_value = list_of_probe_ids(indices_of_genes_sorted_by_F_value);
   list_of_genes_sorted_by_F_value = list_of_genes(indices_of_genes_sorted_by_F_value);
   gene_expression_sorted_by_F_value = gene_expression(indices_of_genes_sorted_by_F_value,:);
   smooth_gene_expression_sorted_by_F_value = smooth_gene_expression(indices_of_genes_sorted_by_F_value,:);
+  
+  gene_expression_sorted_by_F_value = [list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)];
   
   % The DRGs will be determined through an upper one-tailed F test.
   % The DRGs will be those whose F statistics are greater than the F_critic (F_{0.05, numerator_df, denominator_df})

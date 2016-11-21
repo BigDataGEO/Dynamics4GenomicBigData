@@ -1,11 +1,11 @@
-function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_DRGs, fd_smooth_coefficients, output)
+function [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_top_DRGs, fd_smooth_coefficients, output)
   
   global Dynamics4GenomicBigData_HOME;
   flder = pwd;
   
-  % %Obtain Smoothed Estimates of the derivative and trajectory.
+  %Obtain Smoothed Estimates of the derivative and trajectory.
   for j = 1:length(list_of_gene_clusters)
-    group = indices_of_DRGs(list_of_gene_clusters{j});
+    group = indices_of_top_DRGs(list_of_gene_clusters{j});
     meanfd = mean_grouped(fd_smooth_coefficients,group);
     TimeEx = linspace(time_points(1),time_points(end),100)';
     yhatEx(:,j) = eval_fd(TimeEx, meanfd);

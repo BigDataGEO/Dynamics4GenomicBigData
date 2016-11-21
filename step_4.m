@@ -1,4 +1,4 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_DRGs, indices_of_DRGs, smooth_gene_expression, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -16,7 +16,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   %Theshold
   alpha = 0.75;
 
-  std_data = zscore(gene_expression(indices_of_DRGs,:)')';
+  std_data = zscore(gene_expression(indices_of_top_DRGs,:)')';
 
   [list_of_gene_clusters, rmclusters, c, list_of_cluster_means, gene_expression_by_cluster] = IHC(std_data, alpha);
       
@@ -27,6 +27,19 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   gene_expression_by_cluster = gene_expression_by_cluster(cluster_indexes_by_size);
   list_of_cluster_means = list_of_cluster_means(cluster_indexes_by_size,:);
   % The previous four lines sort the clusters by size.
+  
+  daSm = 0;
+  maxIndex = 0;
+  for kkk=1:length(list_of_gene_clusters)
+    daSm = daSm + length(list_of_gene_clusters{kkk});
+    currentClaster = list_of_gene_clusters{kkk};
+    
+    for qqq = 1:length(currentClaster)
+      if currentClaster(qqq) > maxIndex
+	maxIndex = currentClaster(qqq);
+      end
+    end
+  end
       
   n_clusters   = cellfun(@(x) size(x,1),gene_expression_by_cluster,'UniformOutput', false);
 
@@ -46,13 +59,13 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     ind3        = find(sz{k}==1);
 
-    lrg_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind}));
+    lrg_id{k}   = list_of_top_DRGs(vertcat(list_of_gene_clusters{ind}));
 
-    med_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind1}));
+    med_id{k}   = list_of_top_DRGs(vertcat(list_of_gene_clusters{ind1}));
 
-    smal_id{k}  = list_of_DRGs(vertcat(list_of_gene_clusters{ind2}));
+    smal_id{k}  = list_of_top_DRGs(vertcat(list_of_gene_clusters{ind2}));
 
-    sin_id{k}   = list_of_DRGs(vertcat(list_of_gene_clusters{ind3}));
+    sin_id{k}   = list_of_top_DRGs(vertcat(list_of_gene_clusters{ind3}));
 
     lrg_ts{k}   = list_of_cluster_means(ind,:);
 

@@ -4,12 +4,12 @@ directoryPath=$1
 
 cd $directoryPath
 
-pdflatex paper.tex
+pdflatex Report.tex
 
-bibtex paper.aux
+bibtex Report.aux
 
-pdflatex paper.tex
+pdflatex Report.tex
 
-pdflatex paper.tex
+pdflatex Report.tex
 
-rm paper.aux paper.bbl paper.blg paper.log paper.out
+rm Report.aux Report.bbl Report.blg Report.log Report.out

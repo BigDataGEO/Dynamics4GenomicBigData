@@ -1,4 +1,4 @@
-function write_study_report(GEO_number, conditions, gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs, list_of_genes, list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value, geoStruct)
+function write_study_report(GEO_number)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -13,7 +13,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
   
   gene_expression = {};
   time_points = {};
-  list_of_DRGs = {};
+  list_of_top_DRGs = {};
   list_of_gene_clusters = {};
   gene_expression_by_cluster = {};
   list_of_cluster_means = {};
@@ -24,17 +24,24 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
   node_statistics = {};
   subject_name = {};
   gene_ID_type = {};
-  indices_of_DRGs = {};
+  indices_of_top_DRGs = {};
   number_of_statistically_significant_DRGs = {};
   list_of_genes = {};
-  list_of_genes_sorted_by_F_value = {};
   gene_expression_sorted_by_F_value = {};
-
-  for i = 1:size(conditions,1)  
-    [gene_expression{i}, time_points{i}, list_of_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_DRGs{i}, number_of_statistically_significant_DRGs{i}, list_of_genes{i}, list_of_genes_sorted_by_F_value{i}, gene_expression_sorted_by_F_value{i}] = load_analysis(GEO_number, conditions{i}); 
-  end
+  list_of_probe_ids = {};
   
-  frequency_of_DRGs =  get_frequency_of_DRGs(list_of_DRGs);
+  list_of_statistically_significant_DRGs = {};
+  
+  for i = 1:size(conditions,1)  
+    [gene_expression{i}, time_points{i}, list_of_top_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_top_DRGs{i}, number_of_statistically_significant_DRGs{i}, list_of_genes{i}, gene_expression_sorted_by_F_value{i}, list_of_probe_ids{i}] = load_analysis(GEO_number, conditions{i}); 
+    
+    list_of_statistically_significant_DRGs{i} = gene_expression_sorted_by_F_value{i}(1:number_of_statistically_significant_DRGs{i},2);
+    
+    list_of_statistically_significant_DRGs{i} = cellfun(@num2str, list_of_statistically_significant_DRGs{i}, 'UniformOutput', false);
+    
+  end
+
+  frequency_of_DRGs =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs);
   
   cd(output_folder_path);
   
@@ -101,7 +108,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
     
     fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(condition, '_', '\_') '}' ' & ' num2str(length(time_points{condition_iter_index})) ' & ' num2str(number_of_statistically_significant_DRGs{condition_iter_index}) ' & ' num2str(length(list_of_gene_clusters{condition_iter_index})) ' \\ \hline']);
     
-    statistics_of_current_analysis = {GEO_number, condition, num2str(size(time_points{condition_iter_index},1)), num2str(number_of_statistically_significant_DRGs{condition_iter_index}), num2str(size(list_of_DRGs{condition_iter_index},1)), num2str(size(list_of_gene_clusters{condition_iter_index},2))};    
+    statistics_of_current_analysis = {GEO_number, condition, num2str(size(time_points{condition_iter_index},1)), num2str(number_of_statistically_significant_DRGs{condition_iter_index}), num2str(size(list_of_top_DRGs{condition_iter_index},1)), num2str(size(list_of_gene_clusters{condition_iter_index},2))};    
     statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];
 
   end
@@ -133,7 +140,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
   for frequent_DRG_index = 1:size(top_25_frequent_DRGs,1)
     frequent_DRG = top_25_frequent_DRGs(frequent_DRG_index, :);
     
-    fprintf(draft,'\n\t%s\n', ['' frequent_DRG{1} ' & ' num2str(frequent_DRG{2}) ' \\ \hline']);
+    fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(frequent_DRG{1}, '_', '\_') '} & ' strrep(num2str(frequent_DRG{2}), '_', '\_') ' \\ \hline']);
 
   end
   
@@ -141,7 +148,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
   
   fprintf(draft,'%s\n', ['\end{center}']);
   
-  fprintf(draft,'%s\n', ['\caption{Frequent DRGs across the conditions analyzed from series ' GEO_number '. The first columns indicates the probe/gene id and the second column indicates the number of conditions where this gene is a DRG.}']);
+  fprintf(draft,'%s\n', ['\caption{Frequent DRGs across the conditions analyzed from series ' GEO_number '. The first column indicates gene name and the second column indicates the number of times the corresponding probe''s expression was measured as a statistically significant DRG. Full list in supplementary file \href{Frequency_of_DRGs.csv}{Frequency\_of\_DRGs.csv}.}']);
   
   fprintf(draft,'%s\n', ['\label{table:frequent_DRGs}']);
   
@@ -150,7 +157,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
   
   for condition_iter_index = 1:length(conditions)
     condition = conditions{condition_iter_index};
-    write_condition_section(draft, GEO_number, condition, gene_expression{condition_iter_index}, time_points{condition_iter_index}, list_of_DRGs{condition_iter_index}, list_of_gene_clusters{condition_iter_index}, gene_expression_by_cluster{condition_iter_index}, list_of_cluster_means{condition_iter_index}, coefficients{condition_iter_index}, adjacency_matrix_of_gene_regulatory_network{condition_iter_index}, network_graph{condition_iter_index}, graph_statistics{condition_iter_index}, node_statistics{condition_iter_index}, subject_name, gene_ID_type{condition_iter_index}, indices_of_DRGs{condition_iter_index}, number_of_statistically_significant_DRGs{condition_iter_index}, list_of_genes_sorted_by_F_value{condition_iter_index}, gene_expression_sorted_by_F_value{condition_iter_index});
+    write_condition_section(draft, GEO_number, condition, gene_expression{condition_iter_index}, time_points{condition_iter_index}, list_of_top_DRGs{condition_iter_index}, list_of_gene_clusters{condition_iter_index}, gene_expression_by_cluster{condition_iter_index}, list_of_cluster_means{condition_iter_index}, coefficients{condition_iter_index}, adjacency_matrix_of_gene_regulatory_network{condition_iter_index}, network_graph{condition_iter_index}, graph_statistics{condition_iter_index}, node_statistics{condition_iter_index}, subject_name, gene_ID_type{condition_iter_index}, indices_of_top_DRGs{condition_iter_index}, number_of_statistically_significant_DRGs{condition_iter_index}, gene_expression_sorted_by_F_value{condition_iter_index});
   end
 
   fid = fopen('Part3.tex');
@@ -179,7 +186,7 @@ function write_study_report(GEO_number, conditions, gene_expression, time_points
 end
 
 
-function write_condition_section(draft, GEO_number, condition, gene_expression, time_points, list_of_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_DRGs, number_of_statistically_significant_DRGs, list_of_genes_sorted_by_F_value, gene_expression_sorted_by_F_value)
+function write_condition_section(draft, GEO_number, condition, gene_expression, time_points, list_of_top_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_top_DRGs, number_of_statistically_significant_DRGs, gene_expression_sorted_by_F_value)
 
   global Dynamics4GenomicBigData_HOME;
   

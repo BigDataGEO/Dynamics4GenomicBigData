@@ -12,7 +12,7 @@ GEO_number = input(['Please enter the accession number of your dataset enclosed 
 try
   fprintf('\n');
   display(['Loading dataset. This can take some time, please wait...']);
-  [geoStruct, list_of_genes, gene_ID_type] = get_geo_data(GEO_number);
+  [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_data(GEO_number);
 catch
   fprintf('\n');
   display(['Could not retrieve dataset ' GEO_number ' from the Gene Expression Omnibus.']);
@@ -59,7 +59,7 @@ for index_of_analysis=1:total_number_of_analyses_to_run
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" is starting.']);
 
-  run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, geoStruct);
+  run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, gene_ID_type, number_of_top_DRGs_considered_array{index_of_analysis}, list_of_probe_ids, geoStruct);
   
   fprintf('\n');
   display(['The analysis of condition "' condition_array{index_of_analysis} '" has been completed.']);
