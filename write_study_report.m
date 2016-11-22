@@ -97,16 +97,16 @@ function write_study_report(GEO_number)
 
   fprintf(draft,'%s\n', ['\begin{center}']);  
   
-  fprintf(draft,'%s\n', ['\begin{tabular}{|c|c|c|c|} \hline']);
+  fprintf(draft,'%s\n', ['\begin{tabular}{|c|c|c|c|c|} \hline']);
   
-  fprintf(draft,'%s\n', ['Condition & \# of time points & \# of DRGs & \# of GRMs \\ \hline']);
+  fprintf(draft,'%s\n', ['Condition & \# of time points & \# of DRGs & \# of top DRGs clustered & \# of GRMs \\ \hline']);
   
   statistics_of_analyses = {'Series', 'Condition', '# of time points', '# of DRGs', '# of Top DRGs for comparison', '# of GRMs'};
   
   for condition_iter_index = 1:length(conditions)
     condition = conditions{condition_iter_index};
     
-    fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(condition, '_', '\_') '}' ' & ' num2str(length(time_points{condition_iter_index})) ' & ' num2str(number_of_statistically_significant_DRGs{condition_iter_index}) ' & ' num2str(length(list_of_gene_clusters{condition_iter_index})) ' \\ \hline']);
+    fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(condition, '_', '\_') '}' ' & ' num2str(length(time_points{condition_iter_index})) ' & ' num2str(number_of_statistically_significant_DRGs{condition_iter_index}) ' & ' num2str(length(indices_of_top_DRGs{condition_iter_index})) ' & ' num2str(length(list_of_gene_clusters{condition_iter_index})) ' \\ \hline']);
     
     statistics_of_current_analysis = {GEO_number, condition, num2str(size(time_points{condition_iter_index},1)), num2str(number_of_statistically_significant_DRGs{condition_iter_index}), num2str(size(list_of_top_DRGs{condition_iter_index},1)), num2str(size(list_of_gene_clusters{condition_iter_index},2))};    
     statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];

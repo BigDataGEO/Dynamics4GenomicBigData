@@ -7,7 +7,7 @@ series=$1
 
 outputFile=$2
 
-conditionsFolder="Results/$series"
+conditionsFolder="Results/$series/Conditions/"
 
 echo "series,condition" > "$outputFile"
 
