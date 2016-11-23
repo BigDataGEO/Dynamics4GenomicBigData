@@ -1,3 +1,0 @@
-series,condition
-GSE59015,D10
-GSE59015,Wildtype
