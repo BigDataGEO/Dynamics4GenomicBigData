@@ -1,15 +1,19 @@
 set_paths_and_imports;
 
-GEO_number = 'GSE59015';
+Condition_file = 'GSE59015_D10_3000.csv';
+
+cd('Input');
+[GEO_number, condition, samples, time_points, number_of_top_DRGs] = read_input([Condition_file]);
+cd('..');
 
 % The following function call may take some time to complete.
 [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_data(GEO_number);
 
-[raw_gene_expression, raw_time_points, subject_name, condition, number_of_top_DRGs_considered] = step_1(geoStruct);
+[raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, time_points);
 
 [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, false);
 
-[gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs, list_of_top_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, false);
+[gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs, list_of_top_DRGs] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs, list_of_probe_ids, false);
 
 [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, false);
 

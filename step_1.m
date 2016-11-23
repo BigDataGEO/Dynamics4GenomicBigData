@@ -1,4 +1,4 @@
-function [raw_gene_expression, raw_time_points] = step_1_1(geoStruct, samples, time_points)
+function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, time_points)
   
   Data_GEO = double(geoStruct.Data);
   

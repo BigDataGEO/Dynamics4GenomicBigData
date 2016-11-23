@@ -1,4 +1,4 @@
-function indices = find_strings_in_cell_array(cell_array_to_search, cell_array_to_search_for)
+function [indices, not_found] = find_strings_in_cell_array(cell_array_to_search, cell_array_to_search_for)
 
   indices = [];
   not_found = [];

@@ -50,8 +50,8 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
   [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
   indices_of_top_DRGs_in_series_matrix = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
   list_of_top_DRGs = list_of_genes(indices_of_top_DRGs_in_series_matrix);
-  list_of_probe_ids_sorted_by_F_value = list_of_probe_ids(indices_of_genes_sorted_by_F_value);
-  list_of_genes_sorted_by_F_value = list_of_genes(indices_of_genes_sorted_by_F_value);
+  list_of_probe_ids_sorted_by_F_value = strtrim(list_of_probe_ids(indices_of_genes_sorted_by_F_value));
+  list_of_genes_sorted_by_F_value = strtrim(list_of_genes(indices_of_genes_sorted_by_F_value));
   gene_expression_sorted_by_F_value = gene_expression(indices_of_genes_sorted_by_F_value,:);
   smooth_gene_expression_sorted_by_F_value = smooth_gene_expression(indices_of_genes_sorted_by_F_value,:);
   
@@ -173,7 +173,7 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     create_exel_file('Fitted_curves.xls',smooth_gene_expression,1,[],Dynamics4GenomicBigData_HOME);
     create_exel_file('Derivative_Fitted_Curves.xls',derivatives_of_smooth_gene_expression_curves,1,[],Dynamics4GenomicBigData_HOME);
     
-    create_exel_file('Statistically_significant_DRGs.xls',list_of_genes_sorted_by_F_value(1:number_of_statistically_significant_DRGs),1,[],Dynamics4GenomicBigData_HOME);
+    create_exel_file('Statistically_significant_DRGs.xls',[[{'Probe IDs'} {'Gene names'}]; [strtrim(list_of_probe_ids_sorted_by_F_value(1:number_of_statistically_significant_DRGs)) strtrim(list_of_genes_sorted_by_F_value(1:number_of_statistically_significant_DRGs))]],1,[],Dynamics4GenomicBigData_HOME);
     movefile('Statistically_significant_DRGs.xls', outputFolder);
       
     movefile('Fitted_curves.xls', outputFolder);
