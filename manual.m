@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-Condition_file = 'GSE59015_D10_3000.csv';
+Condition_file = 'GSE41067_replicate 1_3000.csv';
 
 cd('Input');
 [GEO_number, condition, samples, time_points, number_of_top_DRGs] = read_input([Condition_file]);

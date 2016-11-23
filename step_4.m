@@ -161,7 +161,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 	  print(h8,'-dpdf', ['GRMs_' num2str(b) '.pdf']);
 	  movefile(['GRMs_' num2str(b) '.pdf'], outputFolder);
       end
-
+      
     GRMFigure=figure('units', 'centimeters', 'position', [0, 0, 50, 40]);
 
     axisLabelFontSize = 30;
@@ -175,80 +175,92 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     Figure1 = subplot(2,2,1);
     set(gca,'FontSize',11);
+    
+    if(size(lrg_ts{1},1) > 0)
 
-    if(~isempty(lrg_ts{1}));
+      if(~isempty(lrg_ts{1}));
 
-    ribbon(lrg_ts{1}');
+	ribbon(lrg_ts{1}');
 
-    ylim([1,size(lrg_ts{1},2)]);
+	ylim([1,size(lrg_ts{1},2)]);
 
-    if size(lrg_ts{1},1) > 1
-      xlim([1,size(lrg_ts{1},1)]);
-    end
+	if size(lrg_ts{1},1) > 1
+	  xlim([1,size(lrg_ts{1},1)]);
+	end
 
-    zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))]);
+	zlim([min(min(lrg_ts{1})),max(max(lrg_ts{1}))]);
 
-    ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
+	ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-    xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
+	xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-    title('LSM');
+	title('LSM');
 
+      end
     end
 
     Figure2 = subplot(2,2,2);
     set(gca,'FontSize',11);
+    
+    if(size(med_ts{1},1) > 0)
 
-    ribbon(med_ts{1}');
+      ribbon(med_ts{1}');
 
-    ylim([1,size(med_ts{1},2)]);
+      ylim([1,size(med_ts{1},2)]);
 
-    if size(med_ts{1},1) > 1
-      xlim([1,size(med_ts{1},1)]);
+      if size(med_ts{1},1) > 1
+	xlim([1,size(med_ts{1},1)]);
+      end
+      zlim([min(min(med_ts{1})),max(max(med_ts{1}))]);
+
+      ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
+
+      xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
+
+      title('MSM');
     end
-    zlim([min(min(med_ts{1})),max(max(med_ts{1}))]);
-
-    ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-    xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-    title('MSM');
 
     Figure3 = subplot(2,2,3);
     set(gca,'FontSize',11);
 
-    ribbon(smal_ts{1}');
+    if(size(smal_ts{1},1) > 0)
+    
+      ribbon(smal_ts{1}');
 
-    ylim([1,size(smal_ts{1},2)]);
+      ylim([1,size(smal_ts{1},2)]);
 
-    xlim([1,size(smal_ts{1},1)]);
+      xlim([1,size(smal_ts{1},1)]);
 
-    zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))]);
+      zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))]);
 
-    ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
+      ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
 
-    xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
+      xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
 
-    title('SSM');
+      title('SSM');
+    end
 
     Figure4 = subplot(2,2,4);
     set(gca,'FontSize',11);
+    
+    if(size(sin_ts{1},1) > 0)
 
-    ribbon(sin_ts{1}');
+      ribbon(sin_ts{1}');
 
-    ylim([1,size(sin_ts{1},2)]);
+      ylim([1,size(sin_ts{1},2)]);
 
-    if(size(sin_ts{1},1) > 1)
-      xlim([1,size(sin_ts{1},1)]);
+      if(size(sin_ts{1},1) > 1)
+	xlim([1,size(sin_ts{1},1)]);
+      end
+
+      zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))]);
+
+      ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
+
+      xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
+
+      title('SGM');
     end
-
-    zlim([min(min(sin_ts{1})),max(max(sin_ts{1}))]);
-
-    ylabel('Time (hours)', 'FontSize', axisLabelFontSize);
-
-    xlabel('ith Cluster Center', 'FontSize', axisLabelFontSize);
-
-    title('SGM');
 
 %      print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
     

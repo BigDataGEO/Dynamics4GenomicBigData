@@ -8,7 +8,7 @@ function [GEO_number, condition, samples, time_points, number_of_top_DRGs] = rea
   
   parts = strsplit(filename, '.');
   
-  parts = strsplit(parts{1}, '_');
+  parts = strsplit(parts{1}, '_-_');
   
   GEO_number = parts{1};
   

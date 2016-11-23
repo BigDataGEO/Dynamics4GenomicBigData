@@ -29,6 +29,14 @@ function [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_d
       
     end
     
+    if isnumeric(list_of_genes{1})
+      list_of_genes = strtrim(cellstr(num2str(cell2mat(list_of_genes))));
+    end
+    
+    if isnumeric(list_of_probe_ids{1})
+      list_of_probe_ids = strtrim(cellstr(num2str(cell2mat(list_of_probe_ids))));
+    end
+    
   catch causeException
     msgID = 'MATLAB:rmpath:DirNotFound1';
     msg = ['Unable to retrieve dataset ''' GEO_number ''' from the Gene Expression Omnibus.'];

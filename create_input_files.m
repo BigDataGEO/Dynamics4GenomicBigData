@@ -32,11 +32,19 @@ index_of_analysis = 1;
 prompt = ['\nThe pipeline analysis requires that you specify the samples from ' GEO_number '\nthat refer to your desired subject/condition and the time points.\n\nThis interactive interface will allow you to enter this information.\n\nPress Enter to proceed.  '];
 input(prompt);
 
+mkdir('Input');
+
 while true
   
   [raw_gene_expression_array{index_of_analysis}, raw_time_points_array{index_of_analysis}, subject_name_array{index_of_analysis}, condition_array{index_of_analysis}, number_of_top_DRGs_considered_array{index_of_analysis}, sample_codes{index_of_analysis}] = prepare_data(geoStruct);
 
   raw_time_points_array{index_of_analysis} = strtrim(strcat(cellstr(num2str(raw_time_points_array{index_of_analysis})),' hours'));
+  
+  cd('Input');
+  
+  writetable(cell2table([sample_codes{index_of_analysis} num2cell(raw_time_points_array{index_of_analysis})]), [GEO_number '_-_' strrep(condition_array{index_of_analysis}, ' ', '_') '_-_' num2str(number_of_top_DRGs_considered_array{index_of_analysis}) '.csv'], 'WriteRowNames', false, 'WriteVariableNames', false, 'Delimiter', ',');
+  
+  cd('..');
   
   fprintf('\n\n'); 
   display(['The information for the analysis of subject/condition "' condition_array{index_of_analysis} '" has been loaded successfully.']);
@@ -55,18 +63,5 @@ while true
   
   index_of_analysis = index_of_analysis + 1;
 end
-
-total_number_of_analyses_to_run = index_of_analysis;
-
-mkdir('Input');
-cd('Input');
-
-for index_of_analysis=1:total_number_of_analyses_to_run
-
-  writetable(cell2table([sample_codes{index_of_analysis} num2cell(raw_time_points_array{index_of_analysis})]), [GEO_number '_' strrep(condition_array{index_of_analysis}, '_', '-') '_' num2str(number_of_top_DRGs_considered_array{index_of_analysis}) '.csv'], 'WriteRowNames', false, 'WriteVariableNames', false, 'Delimiter', ',');
-  
-end
-
-cd('..');
 
 end
