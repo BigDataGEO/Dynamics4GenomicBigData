@@ -1,46 +1,26 @@
-1. Running the pipeline analysis.
+1. Running the pipeline analysis for one or more experimental conditions.
 
-1.1 Execute main.m and follow instructions.
+The information of each experimental condition must be provided in a text file. One file for each condition.
 
-2. Performing an integrated analysis
+The condition files must be stored in folder Input.
 
-2.1 Open a Linux console and change to the main Pipeline directory. Then enter the following.
+Each condition file must be named with the format below
 
-./prepare_input.sh [GSE] [Outputfile]
+  <GEO SERIES NUMBER>_<NAME OF EXPERIMENTAL CONDITION>_<NUMBER OF TOP DRGs FOR CLUSTERING>.txt
 
-The above will look for the results of the analysis carried out on dataset [GSE] and will load all the analyzed conditions into [Outputfile].
+All the samples associated with the experimental condition must be provided along with the time points using the format described as follows.
 
-2.2 From the Matlab console enter
+Each line of the file must consist of the accession number one sample followed by a comma (,) and then followed by the time point, including the time unit (e.g., 2 hours).
 
-integrated_analysis
+Example: The file for condition "D10" of GEO series GSE59015 should be named GSE59015_D10_3000.csv and the contents must be as follows.
 
-The program will request the user to enter an input file name. This file must be the same from step 2.1.
+GSM1424453,0 hours
+GSM1424454,6 hours
+GSM1424455,12 hours
+GSM1424456,18 hours
+GSM1424457,24 hours
+GSM1424458,30 hours
+GSM1424459,36 hours
+GSM1424460,42 hours
 
-3. Compare conditions for which the pipeline analysis has been completed.
-
-3.1 Open a Linux console and change to the main Pipeline directory. Then enter the following.
-
-./prepare_input.sh [GSE] [Outputfile]
-
-The above will look for the results of the analysis carried out on dataset [GSE] and will load all the analyzed conditions into [Outputfile].
-
-3.2 From the Matlab console enter
-
-compare
-
-The program will request the user to enter an input file name. This file must be the same from step 3.1.
-
-
-4. Integrated report of the pipeline analysis for all conditions.
-
-4.1 Open a Linux console and change to the main Pipeline directory. Then enter the following.
-
-./prepare_input.sh [GSE] [Outputfile]
-
-The above will look for the results of the analysis carried out on dataset [GSE] and will load all the analyzed conditions into [Outputfile].
-
-4.2 From the Matlab console enter
-
-compare
-
-The program will request the user to enter an input file name. This file must be the same from step 3.1.
+Once all condition files are located in folder Input, then the analysis can be started by running pipeline.m. The script will read all the condition files in folder Input and run the analysis for each one of them.

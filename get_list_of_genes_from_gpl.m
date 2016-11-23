@@ -13,7 +13,7 @@ function list_of_genes = get_list_of_genes_from_gpl(platform_struct, index_of_gp
   end
 
   % Under normal circumstances, variable not_found should be EMPTY after the following line.
-  [indices, not_found] = find_in_cell_array_of_strings(row_identifiers_in_platform_record, row_identifiers_of_gse_matrix);
+  [indices, not_found] = find_matrix_rows_in_gpl_record(row_identifiers_in_platform_record, row_identifiers_of_gse_matrix);
   
   if ~isempty(not_found)
     msgID = 'MATLAB:rmpath:DirNotFound3';

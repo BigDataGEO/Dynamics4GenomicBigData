@@ -14,3 +14,5 @@ echo "series,condition" > "$outputFile"
 for condition in "$conditionsFolder"/*; do
   echo "$series,`basename "$condition"`" >> "$outputFile"
 done
+
+mv $outputFile Input

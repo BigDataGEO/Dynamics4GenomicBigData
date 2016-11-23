@@ -1,19 +1,22 @@
-function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs] = capture_data(geoStruct, raw_gene_expression_data_in_all_samples, titles, metadata_for_all_samples, PInfo)
+function [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs, sample_codes] = capture_data(geoStruct, raw_gene_expression_data_in_all_samples, titles, metadata_for_all_samples, PInfo)
 
   %Ask which condition to analyze
   tb = tabulate(titles);
   list_of_sample_record_titles = strcat(cellstr(arrayfun(@num2str, 1:length(tb(:,1)), 'UniformOutput', false))',' : ',tb(:,1));
   display(list_of_sample_record_titles);    
 	
-  display(sprintf('\n\nAll the samples associated to %s are listed above. You must now specify the samples that you want to include in the analysis.\n', geoStruct.Header.Series.geo_accession));
+  condition_name = input(['Enter a name for the experimental condition: ']);
+  display(sprintf(['\n\nAll the samples associated to %s are listed above. You must now specify the samples that correspond to condition "' condition_name '".\n'], geoStruct.Header.Series.geo_accession));
   display(sprintf('You must do this by entering a term or string that is common ONLY to the desired samples from the list above.\n'));
-  prompt = 'Which samples would you like to include in the analysis? (enter the common string) ';
+  prompt = ['Which samples would you like to include as part of condition "' condition_name '"? (enter the common string) '];
   common_string_identifying_subject_samples = input(prompt);
   indices_of_selected_sample_record_titles = ExtractSubjects(common_string_identifying_subject_samples, list_of_sample_record_titles);
   display(sprintf('\nThe samples that match your search terms are listed below.\n'));
   display(list_of_sample_record_titles(indices_of_selected_sample_record_titles));
 
-  raw_gene_expression = raw_gene_expression_data_in_all_samples(:,indices_of_selected_sample_record_titles);  
+  raw_gene_expression = raw_gene_expression_data_in_all_samples(:,indices_of_selected_sample_record_titles);
+  
+  sample_codes = geoStruct.Header.Samples.geo_accession(indices_of_selected_sample_record_titles)';
   
   display(sprintf('\nThe list below shows the information available for each one of the selected samples.\n\n'));
     
@@ -107,11 +110,11 @@ function [raw_gene_expression, raw_time_points, condition, subject_name, number_
     [number_of_top_DRGs] = capture_top_number_of_DRGs(geoStruct.Header.Series.geo_accession, size(raw_gene_expression, 1));
   end
   
-  [~, ~, condition] = LCS(char(tb(indices_of_selected_sample_record_titles(1),1)),char(tb(indices_of_selected_sample_record_titles(end),1)));
-  condition = strrep(condition,' ','_');
-  condition = strrep(condition,'/','_');
-  condition = strrep(condition,'.','_');
-    
+%    [~, ~, condition] = LCS(char(tb(indices_of_selected_sample_record_titles(1),1)),char(tb(indices_of_selected_sample_record_titles(end),1)));
+%    condition = strrep(condition,' ','_');
+%    condition = strrep(condition,'/','_');
+%    condition = strrep(condition,'.','_');
+    condition = condition_name;
 end
 
 function [number_of_top_DRGs] = capture_top_number_of_DRGs(GEO_number, total_number_of_genes)

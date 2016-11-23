@@ -1,4 +1,4 @@
-function indices = find_strings_in_cell_array(cell_array_to_search, cell_array_to_search_for)
+function [indices, not_found] = find_matrix_rows_in_gpl_record(cell_array_to_search, cell_array_to_search_for)
 
   indices = [];
   not_found = [];
@@ -7,9 +7,9 @@ function indices = find_strings_in_cell_array(cell_array_to_search, cell_array_t
 
     idx = find(strcmp([cell_array_to_search(:)], strtrim(cell_array_to_search_for{i})));
       
-%      if(mod(i,1000)==0)
-%        display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
-%      end
+    if(mod(i,1000)==0)
+      display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
+    end
       
     if(isempty(idx))
       not_found = [not_found; {cell_array_to_search_for{i}}];
@@ -18,5 +18,5 @@ function indices = find_strings_in_cell_array(cell_array_to_search, cell_array_t
       indices = [indices; idx];
     end
   end
-%    display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
+  display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
 end

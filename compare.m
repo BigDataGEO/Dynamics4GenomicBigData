@@ -10,7 +10,7 @@ function compare()
   
   output_dir = parts{1};
 
-  inputData = readtable(input_file_name, 'Delimiter', ',');
+  inputData = readtable(['Input/' input_file_name], 'Delimiter', ',');
   inputData = table2cell(inputData);
   
   if(size(inputData,1) > 1)

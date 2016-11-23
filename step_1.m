@@ -1,11 +1,13 @@
-function [raw_gene_expression, raw_time_points, subject_name, condition, number_of_top_DRGs_considered] = step_1(geoStruct)
+function [raw_gene_expression, raw_time_points] = step_1_1(geoStruct, samples, time_points)
   
-  Preprocessing_technique = 'Default';
+  Data_GEO = double(geoStruct.Data);
   
-  [Data_GEO, titles, Info, PInfo] = get_data_from_geo_struct(geoStruct);
+  [indices_of_samples_in_matrix, not_found] = find_in_cell_array_of_strings(geoStruct.Header.Samples.geo_accession, samples);
   
-  [raw_gene_expression, raw_time_points, condition, subject_name, number_of_top_DRGs_considered] = capture_data(geoStruct, Data_GEO, titles, Info, PInfo);
+  raw_gene_expression = Data_GEO(:,indices_of_samples_in_matrix);
   
-  raw_time_points = raw_time_points';
+  raw_time_points = ExtractTimePoints(time_points');
+  
+  raw_time_points = cell2mat(raw_time_points(:,1));
   
 end
