@@ -35,13 +35,13 @@ function write_study_report(GEO_number)
   for i = 1:size(conditions,1)  
     [gene_expression{i}, time_points{i}, list_of_top_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_top_DRGs{i}, number_of_statistically_significant_DRGs{i}, list_of_genes{i}, gene_expression_sorted_by_F_value{i}, list_of_probe_ids{i}] = load_analysis(GEO_number, conditions{i}); 
     
-    list_of_statistically_significant_DRGs{i} = gene_expression_sorted_by_F_value{i}(1:number_of_statistically_significant_DRGs{i},2);
+    list_of_statistically_significant_DRGs{i} = gene_expression_sorted_by_F_value{i}(1:number_of_statistically_significant_DRGs{i},1:2);
     
     list_of_statistically_significant_DRGs{i} = cellfun(@num2str, list_of_statistically_significant_DRGs{i}, 'UniformOutput', false);
     
   end
-
-  frequency_of_DRGs =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs);
+  
+  [frequency_of_DRGs, common_probes] =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs);
   
   cd(output_folder_path);
   
@@ -70,7 +70,7 @@ function write_study_report(GEO_number)
   
   fprintf(draft,'%s\n', ['\end{enumerate}']);
 
-  fprintf(draft,'%s', ['\par This condition has a total of ' num2str(length(time_points)) ' time points.']);
+  fprintf(draft,'%s', ['\par The conditions in this study have at least ' num2str(min(cellfun(@length,time_points))) ' time points. ']);
   
   if(isfield(geoStruct.Header.Series, 'title'))
     fprintf(draft,'%s', ['The original study associated to dataset ' GEO_number ' is titled: \textit{``' geoStruct.Header.Series.title '''''}. ']);
