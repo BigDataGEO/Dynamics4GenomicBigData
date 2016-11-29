@@ -117,7 +117,7 @@ function write_study_report(GEO_number)
   
   fprintf(draft,'%s\n', ['\end{center}']);
   
-  fprintf(draft,'%s\n', ['\caption{Result statistics from the conditions analyzed in series ' GEO_number '.}']);
+  fprintf(draft,'%s\n', ['\caption{Result statistics from the ' num2str(length(conditions)) ' conditions analyzed in series ' GEO_number '.}']);
   
   fprintf(draft,'%s\n', ['\label{table:summary}']);
   
@@ -148,7 +148,7 @@ function write_study_report(GEO_number)
   
   fprintf(draft,'%s\n', ['\end{center}']);
   
-  fprintf(draft,'%s\n', ['\caption{Frequent DRGs across the conditions analyzed from series ' GEO_number '. The first column indicates gene name and the second column indicates the number of times the corresponding probe''s expression was measured as a statistically significant DRG. Full list in supplementary file \href{Frequency_of_DRGs.csv}{Frequency\_of\_DRGs.csv}.}']);
+  fprintf(draft,'%s\n', ['\caption{Frequent DRGs across the conditions analyzed from series ' GEO_number '. The first column indicates gene name and the second column indicates the number of probes where the gene appears as a DRG. Full list in supplementary file \href{Frequency_of_DRGs.csv}{Frequency\_of\_DRGs.csv}.}']);
   
   fprintf(draft,'%s\n', ['\label{table:frequent_DRGs}']);
   

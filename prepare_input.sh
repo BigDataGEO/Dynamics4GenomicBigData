@@ -5,14 +5,14 @@
 
 series=$1
 
-outputFile=$2
+outputFile=$series"_-_$2"
 
 conditionsFolder="Results/$series/Conditions/"
 
-echo "series,condition" > "$outputFile"
+# echo "condition" > $outputFile
 
 for condition in "$conditionsFolder"/*; do
-  echo "$series,`basename "$condition"`" >> "$outputFile"
+  echo "`basename "$condition"`" >> "$outputFile"
 done
 
 mv $outputFile Input

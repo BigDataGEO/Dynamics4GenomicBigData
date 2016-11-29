@@ -1,6 +1,25 @@
+% This function finds the intersection of probe ids in the list of DRGs provided.
+
+% This intersection of (DRG) probe ids is returned in variable common_probes.
+
+% The list of gene names associated with each one of the common probes is returned in frequency_of_DRGs along with the number of (common) probes where the gene appears (which could be more than one).
+
+% Example: Suppose the input is composed of the following two matrices.
+
+% | Probe | Gene |		| Probe | Gene |
+%     A      G1  		   X        G25
+%     B      G52 		   B       G52
+%     C      G41   		   D       G12
+%     H      G15                   C       G41
+%     F      G52                   F       G52
+
+% The common probes are B, C, and F.
+
+% The common DRGs are G52 (frequency 1), G41 (frequency 1), and G52 (frequency 2).
+
 % Input:
 
-% list_of_statistically_significant_DRGs is a cell array. Each element is a cell array of size Mx2 where the first column is the probe ids and the second column the corresponding gene name, listing the DRGs of a subject/condition.
+% list_of_statistically_significant_DRGs is a cell array. Each element is a cell array of size Mx2 where the first column is the (DRG) probe ids and the second column the corresponding gene name, listing the DRGs of a subject/condition. M is the number of (DRG) probes.
 
 % Output:
 
@@ -9,17 +28,17 @@
 
 function [frequency_of_DRGs, common_probes] =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs)
   
-  the_intersection = list_of_statistically_significant_DRGs{1}(:,1);
+  intersection_of_probes = list_of_statistically_significant_DRGs{1}(:,1);
   
   for k=1:length(list_of_statistically_significant_DRGs)
-    the_intersection = intersect(the_intersection, list_of_statistically_significant_DRGs{1}(:,1));
+    intersection_of_probes = intersect(intersection_of_probes, list_of_statistically_significant_DRGs{k}(:,1));
   end
   
   A = list_of_statistically_significant_DRGs{1}(:,1);
   
-  B = the_intersection;
+  B = intersection_of_probes;
   
-  common_probes = the_intersection;
+  common_probes = intersection_of_probes;
   
   intersection_of_probes_and_genes = list_of_statistically_significant_DRGs{1}(find(ismember(A,B)),:);
   
