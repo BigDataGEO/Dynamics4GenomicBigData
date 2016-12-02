@@ -25,7 +25,7 @@ function gene_expression_plot(gene_expression, time_points, plot_title, x_label,
 
   plot(mean_curve,'o-r','LineWidth',1.5);
   
-  xlim([0,length(time_points)]);
+  xlim([1,length(time_points)]);
 
   set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
   set(gca,'FontSize',11);
