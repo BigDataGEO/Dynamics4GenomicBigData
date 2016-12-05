@@ -1,4 +1,4 @@
-function integrated_analysis()
+function measure_fit_of_replicates()
 
   set_paths_and_imports;
   
@@ -19,10 +19,8 @@ function integrated_analysis()
   
   geoStruct = get_geo_data(GEO_number);
   
-  GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Results/', GEO_number];
-  conditions_folder_path = [GEO_number_folder_path, '/', 'Conditions'];
-  output_folder_path = [GEO_number_folder_path];
-  mkdir(output_folder_path);
+  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/' parts{1} '/Comparison/'];
+  mkdir(general_comparison_folder);
   
   conditions = inputData;
   
@@ -56,25 +54,23 @@ function integrated_analysis()
     
   end
   
-  [frequency_of_DRGs, common_probes] =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs);
+  % The following two lines measure the noise between the replicates.
+  % The results are stored in variable list_of_probes_genes_noise, which is a cell array where the first column is the probe ids, the second column is the gene names and the third column is the noise measurements across the replicates.
+  % The order of the probe ids/gene names is the same as in the original GEO matrix.
+  noise_per_gene = measure_noise_between_replicates(gene_expression);  
+  list_of_probes_genes_noise = [list_of_probe_ids{1} list_of_genes{1} num2cell(noise_per_gene)];
   
-  cd(output_folder_path);
-  
-  output_folder = pwd;
- 
-  
-  statistics_of_analyses = {'Series', 'Condition', '# of time points', '# of DRGs', '# of Top DRGs for comparison', '# of GRMs'};
-  
-  for condition_iter_index = 1:length(conditions)
-    condition = conditions{condition_iter_index};
-    
-    statistics_of_current_analysis = {GEO_number, condition, num2str(size(time_points{condition_iter_index},1)), num2str(number_of_statistically_significant_DRGs{condition_iter_index}), num2str(size(list_of_top_DRGs{condition_iter_index},1)), num2str(size(list_of_gene_clusters{condition_iter_index},2))};    
-    statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];
+  % The following lines perform the same function, but the resulting cell array lists probe ids/gene names sorted by noise, from lower to higher noise.
+  [B,I] = sort(noise_per_gene);  
+  list_of_probes_genes_noise_sorted_by_noise = [list_of_probe_ids{1}(I) list_of_genes{1}(I) num2cell(noise_per_gene(I))];
 
-  end
-    
-  writetable(cell2table(statistics_of_analyses), [macro_condition '_Summary.csv'], 'WriteVariableNames', false);
-  writetable(cell2table(frequency_of_DRGs), [macro_condition '_Frequency_of_DRGs.csv'], 'WriteVariableNames', false);
-
+  % The two cell arrays constructed above are exported as .csv files.
+  cd(general_comparison_folder);
+  
+  writetable(cell2table(list_of_probes_genes_noise), [parts{2} '_noise_per_gene_ALL_GENES.csv'], 'WriteVariableNames',false);
+  
+  writetable(cell2table(list_of_probes_genes_noise_sorted_by_noise), [parts{2} '_noise_per_gene_ALL_GENES_SORTED_BY_NOISE.csv'], 'WriteVariableNames',false);
+  
   cd(Dynamics4GenomicBigData_HOME);
+
 end
