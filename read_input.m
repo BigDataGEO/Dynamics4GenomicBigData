@@ -16,10 +16,10 @@ function [GEO_number, condition, samples, time_points, number_of_top_DRGs] = rea
   
   number_of_top_DRGs = str2num(parts{3});
   
-  T = table2cell(readtable(filename, 'ReadVariableNames', false));
+  T = table2cell(readtable(filename, 'ReadVariableNames', false, 'Delimiter', ','));
   
-  samples = T(:,1);
+  time_points = T(:,1);
   
-  time_points = T(:,2); 
+  samples = T(:,2);
 
 end

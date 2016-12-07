@@ -21,6 +21,8 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
   smooth_gene_trajectories = Est_Sub_Sel(time_points,gene_expression,1);
   smooth_gene_trajectories = smooth_gene_trajectories{1};
   
+  gene_expression = zscore(gene_expression')';
+  
   if(output)
   
     global Dynamics4GenomicBigData_HOME;
@@ -69,9 +71,28 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
     
     matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
     
+    matrix_of_files_descs = [matrix_of_files_descs; [{'gene_expression.csv'} {'Normalized gene expression in matrix form. Rows are probes and columns are time points.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'time_points.csv'} {'Preprocessed time points.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'raw_gene_expression.csv'} {'Non-normalized gene expression in matrix form. Rows are probes and columns are time points.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'raw_time_points.csv'} {'Time points as they appear in series matrix.'}]];
+    
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
     movefile('List_and_description_of_output.xls', outputFolder);
+    
+    cd(outputFolder);
+    
+    
+    writetable(cell2table(num2cell(gene_expression)), ['gene_expression.csv'], 'WriteVariableNames', false);
+    
+    writetable(cell2table(num2cell(raw_gene_expression)), ['raw_gene_expression.csv'], 'WriteVariableNames', false);
+    
+    writetable(cell2table(num2cell(raw_time_points)), ['raw_time_points.csv'], 'WriteVariableNames', false);
+    
+    writetable(cell2table(num2cell(time_points)), ['time_points.csv'], 'WriteVariableNames', false);
+    
+    cd('..');
+    
   end
   
 end

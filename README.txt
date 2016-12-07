@@ -15,8 +15,13 @@ SUMMARY
 * Section 2 explains how to run the analysis on the condition files created in Section 1.
 
 
+Section 1.
 
-Section 1. Constructing the input files for the pipeline analysis of one or more experimental conditions.
+Input files: conditions and macroconditions.
+
+Subsection 1.1
+
+Constructing the input files for the pipeline analysis of one or more experimental conditions.
 
 The information of each experimental condition must be provided in a text file. One file for each condition.
 
@@ -28,30 +33,27 @@ Each condition file must be named with the format below
 
 All the samples associated with the experimental condition must be provided along with the time points using the format described as follows.
 
-Each line of the file must consist of the accession number one sample followed by a comma (,) and then followed by the time point, including the time unit (e.g., 2 hours).
+Each line of the file must consist of the time point, including the time unit (e.g., 2 hours), followed by a comma (,) and then followed by the accession number of one sample.
 
 Example: The file for condition "D10" of GEO series GSE59015 should be named GSE59015_-_D10_-_3000.csv and the contents must be as follows.
 
-GSM1424453,0 hours
-GSM1424454,6 hours
-GSM1424455,12 hours
-GSM1424456,18 hours
-GSM1424457,24 hours
-GSM1424458,30 hours
-GSM1424459,36 hours
-GSM1424460,42 hours
+0 hours,GSM1424453
+6 hours,GSM1424454
+12 hours,GSM1424455
+18 hours,GSM1424456
+24 hours,GSM1424457
+30 hours,GSM1424458
+36 hours,GSM1424459
+42 hours,GSM1424460
 
 The condition files can be written manually, following strictly the format described above. Optionally, this task can be carried out more easily by using script create_input_files.m. In order to do this, create_input_files.m must be run and the instructions provided thereafter by the program must be followed.
 
-Section 2.
 
-Once all condition files are located in folder Input, then the analysis can be started by running pipeline.m. The script will read ALL the condition files in folder Input and run the analysis for each one of them.
+Subsection 1.2
 
-Section 3.
+Macrocondition files.
 
-Extracting additional comparisons from a group of condition analyses already finished.
-
-The conditions that need to be compared must be provided in a text file that must be located in folder Input.
+The conditions comprising the macrocondition must be provided in a text file that must be located in folder Input.
 
 This file must be named using the format below.
 
@@ -76,6 +78,24 @@ Example
 ./prepare_input.sh GSE52428 H1N1.txt
 
 This will read ALL the conditions whose analyses have been completed for the GEO series indicated and write the file with the format described earlier.
+
+Section 2.
+
+Once all condition files are located in folder Input, then the analysis can be started by running pipeline.m. The script will read ALL the condition files in folder Input and run the analysis for each one of them.
+
+Section 3.
+
+integrated_analisis: input is a macrocondition file.
+
+Section 4.
+
+compare: input is a macrocondition file.
+
+Section 5.
+
+measure_fit_of_replicates: input is a macrocondition file.
+
+
 
 
 

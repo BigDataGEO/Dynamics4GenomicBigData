@@ -19,7 +19,7 @@ function measure_fit_of_replicates()
   
   geoStruct = get_geo_data(GEO_number);
   
-  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/' parts{1} '/Comparison/'];
+  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/' parts{1} '/Comparison_of_replicates/' macro_condition];
   mkdir(general_comparison_folder);
   
   conditions = inputData;
@@ -64,12 +64,43 @@ function measure_fit_of_replicates()
   [B,I] = sort(noise_per_gene);  
   list_of_probes_genes_noise_sorted_by_noise = [list_of_probe_ids{1}(I) list_of_genes{1}(I) num2cell(noise_per_gene(I))];
 
-  % The two cell arrays constructed above are exported as .csv files.
+  
   cd(general_comparison_folder);
   
-  writetable(cell2table(list_of_probes_genes_noise), [parts{2} '_noise_per_gene_ALL_GENES.csv'], 'WriteVariableNames',false);
-  
+  % The two cell arrays constructed earlier are exported as .csv files.
+  writetable(cell2table(list_of_probes_genes_noise), [parts{2} '_noise_per_gene_ALL_GENES.csv'], 'WriteVariableNames',false);  
   writetable(cell2table(list_of_probes_genes_noise_sorted_by_noise), [parts{2} '_noise_per_gene_ALL_GENES_SORTED_BY_NOISE.csv'], 'WriteVariableNames',false);
+  
+  
+  
+  
+  for probe_id_index_seq = 1:min(10, length(I))
+    probe_id_index = I(probe_id_index_seq);
+  
+    gene_expression_to_plot = [];
+    for condition_index = 1:size(conditions,1)
+      gene_expression_to_plot = [gene_expression_to_plot; gene_expression{condition_index}(probe_id_index,:)];
+    end
+    gene_expression_plot(gene_expression_to_plot, time_points{1}, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Genes', 'Expression');
+    
+    print(gcf,'-dpdf', [num2str(probe_id_index_seq) '_Probe_' list_of_probe_ids{1}{probe_id_index}]);
+    close all;
+  end
+  
+  
+  for probe_id_index_seq = max(0,length(I)-10):length(I)
+    probe_id_index = I(probe_id_index_seq);
+  
+    gene_expression_to_plot = [];
+    for condition_index = 1:size(conditions,1)
+      gene_expression_to_plot = [gene_expression_to_plot; gene_expression{condition_index}(probe_id_index,:)];
+    end
+    gene_expression_plot(gene_expression_to_plot, time_points{1}, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Genes', 'Expression');
+  
+    print(gcf,'-dpdf', [num2str(probe_id_index_seq) '_Probe_' list_of_probe_ids{1}{probe_id_index}]);
+    close all;
+  end
+  
   
   cd(Dynamics4GenomicBigData_HOME);
 

@@ -1,4 +1,4 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -261,12 +261,12 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
       title('SGM');
     end
-
-%      print(GRMFigure,'-dpsc2', '-append', 'GRMs.ps');
     
     print(GRMFigure,'-dpdf', 'GRMs.pdf');
     
     movefile('GRMs.pdf', outputFolder);
+    
+    close all;
 
     % *Table 2* provides the number of clusters for each subject and the number of clusters in each category.
 
@@ -276,18 +276,31 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 
     tmp = round2(vertcat(sizes{:}));
 
-%      makeHtmlTable(tmp,[],row_hed,col_hed);
-  
-  
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
-%      matrix_of_files_descs = [matrix_of_files_descs; [{'Cluster_IDX.xls'} {'Cluster indices.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Clusters_X.pdf'} {'Cluster plots.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.pdf'} {'Clusters plotted by size.'}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
     movefile('List_and_description_of_output.xls', outputFolder);
+    
+    cluster_iteration_ID = 1;
+    probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    
+    mkdir([outputFolder '/GRMs']);
+    cd([outputFolder '/GRMs'])
+    
+    for cluster_iteration_ID=1:length(list_of_gene_clusters)
+      probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+      names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+      
+      writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID})) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})]]), ['M' num2str(cluster_iteration_ID) '.csv'], 'WriteVariableNames', false);
+    end
+    
+    cd('../..');
+    
   
   end
   

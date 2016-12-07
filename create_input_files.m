@@ -42,7 +42,7 @@ while true
   
   cd('Input');
   
-  writetable(cell2table([sample_codes{index_of_analysis} num2cell(raw_time_points_array{index_of_analysis})]), [GEO_number '_-_' strrep(condition_array{index_of_analysis}, ' ', '_') '_-_' num2str(number_of_top_DRGs_considered_array{index_of_analysis}) '.csv'], 'WriteRowNames', false, 'WriteVariableNames', false, 'Delimiter', ',');
+  writetable(cell2table([num2cell(raw_time_points_array{index_of_analysis}) sample_codes{index_of_analysis}]), [GEO_number '_-_' strrep(condition_array{index_of_analysis}, ' ', '_') '_-_' num2str(number_of_top_DRGs_considered_array{index_of_analysis}) '.csv'], 'WriteRowNames', false, 'WriteVariableNames', false, 'Delimiter', ',');
   
   cd('..');
   

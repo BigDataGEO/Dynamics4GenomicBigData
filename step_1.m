@@ -10,4 +10,14 @@ function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, tim
   
   raw_time_points = cell2mat(raw_time_points(:,1));
   
+%    if(output)
+%      mkdir('Step_1');
+%      cd('Step_1');    
+%      
+%      writetable(cell2table(num2cell(raw_gene_expression)), ['raw_gene_expression.csv'], 'WriteVariableNames', false);
+%      writetable(cell2table(num2cell(raw_time_points)), ['raw_time_points.csv'], 'WriteVariableNames', false);
+%      
+%      cd('..');
+%    end
+  
 end

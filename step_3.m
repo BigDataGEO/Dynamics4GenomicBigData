@@ -1,5 +1,5 @@
 function [gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs_in_series_matrix, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, output)
-  
+
   global Dynamics4GenomicBigData_HOME;
 
   flder = pwd;
@@ -102,8 +102,8 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
 
     end
 
-    print('Paper_03.pdf','-dpdf');
-    movefile('Paper_03.pdf', outputFolder);
+    print('Smooth_expression_curves.pdf','-dpdf');
+    movefile('Smooth_expression_curves.pdf', outputFolder);
     
     axisLabelFontSize = 30;
 
@@ -130,8 +130,8 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     title(['Expression of the Dynamic Response Genes'], 'FontSize', axisLabelFontSize);
     hold off;
     
-    saveas(gcf, 'Paper_04.png');
-    movefile('Paper_04.png', outputFolder);
+    saveas(gcf, 'Smooth_expression_of_DRGs.png');
+    movefile('Smooth_expression_of_DRGs.png', outputFolder);
     
     
     axisLabelFontSize = 30;
@@ -156,41 +156,42 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     xlabel('Top ranking genes', 'FontSize', axisLabelFontSize);
     zlabel('Expression', 'FontSize', axisLabelFontSize);
 
-    title(['Expression of the top ranking genes'], 'FontSize', axisLabelFontSize);
+    title(['Expression of the top ' num2str(number_of_top_DRGs_considered) ' DRGs'], 'FontSize', axisLabelFontSize);
     hold off;
     
-    saveas(gcf, 'Paper_05.png');
-    movefile('Paper_05.png', outputFolder);
+    saveas(gcf, 'Smooth_expression_of_top_DRGs.png');
+    movefile('Smooth_expression_of_top_DRGs.png', outputFolder);
+    
+    close all;
     
     Col = 'A':'X';
     xlRange = [Col(1) '1'];
-    create_exel_file('F_value.xls',F,1,xlRange,Dynamics4GenomicBigData_HOME);
-    create_exel_file('Index_Ftest.xls',indices_of_genes_sorted_by_F_value,1,xlRange,Dynamics4GenomicBigData_HOME);
-      
-    movefile('F_value.xls', outputFolder);
-    movefile('Index_Ftest.xls', outputFolder);
-
-    create_exel_file('Fitted_curves.xls',smooth_gene_expression,1,[],Dynamics4GenomicBigData_HOME);
-    create_exel_file('Derivative_Fitted_Curves.xls',derivatives_of_smooth_gene_expression_curves,1,[],Dynamics4GenomicBigData_HOME);
     
-    create_exel_file('Statistically_significant_DRGs.xls',[[{'Probe IDs'} {'Gene names'}]; [strtrim(list_of_probe_ids_sorted_by_F_value(1:number_of_statistically_significant_DRGs)) strtrim(list_of_genes_sorted_by_F_value(1:number_of_statistically_significant_DRGs))]],1,[],Dynamics4GenomicBigData_HOME);
-    movefile('Statistically_significant_DRGs.xls', outputFolder);
-      
-    movefile('Fitted_curves.xls', outputFolder);
-    movefile('Derivative_Fitted_Curves.xls', outputFolder);
+    cd(outputFolder);
+    
+    writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} {'F score'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_genes_sorted_by_F_value) gene_expression_sorted_by_F_value]]), ['gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', false);
+    writetable(cell2table(num2cell(smooth_gene_expression)), ['smooth_gene_expression.csv'], 'WriteVariableNames', false);
+    writetable(cell2table(num2cell(derivatives_of_smooth_gene_expression_curves)), ['derivatives_of_smooth_gene_expression_curves.csv'], 'WriteVariableNames', false);
+    writetable(cell2table({number_of_statistically_significant_DRGs}), ['number_of_statistically_significant_DRGs.csv'], 'WriteVariableNames', false);
+    
+    cd('..');
 
     matrix_of_files_descs = [{'File name'} {'Description.'}];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_03.pdf'} {'Smooth expression curves.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_04.png'} {'Smooth expression of the statistically significant DRGs.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_05.png'} {['Smooth expression of the top ' number_of_top_DRGs_considered ' genes, sorted by F-score.']}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'F_value.xls'} {'F statistics.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Index_Ftest.xls'} {'Index of F statistics.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Fitted_curves.xls'} {'Fitted Curves.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{'Derivative_Fitted_Curves.xls'} {'Derivatives of the Fitted Curves.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Smooth_expression_curves.pdf'} {'Smooth expression curves.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Smooth_expression_of_DRGs.png'} {'Smooth expression of the statistically significant DRGs.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'Smooth_expression_of_top_DRGs.png'} {['Smooth expression of the top ' num2str(number_of_top_DRGs_considered) ' genes, sorted by F-score.']}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'gene_expression_sorted_by_F_value.csv'} {'Gene expression of all the probes, sorted by F-value and listing the associated gene names.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'number_of_statistically_significant_DRGs.csv'} {'The number of probes that are statistically-significant DRGs.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'smooth_gene_expression.csv'} {['Smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'derivatives_of_smooth_gene_expression_curves.csv'} {['Derivatives of the smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
     
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
     movefile('List_and_description_of_output.xls', outputFolder);
+    
+    
+    
+    
   end
   
 end

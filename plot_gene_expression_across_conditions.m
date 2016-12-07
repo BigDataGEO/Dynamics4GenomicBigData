@@ -1,10 +1,4 @@
-% gene_expression is a matrix where the rows are the genes and the columns are the time points.
-
-% gene_expression_plot(gene_expression, time_points, 'Gene expression', 'Time', 'Genes', 'Expression')
-
-function gene_expression_plot(gene_expression, time_points, plot_title, x_label, y_label, z_label)
-
-  mean_curve = mean(gene_expression, 1);
+function plot_gene_expression_across_conditions(matrix_ids_of_probes_to_plot, gene_expression)
 
   h=figure('units', 'centimeters', 'position', [0, 0, 30, 24]);
 
@@ -16,9 +10,7 @@ function gene_expression_plot(gene_expression, time_points, plot_title, x_label,
   set(gcf, 'PaperUnits', 'centimeters');
   set(gcf, 'PaperSize', [30 24]);
   axisLabelFontSize = 30;
-
-
-%    surf(gene_expression,'FaceColor','interp','EdgeColor','none');
+  
   plot(gene_expression','-*b');
   
   hold on;
@@ -40,6 +32,16 @@ function gene_expression_plot(gene_expression, time_points, plot_title, x_label,
 
   zlabel(z_label, 'FontSize', axisLabelFontSize);
 
-  title(strrep(plot_title, '_', '\_'), 'FontSize', axisLabelFontSize);
+  title(plot_title, 'FontSize', axisLabelFontSize);
+  
+  
+
+  for replicate_index = 1:length(gene_expression)
+  
+    gene_expression_of_current_replicate = gene_expression{replicate_index};
+    
+    
+  
+  end
 
 end

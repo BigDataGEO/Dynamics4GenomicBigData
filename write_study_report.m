@@ -216,21 +216,21 @@ function write_condition_section(draft, GEO_number, condition, gene_expression, 
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Paper_03.pdf}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_curves.pdf}']);
   fprintf(draft,'%s\n', ['\caption{Smooth expression of all genes in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{fig:smoothexp_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Paper_04.png}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_DRGs.png}']);
   fprintf(draft,'%s\n', ['\caption{Dynamic response genes in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:drgs_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Paper_05.png}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_top_DRGs.png}']);
   fprintf(draft,'%s\n', ['\caption{Top ranking DRGs in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:top_drgs_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
