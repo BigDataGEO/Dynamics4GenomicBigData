@@ -4,7 +4,7 @@ function write_study_report(GEO_number)
   
   geoStruct = get_geo_data(GEO_number);
   
-  GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Results/', GEO_number];
+  GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Output/', GEO_number];
   conditions_folder_path = [GEO_number_folder_path, '/', 'Conditions'];
   output_folder_path = [GEO_number_folder_path];
   mkdir(output_folder_path);
@@ -60,7 +60,7 @@ function write_study_report(GEO_number)
   fprintf(draft,'%-50s\n', F);
   
   
-  fprintf(draft,'%s\n', ['This manuscript applies the pipeline analysis proposed by Carey et al. (2016) in order to identify gene regulatory networks from the time course data available in data series ' GEO_number ' of the \textit{Gene Expression Omnibus (GEO)}. The analysis is focused on the ' num2str(length(conditions)) ' conditions listed below. ']);
+  fprintf(draft,'%s\n', ['This manuscript applies the pipeline analysis proposed by Carey et al. (2016) to analyze the time course data available in data series ' GEO_number ' of the \textit{Gene Expression Omnibus (GEO)} in order to identify differentially expressed genes and the gene regulatory network these comprise. The analysis is focused on the ' num2str(length(conditions)) ' experimental conditions listed below. ']);
   
   fprintf(draft,'%s\n', ['\begin{enumerate}']);
   
@@ -209,49 +209,49 @@ function write_condition_section(draft, GEO_number, condition, gene_expression, 
 
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_2/Paper_01.png}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_2/Paper_01.png}']);
   fprintf(draft,'%s\n', ['\caption{All genes in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{fig:allgenes_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_curves.pdf}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_curves.pdf}']);
   fprintf(draft,'%s\n', ['\caption{Smooth expression of all genes in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{fig:smoothexp_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_DRGs.png}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_DRGs.png}']);
   fprintf(draft,'%s\n', ['\caption{Dynamic response genes in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:drgs_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_top_DRGs.png}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_3/Smooth_expression_of_top_DRGs.png}']);
   fprintf(draft,'%s\n', ['\caption{Top ranking DRGs in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:top_drgs_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
 
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_4/GRMs_1.pdf}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_4/GRMs_1.pdf}']);
   fprintf(draft,'%s\n', ['\caption{Expression of the gene response modules in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:grms_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
 
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_4/GRMs.pdf}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_4/GRMs.pdf}']);
   fprintf(draft,'%s\n', ['\caption{Mean curves of gene response modules grouped by cluster size in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{figure:grmstype_' condition '}}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   fprintf(draft,'%s\n', ['\begin{figure}']);
   fprintf(draft,'%s\n', ['\centering']);
-  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Results/' GEO_number '/Conditions/' condition '/Step_6/Network_plot_MATLAB.pdf}']);
+  fprintf(draft,'%s\n', ['\includegraphics[width=\textwidth]{' Dynamics4GenomicBigData_HOME '/Output/' GEO_number '/Conditions/' condition '/Step_6/Network_plot_MATLAB.pdf}']);
   fprintf(draft,'%s\n', ['\caption{Gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.}']);
   fprintf(draft,'%s\n', ['\label{fig:generegnet_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);

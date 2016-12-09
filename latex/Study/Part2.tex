@@ -10,7 +10,7 @@ Let us assume that the centered expression profile of the $i^{th}$ gene, belongi
 
 The first term defines the discrepancy between the observed centred gene expression measurements $Y_{i,j}(t_{k}) -\mu_{i,j}$ and the functional entity $X_{i,j}(t),$ while the second term requires $X_{i,j}(t)$ to be sufficiently smooth. The parameter $\lambda$ controls the trade-off between these two competing effects and hence ensures that $X_{i,j}(t)$ has an appropriate amount of regularity or smoothness. As smoothing each individual gene is computationally expensive and is likely to obtain biased estimates as our data does not contain replicates and is expected to contain a low signal-to-noise ratio. The pipeline pools the genes together in order to obtain an estimate of the amount of regularity required. This is an approach similar to that of \cite{yao2005functional} and \cite{wu2013more}.
 
-As the majority of the genes have a relatively flat expression profile over time estimating the smoothing parameter by pooling all the genes together is not ideal as it will tend to over smooth the data. Therefore, the pipeline chooses a subset of the genes that exhibit time course patters that have relatively smooth trajectories that do not fluctuate widely. Then these genes are ranked by their interquartile range and select the top genes for the estimation subset. Figure~\ref{fig:smoothexp} illustrates the genes expresion curves in the estimation subset over time for each subject. 
+As the majority of the genes have a relatively flat expression profile over time estimating the smoothing parameter by pooling all the genes together is not ideal as it will tend to over smooth the data. Therefore, the pipeline chooses a subset of the genes that exhibit time course patters that have relatively smooth trajectories that do not fluctuate widely. Then these genes are ranked by their interquartile range and select the top genes for the estimation subset.
 
 The majority of the genes have a relatively flat expression levels over time thus estimating the regularity parameter $\lambda$ using all of the genes together is not ideal as it will tend select a $\lambda$ that is too large in order to minimize the prediction error for the majority of the unresponsive genes. As we are interested in obtaining an appropriate amount of regularity for the responsive genes we apply an approach similar to that of \cite{yao2005functional} and \cite{wu2013more} we choose a subset of the genes that exhibit time course patterns that have relatively smooth trajectories that do not fluctuate widely. Then we rank these genes by their interquartile range and select the top genes for our subset. The regularity parameter is estimated by minimizing the generalized cross validation (the prediction error) of the responsive genes in our estimation subset.
 
@@ -18,9 +18,7 @@ The smoothing parameter is estimated by the conventional generalized cross valid
 
 \subsection{Hypothesis testing to detect the dynamic response genes (DRG)}
 
-In a typical gene expression experiment, tens of thousands of genes are measured simultaneously, but only a fraction of them are associated with the biological process of interest or a particular stimulus, such as a therapeutic treatment or virus infection. Since it is reasonable to include only these responsive genes in our analysis, here we identify dynamic response genes (DRGs), i.e., genes with expressions that have changed significantly over time.
-
-The pipeline uses the following hypothesis to identify the DRGs,
+\par In a typical gene expression experiment, tens of thousands of genes are measured simultaneously, but only a fraction of these are associated with the biological process of interest or a particular stimulus, such as a therapeutic treatment or virus infection. Since it is reasonable to include only these responsive genes in the analysis, the pipeline uses the following statistical test to identify \emph{dynamic response genes (DRGs)}, i.e., genes with expressions that have changed significantly over time. The test considers the following two hypotheses.
 
 
 \begin{itemize}
@@ -31,7 +29,7 @@ The pipeline uses the following hypothesis to identify the DRGs,
 
 \end{itemize}
 
-The test statistic is the conventional F-statistic, which compares the goodness-of-fit of the null model to the alternative model given by
+\par The test statistic is the conventional \emph{F statistic}, which compares the goodness-of-fit of the null model to the alternative model given by
 
 \begin{equation}
 \label{eq:altmodel}
@@ -48,7 +46,17 @@ and
 
 \begin{equation} RSS_{i,j}^1=(Y_{i,j}(t_{k}) -\mu_{i,j} - X_{i,j}(t))^{2} \end{equation}
 
-are the residual sum of squares under the null and the alternative models for the $i$-th gene, belonging to subject $j$. The genes with large F-ratios can be considered as exhibiting notable changes with respect to time. As we wish to have an equal amount of DRGs for each subject we rank the F-ratios and select $3000$ of the top ranking genes (TRGs).
+are the residual sum of squares (RSS) under the null and the alternative models for the $i$-th gene, belonging to subject $j$. The genes with large F-ratios can be considered as exhibiting notable changes with respect to time. The F statistic is calculated for each gene as
+
+\begin{equation} 
+F_i = \dfrac{\dfrac{RSS_{i,j}^0 - RSS_{i,j}^1}{df-1}}{\dfrac{RSS_{i,j}^1}{n-df}},
+\end{equation}
+
+
+where $df$ is the degrees of freedom obtained from the smoothing of the gene expression data by penalized least squares. A gene is considered as dynamic response gene if its F statistic $F_i$ is such that $F_i > F_{0.05, d_1, d_2}$, where $d_1 = df - 1$ and $d_2 = n - df$. When comparing several subjects associated to a single study it is more convenient to have a consistent number of DRGs across all subjects. For this reason in these cases the F-ratios of each subject's genes are ranked and the top $3,000$ of these are selected as DRGs.
+
+
+
 
 \subsection{Clustering the DRGs into temporal gene response modules (GRMs)}
 \label{section:identification_of_grms}

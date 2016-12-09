@@ -19,7 +19,7 @@ function measure_fit_of_replicates()
   
   geoStruct = get_geo_data(GEO_number);
   
-  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/' parts{1} '/Comparison_of_replicates/' macro_condition];
+  general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Output/' parts{1} '/Comparison_of_replicates/' macro_condition];
   mkdir(general_comparison_folder);
   
   conditions = inputData;

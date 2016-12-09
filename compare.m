@@ -17,7 +17,7 @@ function compare()
   
   if(size(inputData,1) > 1)
   
-    general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Results/' parts{1} '/Comparison/'];
+    general_comparison_folder = [Dynamics4GenomicBigData_HOME, 'Output/' parts{1} '/Comparison/'];
     mkdir(general_comparison_folder);
     
     for i = 1:size(inputData,1) 

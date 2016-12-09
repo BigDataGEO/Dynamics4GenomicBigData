@@ -2,7 +2,7 @@ function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_
 
   global Dynamics4GenomicBigData_HOME;
   
-  output_folder = strcat(Dynamics4GenomicBigData_HOME,'Results/',GEO_number,'/Conditions/',condition);
+  output_folder = strcat(Dynamics4GenomicBigData_HOME,'Output/',GEO_number,'/Conditions/',condition);
       
   mkdir(output_folder);
   cd(output_folder);

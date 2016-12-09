@@ -19,7 +19,7 @@ function integrated_analysis()
   
   geoStruct = get_geo_data(GEO_number);
   
-  GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Results/', GEO_number];
+  GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Output/', GEO_number];
   conditions_folder_path = [GEO_number_folder_path, '/', 'Conditions'];
   output_folder_path = [GEO_number_folder_path];
   mkdir(output_folder_path);

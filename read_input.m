@@ -20,6 +20,6 @@ function [GEO_number, condition, samples, time_points, number_of_top_DRGs] = rea
   
   time_points = T(:,1);
   
-  samples = T(:,2);
+  samples = T(:,2:size(T,2));
 
 end

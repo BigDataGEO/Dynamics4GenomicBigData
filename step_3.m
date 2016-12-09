@@ -29,8 +29,8 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
   basisobj = create_bspline_basis([min(time_points) max(time_points)], nbasis, norder, knots);
 
   %  -----------  Otain optimal smoothing parameter  -----------------
-  B              = eval_basis(time_points,basisobj);
-  R              = eval_penalty(basisobj,2);
+  B = eval_basis(time_points,basisobj);
+  R = eval_penalty(basisobj,2);
   lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
   fdParobj = fdPar(basisobj, 2, lambdagenes);
   [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
