@@ -37,8 +37,6 @@ for i=1:length(unique_GEO_numbers)
 
 end
 
-
-
 s = dir('*.csv');
 file_list = {s.name}';
 

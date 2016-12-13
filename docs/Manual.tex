@@ -12,6 +12,8 @@
 
 \usepackage{mathtools}
 
+\usepackage{hyperref}
+
 \title{Manual of the \texttt{MATLAB} pipeline for the analysis of genomic time course data from the \textit{Gene Expression Omnibus}}
 
 \author{Juan Camilo Ram\'{i}rez}
@@ -54,18 +56,24 @@
 \section{Theoretical basis and terminology}
 \label{section:theory_and_terminology}
 
-\begin{equation} \label{eq:test}
-\begin{gathered}
-A=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\
-B=BBBBBBBBBBBBBBBB\\
-C=CCCCC, D=DDDDDDD\\
-E=EEEEE, F=FFFFFFF
-\end{gathered}
-\end{equation}
-
 \subsection{Experimental conditions}
 
 \subsection{Experimental macroconditions}
+
+\subsection{Replicates}
+\label{subsection:replicates_1}
+\par Replicates can be \emph{biological} or \emph{technical}.\footnote{\href{https://honglangwang.wordpress.com/2012/04/24/【bio-glossary】biological-replicates-vs-technical-replicates/}{Biological Replicates vs Technical Replicates}.}
+
+\subsection{Genes' between-replicate noise}
+\label{subsection:replicates}
+\par Genes may exhibit variation across replicates from the same condition. This variation, referred to as the \emph{gene's between-replicate noise} and denoted by $\delta$, is measured for each gene as follows. Let $x^s_{i,t}$ be the expression level of replicate $s$'s $i$-th gene at time $t$ and let $S$ be the total number of replicates. Let $\sigma_{i,t}$ be the standard deviation of the expression level of the $i$-th gene at time $t$ across the $S$ replicates. The gene $i$'s between-replicate noise, denoted by $\delta_i$,\footnote{Another possibility is to define $\delta_i$ in terms of the coefficient of variation instead of the standard deviation. In other words, the between-replicate noise could be defined as $\delta_i = \frac{1}{T} \sum_{t \in t_1}^{t_T} \frac{\sigma_{i,t}}{\mu_{i,t}}$, where $\mu_{i,t}$ is the mean of the expression level of the $i$-th gene at time $t$ across the $S$ replicates. However, this measure is unreliable given that expression levels are interval scale measures and the coefficient of variation is reliable only in ratio scale measures.} is given by
+
+\begin{equation}
+\label{equation:between_replicate_noise}
+\delta_i = \frac{1}{T} \sum_{t \in t_1}^{t_T} \sigma_{i,t}.
+\end{equation}
+
+\par Section~\ref{section:between_replicate_noise_m} introduces the \texttt{MATLAB} function provided for the calculation of the genes' between-replicate noise from a group of replicates.
 
 \section{The pipeline analysis}
 \label{section:pipeline}
@@ -117,6 +125,7 @@ E=EEEEE, F=FFFFFFF
 \par The condition files can be written manually, following strictly the format described above. Optionally, this task can be carried out more easily by using script \texttt{create\_input\_files.m}. In order to do this, \texttt{create\_input\_files.m} must be run and the instructions provided thereafter by the program must be followed. More details in Section~\ref{section:user_functions}.
 
 \subsection{Macrocondition files}
+\label{subsection:macrocondition}
 
 \par The conditions comprising the macrocondition must be provided in a text file that must be located in folder \texttt{Input}. This file must be named using the following format: \texttt{[GEO SERIES NUMBER]\_-\_[NAME OF MACRO CONDITION].txt}. For example, the following are the contents of a macrocondition of five H3N1 subjects from \texttt{GSE52428}.
 
@@ -148,7 +157,7 @@ H3N1\_005 \\
 
 \par The (experimental) condition files for the pipeline analysis can be created manually with the format described in Section~\ref{section:condition_files} or with the help of script \texttt{create\_input\_files.m}. In order to do the latter, the command \texttt{create\_input\_files} must be executed on the \texttt{MATLAB} console from the pipeline directory, as shown in Figure~\ref{figure:create_files}.
 
-
+\iffalse
 \begin{figure}[h]
 \includegraphics[width=\textwidth]{create_files}
 \caption{Executing the \texttt{create\_input\_files.m} script in order to create the condition file(s) to be used in the pipeline analysis.}
@@ -226,19 +235,24 @@ H3N1\_005 \\
 \label{figure:pipeline1}
 \end{figure}
 
+\fi
+
 \par Once all condition files are located in folder Input, then the analysis can be started by running pipeline.m. The script will read ALL the condition files in folder Input and run the analysis for each one of them.
 
 \section{\texttt{integrated\_analisis.m}}
 
-\par \texttt{integrated\_analisis.m}: input is a macrocondition file.
+\par \texttt{integrated\_analisis.m}: input is a macrocondition file. See Subsection~\ref{subsection:macrocondition}.
 
 \section{\texttt{compare.m}}
 
-\par \texttt{compare.m}: input is a macrocondition file.
+\par \texttt{compare.m}: input is a macrocondition file. See Subsection~\ref{subsection:macrocondition}.
 
 \section{\texttt{measure\_fit\_of\_replicates.m}}
+\label{section:between_replicate_noise_m}
 
-\par \texttt{measure\_fit\_of\_replicates.m}: input is a macrocondition file.
+\par This is a script that calculates the between-replicate noise for all genes across a number of replicates, as shown in Subsection~\ref{subsection:replicates}. Its input is a macrocondition file, as defined in Subsection~\ref{subsection:macrocondition}. Results will be output in folder \texttt{Pipeline\_HOME/Output/[GSE Series]/Comparison\_of\_replicates/[Macrocondition]/}.
+
+\par This folder contains a file named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES.csv}. Each line of this file corresponds to a probe in the GSE matrix and contains three values separated by commas (,). The first field is the probe ID, the second is the gene name, and the third is the gene's between-replicate noise. The probes are listed in this file in the same order they appear in the GSE matrix. A secondary file, named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES\_SORTED\_BY\_NOISE.csv}, provides the same information with the probes listed by their between-replicate noise in decreasing order. That is to say, probes that appear on top are the ones whose expression is most consistent across the probes provided in the macrocondition file whereas those at the bottom are the ones exhibiting the most discrepancy in expression across these replicates.
 
 
 
