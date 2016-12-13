@@ -1,4 +1,4 @@
-function [gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs_in_series_matrix, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, output)
+function [gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs_in_series_matrix, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, standardized_gene_expression, output)
 
   global Dynamics4GenomicBigData_HOME;
 
@@ -53,9 +53,12 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
   list_of_probe_ids_sorted_by_F_value = strtrim(list_of_probe_ids(indices_of_genes_sorted_by_F_value));
   list_of_genes_sorted_by_F_value = strtrim(list_of_genes(indices_of_genes_sorted_by_F_value));
   gene_expression_sorted_by_F_value = gene_expression(indices_of_genes_sorted_by_F_value,:);
+  standardized_gene_expression_sorted_by_F_value = standardized_gene_expression(indices_of_genes_sorted_by_F_value,:);
   smooth_gene_expression_sorted_by_F_value = smooth_gene_expression(indices_of_genes_sorted_by_F_value,:);
   
   gene_expression_sorted_by_F_value = [list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)];
+  
+  standardized_gene_expression_sorted_by_F_value = [list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(standardized_gene_expression_sorted_by_F_value)];
   
   % The DRGs will be determined through an upper one-tailed F test.
   % The DRGs will be those whose F statistics are greater than the F_critic (F_{0.05, numerator_df, denominator_df})
@@ -170,6 +173,9 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     cd(outputFolder);
     
     writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} {'F score'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_genes_sorted_by_F_value) gene_expression_sorted_by_F_value]]), ['gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', false);
+    
+    writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} {'F score'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_genes_sorted_by_F_value) standardized_gene_expression_sorted_by_F_value]]), ['standardized_gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', false);
+    
     writetable(cell2table(num2cell(smooth_gene_expression)), ['smooth_gene_expression.csv'], 'WriteVariableNames', false);
     writetable(cell2table(num2cell(derivatives_of_smooth_gene_expression_curves)), ['derivatives_of_smooth_gene_expression_curves.csv'], 'WriteVariableNames', false);
     writetable(cell2table({number_of_statistically_significant_DRGs}), ['number_of_statistically_significant_DRGs.csv'], 'WriteVariableNames', false);
@@ -181,6 +187,7 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     matrix_of_files_descs = [matrix_of_files_descs; [{'Smooth_expression_of_DRGs.png'} {'Smooth expression of the statistically significant DRGs.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Smooth_expression_of_top_DRGs.png'} {['Smooth expression of the top ' num2str(number_of_top_DRGs_considered) ' genes, sorted by F-score.']}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'gene_expression_sorted_by_F_value.csv'} {'Gene expression of all the probes, sorted by F-value and listing the associated gene names.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'standardized_gene_expression_sorted_by_F_value.csv'} {'Standardized gene expression of all the probes, sorted by F-value and listing the associated gene names.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'number_of_statistically_significant_DRGs.csv'} {'The number of probes that are statistically-significant DRGs.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'smooth_gene_expression.csv'} {['Smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'derivatives_of_smooth_gene_expression_curves.csv'} {['Derivatives of the smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
@@ -188,10 +195,6 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
 
     movefile('List_and_description_of_output.xls', outputFolder);
-    
-    
-    
-    
   end
   
 end

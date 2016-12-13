@@ -1,4 +1,4 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
+function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, standardized_gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -16,7 +16,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   %Theshold
   alpha = 0.75;
 
-  std_data = zscore(gene_expression(indices_of_top_DRGs,:)')';
+  std_data = zscore(standardized_gene_expression(indices_of_top_DRGs,:)')';
 
   [list_of_gene_clusters, rmclusters, c, list_of_cluster_means, gene_expression_by_cluster] = IHC(std_data, alpha);
       

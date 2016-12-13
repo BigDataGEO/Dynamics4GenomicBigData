@@ -14,14 +14,14 @@
 
 % smooth_gene_trajectories : This is the expression of genes with smooth trajectories. Also a matrix analogous to gene_expression, although possibly with less rows.
 
-function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_gene_expression, raw_time_points, output)
+function [gene_expression, time_points, smooth_gene_trajectories, standardized_gene_expression] = step_2(raw_gene_expression, raw_time_points, output)
 
   [gene_expression, time_points] = get_preprocessed_data(raw_gene_expression, raw_time_points);
   
   smooth_gene_trajectories = Est_Sub_Sel(time_points,gene_expression,1);
   smooth_gene_trajectories = smooth_gene_trajectories{1};
   
-  gene_expression = zscore(gene_expression')';
+  standardized_gene_expression = zscore(gene_expression')';
   
   if(output)
   
@@ -71,7 +71,8 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
     
     matrix_of_files_descs = [matrix_of_files_descs; [{'Paper_01.pdf'} {'Expression of all genes.'}]];
     
-    matrix_of_files_descs = [matrix_of_files_descs; [{'gene_expression.csv'} {'Normalized gene expression in matrix form. Rows are probes and columns are time points.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'gene_expression.csv'} {'Preprocessed gene expression in matrix form. Rows are probes and columns are time points.'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{'standardized_gene_expression.csv'} {'Standardized gene expression in matrix form. Rows are probes and columns are time points.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'time_points.csv'} {'Preprocessed time points.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'raw_gene_expression.csv'} {'Non-normalized gene expression in matrix form. Rows are probes and columns are time points.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'raw_time_points.csv'} {'Time points as they appear in series matrix.'}]];
@@ -84,6 +85,8 @@ function [gene_expression, time_points, smooth_gene_trajectories] = step_2(raw_g
     
     
     writetable(cell2table(num2cell(gene_expression)), ['gene_expression.csv'], 'WriteVariableNames', false);
+    
+    writetable(cell2table(num2cell(standardized_gene_expression)), ['standardized_gene_expression.csv'], 'WriteVariableNames', false);
     
     writetable(cell2table(num2cell(raw_gene_expression)), ['raw_gene_expression.csv'], 'WriteVariableNames', false);
     

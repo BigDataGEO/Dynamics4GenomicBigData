@@ -57,7 +57,7 @@ while true
     input(prompt);
   else
     fprintf('\n');
-    display('The analysis will begin now for all the subjects/conditions you entered.');
+    display(['The input files for all the subjects/conditions you entered have been created and output to ' Dynamics4GenomicBigData_HOME 'Input/.']);
     break;
   end
   
