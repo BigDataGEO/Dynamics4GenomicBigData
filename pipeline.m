@@ -37,12 +37,3 @@ for i=1:length(unique_GEO_numbers)
 
 end
 
-s = dir('*.csv');
-file_list = {s.name}';
-
-for i=1:length(file_list)
-  [GEO_number{i}, condition{i}, samples{i}, time_points{i}, number_of_top_DRGs{i}] = read_input(file_list{i});
-  
-  writetable(cell2table([samples{i} time_points{i}]), file_list{i}, 'WriteVariableNames', false);
-  
-end

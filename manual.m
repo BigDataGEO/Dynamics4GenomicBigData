@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-Condition_file = 'GSE19392_-_HBEs_infected_with_delNS1_post_trypsin_delNS1_1_-_3000.csv';
+Condition_file = 'GSE59015_-_Wildtype_-_3000.csv';
 
 cd('Input');
 [GEO_number, condition, samples, time_points, number_of_top_DRGs] = read_input([Condition_file]);

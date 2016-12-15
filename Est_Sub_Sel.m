@@ -1,4 +1,4 @@
-function [yCR,gene_df,gene_ind] = Est_Sub_Sel(Time, gexp2, N, npool ,plot_pool)
+function [smooth_gene_trajectories, gene_df, gene_ind] = Est_Sub_Sel(time_points, gene_expression, N, npool, plot_pool)
 
 if nargin < 4, npool = 50;  end
 if nargin < 5, plot_pool = 0;  end
@@ -20,24 +20,24 @@ lambda = cell(N,1);
 df = cell(N,1);
 gene_ind = cell(N,1);
 gene_df = cell(N,1);
-yCR = cell(N,1);
+smooth_gene_trajectories = cell(N,1);
 CROS  = cell(N,1);
 
 for i = 1:N
 
     %  ---------------  set up the b-spline basis  ------------------------
-    knots    = Time';
+    knots    = time_points';
     norder   = 3;
-    nbasis   = length(Time) + norder - 1;
-    basisobj = create_bspline_basis([min(Time) max(Time)], nbasis, norder, knots);
+    nbasis   = length(time_points) + norder - 1;
+    basisobj = create_bspline_basis([min(time_points) max(time_points)], nbasis, norder, knots);
     R        = eval_penalty(basisobj,2);
     
     sgenes = 1;
     %  --------------- Identify no. of crossings  ---------------
-    CROS{i}  = zc(gexp2);
+    CROS{i}  = zc(gene_expression);
     for k=1:4
         %  --------------- Obtain genes with k no of crossings  ---------------
-        gexp3{i,k} = gexp2(logical(CROS{i}==k),:);
+        gexp3{i,k} = gene_expression(logical(CROS{i}==k),:);
         %  --------------- Get the IQR of the Genes with k no of corssings ---------------
         IQR{i}   = iqr(gexp3{i,k},2);
         %  --------------- Sort the Genes by IQR Largest-Smallest  ---------------
@@ -46,10 +46,10 @@ for i = 1:N
 %          ngenes = min(50,length(IND{i,k}));
         pool_count = 0;
         for g=1:ngenes
-            %  --------------- Obtain the lambda for the genes with k no of corssings  ---------------
-            lambda{i,k,g} = fminbnd(@GCV_fun, 10.^-6, 10^6, options, eval_basis(Time,basisobj), gexp3{i,k}(IND{i,k}(g),:)', R);
+            %  --------------- Obtain the lambda for the genes with k no of crossings  ---------------
+            lambda{i,k,g} = fminbnd(@GCV_fun, 10.^-6, 10^6, options, eval_basis(time_points,basisobj), gexp3{i,k}(IND{i,k}(g),:)', R);
             %  --------------- Convert the lambda to the corresponding degrees of freedom  ---------------
-            df{i,k,g}     = lambda2df(Time, basisobj, ones(length(Time),1),  2, lambda{i,k,g});
+            df{i,k,g}     = lambda2df(time_points, basisobj, ones(length(time_points),1),  2, lambda{i,k,g});
              %  --------------- If degrees of freedom are greater than no. of crossings  ---------------
               %  ---------------the gene is misclassified and does not belong to this crossing  ---------------
             if (df{i,k,g}>(k+1))
@@ -65,16 +65,16 @@ for i = 1:N
             end
         end
         %  --------------- Obtain the data for the sample  ---------------
-        yCR{i}(sgenes:(sgenes+pool_count-1),:) = gexp3{i,k}(horzcat(gene_ind{i,k,:}),:);
+        smooth_gene_trajectories{i}(sgenes:(sgenes+pool_count-1),:) = gexp3{i,k}(horzcat(gene_ind{i,k,:}),:);
         if(plot_pool == 1 && pool_count>0)
         figure(i);
         subplot(2,2,k)
-        plot( yCR{i}(sgenes:(sgenes+pool_count-1),:)','--b')
+        plot(smooth_gene_trajectories{i}(sgenes:(sgenes+pool_count-1),:)','--b')
         hold on;
         hline(0,'r');
         hold off;
-        xlim([1,size(yCR{i}(sgenes:(sgenes+pool_count-1),:),2)])
-        ylim([min(min(yCR{i}(sgenes:(sgenes+pool_count-1),:))),max(max(yCR{i}(sgenes:(sgenes+pool_count-1),:)))])
+        xlim([1,size(smooth_gene_trajectories{i}(sgenes:(sgenes+pool_count-1),:),2)])
+        ylim([min(min(smooth_gene_trajectories{i}(sgenes:(sgenes+pool_count-1),:))),max(max(smooth_gene_trajectories{i}(sgenes:(sgenes+pool_count-1),:)))])
         title(['Subject ',num2str(i),' No. genes ',num2str(pool_count),' Max df ',num2str(max(horzcat(gene_df{i,k,:}))),' Min df ',num2str(min(horzcat(gene_df{i,k,:})))])
         end
         sgenes = sgenes + pool_count;

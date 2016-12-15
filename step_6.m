@@ -110,6 +110,7 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     
     matrix_of_files_descs = [matrix_of_files_descs; [{adjacencyMatrixFilename} {'Adjacency matrix of the gene regulatory network (GRN) in Excel format.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{nodeStatsFileName} {'Node metrics of the gene regulatory network (GRN).'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{depMatrixFilename} {'Matrix of dependencies between the gene response modules (GRM) in the gene regulatory network (GRN).'}]];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{networkSIF} {'Gene regulatory network in .sif format for import into Cytoscape.'}]];

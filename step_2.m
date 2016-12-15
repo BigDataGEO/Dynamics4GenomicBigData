@@ -18,7 +18,8 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
 
   [gene_expression, time_points] = get_preprocessed_data(raw_gene_expression, raw_time_points);
   
-  smooth_gene_trajectories = Est_Sub_Sel(time_points,gene_expression,1);
+  smooth_gene_trajectories = Est_Sub_Sel(time_points, gene_expression, 1);
+  
   smooth_gene_trajectories = smooth_gene_trajectories{1};
   
   standardized_gene_expression = zscore(gene_expression')';

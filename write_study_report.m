@@ -119,7 +119,7 @@ function write_study_report(GEO_number)
   
   fprintf(draft,'%s\n', ['\end{center}']);
   
-  fprintf(draft,'%s\n', ['\caption{Result statistics from the ' num2str(length(conditions)) ' conditions analyzed in series ' GEO_number '.}']);
+  fprintf(draft,'%s\n', ['\caption{Result statistics from the ' num2str(length(conditions)) ' conditions analyzed in series ' GEO_number '. Full statistics in can be found in supplementary file \href{Summary.csv}{Summary.csv}.}']);
   
   fprintf(draft,'%s\n', ['\label{table:summary}']);
   
