@@ -6,7 +6,7 @@ global Dynamics4GenomicBigData_HOME;
 Dynamics4GenomicBigData_HOME = strcat(pwd,'/');
 
 global pipeline_version;
-pipeline_version = 'Pipeline Version 1.26';
+pipeline_version = 'Pipeline Version 1.30';
 
 %  cd([Dynamics4GenomicBigData_HOME,'SBEToolbox-1.3.3\'])
 %  install
