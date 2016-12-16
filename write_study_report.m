@@ -257,41 +257,41 @@ function write_condition_section(draft, GEO_number, condition, gene_expression, 
   fprintf(draft,'%s\n', ['\label{fig:generegnet_' condition '}']);
   fprintf(draft,'%s\n', ['\end{figure}']);
   
-  % Graph statistics of the GRN
-  text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | l | p{5cm} |} \hline Metric & Value  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-
-  text = [graph_statistics{1,1} ' & ' num2str(graph_statistics{1,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{2,1} ' & ' num2str(graph_statistics{2,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{3,1} ' & ' num2str(graph_statistics{3,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{4,1} ' & ' num2str(graph_statistics{4,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = ['\end{tabular} \caption{Graph metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:graphstats_' condition '} \end{table} \end{center}'];
-  fprintf(draft, '%s\n\n', text);
-  
-  % Node statistics of the GRN
-  text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | c | c |} \hline Metric & Top ranking module & Bottom ranking module \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  for metric_index = 2:size(node_statistics,2)
-    
-    [max_value, index_of_max] = max([node_statistics{2:size(node_statistics,1),metric_index}]);
-    [min_value, index_of_min] = min([node_statistics{2:size(node_statistics,1),metric_index}]);
-      
-    text = [node_statistics{1,metric_index} ' & ' node_statistics{index_of_max+1,1} ' & ' node_statistics{index_of_min+1,1} '  \\ \hline'];
-    fprintf(draft, '%s\n', text);
-    
-  end
-  
-  text = ['\end{tabular} \caption{Node metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:nodestats_' condition '} \end{table} \end{center}'];
-  fprintf(draft, '%s\n\n', text);
+%    % Graph statistics of the GRN
+%    text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | l | p{5cm} |} \hline Metric & Value  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%  
+%    text = [graph_statistics{1,1} ' & ' num2str(graph_statistics{1,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{2,1} ' & ' num2str(graph_statistics{2,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{3,1} ' & ' num2str(graph_statistics{3,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{4,1} ' & ' num2str(graph_statistics{4,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = ['\end{tabular} \caption{Graph metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:graphstats_' condition '} \end{table} \end{center}'];
+%    fprintf(draft, '%s\n\n', text);
+%    
+%    % Node statistics of the GRN
+%    text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | c | c |} \hline Metric & Top ranking module & Bottom ranking module \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    for metric_index = 2:size(node_statistics,2)
+%      
+%      [max_value, index_of_max] = max([node_statistics{2:size(node_statistics,1),metric_index}]);
+%      [min_value, index_of_min] = min([node_statistics{2:size(node_statistics,1),metric_index}]);
+%        
+%      text = [node_statistics{1,metric_index} ' & ' node_statistics{index_of_max+1,1} ' & ' node_statistics{index_of_min+1,1} '  \\ \hline'];
+%      fprintf(draft, '%s\n', text);
+%      
+%    end
+%    
+%    text = ['\end{tabular} \caption{Node metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:nodestats_' condition '} \end{table} \end{center}'];
+%    fprintf(draft, '%s\n\n', text);
   
   % Gene annotation
   text = ['In order to annotate all the dynamic response genes in condition \texttt{' strrep(condition, '_', '\_') '}, the full list of genes must be submitted to the \textit{DAVID} \href{https://david.ncifcrf.gov}{website}. This full list of genes can be found in supplementary file \href{Conditions/' condition '/Step_7/All\_DRGs.txt}{All\_DRGs.txt}.'];

@@ -28,8 +28,13 @@ function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, tim
     raw_gene_expression = cat(3, raw_gene_expression, raw_gene_expression_of_replicate{replicate_index});
   end
   
-  raw_gene_expression = mean(raw_gene_expression,3);
+  % Method 1: mean
+%    raw_gene_expression = mean(raw_gene_expression,3);
   
+  % Method 2: median
+  raw_gene_expression = median(raw_gene_expression,3);
+  
+  % Method 3: Vahed's
   % The following two lines incorporate Vahed's method.
 %    mean_per_time_point = mean(raw_gene_expression);
 %    raw_gene_expression = raw_gene_expression - repmat(mean_per_time_point, size(raw_gene_expression,1), 1);  
@@ -41,7 +46,7 @@ function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, tim
 end
 
 %  A = [2 5 3 6; 1 8 5 9; 1 4 8 9];
-%  B = [2 5 2 5; 1 0 3 9; 0 0 1 0];
+%  B = [2 5 2 5; 1 0 3 9; 0 0 1 3];
 %  C = [2 1 1 5; 1 8 3 5; 5 0 1 0];
 %  
 %  Z = [];
@@ -52,9 +57,12 @@ end
 %  
 %  Z = cat(3, Z, C);
 %  
+%  % Method 1
 %  Z = mean(Z,3);
 %  
+%  % Method 2
+%  Z = median(Z,3);
 %  
-%  % Vahed
+%  % Method 3: Vahed's
 %  mean_per_time_point = mean(Z);
 %  Z = Z - repmat(mean_per_time_point, size(Z,1), 1);  

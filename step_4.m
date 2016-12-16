@@ -84,9 +84,9 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     global Dynamics4GenomicBigData_HOME;
     outputFolder = 'Step_4';
     mkdir(outputFolder);
+    
+    [s,ind]=sort(cell2mat(n_clusters),'descend');
 
-      [s,ind]=sort(cell2mat(n_clusters),'descend');
-      
       number_of_clusters = size(list_of_cluster_means,1);
       number_of_subplots = number_of_clusters;
       
@@ -297,6 +297,13 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
       names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
       
       writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID})) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})]]), ['M' num2str(cluster_iteration_ID) '.csv'], 'WriteVariableNames', false);
+    end
+    
+    for cluster_number=1:length(list_of_cluster_means)
+      number_of_genes_in_current_cluster  = s(cluster_number);
+      gene_expression_plot(gene_expression_by_cluster{cluster_number}, time_points, ['M' num2str(cluster_number) ' (' num2str(number_of_genes_in_current_cluster) ' genes)' ], 'Time', 'Expression', 'Z');
+      print(gcf,'-dpdf', ['M' num2str(cluster_number) '.pdf']);      
+      close all;
     end
     
     cd('../..');
