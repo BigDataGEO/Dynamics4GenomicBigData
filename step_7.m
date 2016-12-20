@@ -1,4 +1,4 @@
-function [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_DRGs, gene_ID_type)
+function [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type)
 
   global Dynamics4GenomicBigData_HOME;
 
@@ -8,21 +8,21 @@ function [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_cluster
   
   cd(currentFolder);
 
-  list_of_genes_to_annotate = list_of_genes(indices_of_DRGs(:));
+  list_of_genes_to_annotate = list_of_genes(indices_of_top_DRGs(:));
   
-  output_genes(list_of_genes, indices_of_DRGs, list_of_gene_clusters, 'Step_7', path);
+  output_genes(list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, 'Step_7', path);
   
   chartReport = [];
   tableReport = [];
   
-%    [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, gene_ID_type, true, true);
+  [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, gene_ID_type, true, true);
   
-%    annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_DRGs, list_of_gene_clusters, 'Step_5', Dynamics4GenomicBigData_HOME, true, true);
+  annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, 'Step_7', Dynamics4GenomicBigData_HOME, true, true);
 end
 
-function annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_DRGs, list_of_gene_clusters, output_dir, path, includeChartReport, includeTableReport)
+function annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, output_dir, path, includeChartReport, includeTableReport)
 
-  list_of_genes_to_annotate = list_of_genes(indices_of_DRGs(:));
+  list_of_genes_to_annotate = list_of_genes(indices_of_top_DRGs(:));
   
   % Now that the chart and table reports have been obtained, we proceed to export them to files,
   % grouped by gene cluster.
@@ -36,7 +36,7 @@ function annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_typ
     cd(strcat('M',num2str(cluster_iteration_ID)));
     
     % Then output all genes in the current cluster, for reference.
-    ids_of_genes_in_current_cluster = list_of_genes(indices_of_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    ids_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
     write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,strcat('Genes_in_M', num2str(cluster_iteration_ID), '.txt'));
     
     header = [];
@@ -224,9 +224,9 @@ end
 
 
 
-function output_genes(list_of_genes, indices_of_DRGs, list_of_gene_clusters, output_dir, path)
+function output_genes(list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, output_dir, path)
 
-  list_of_genes_to_annotate = list_of_genes(indices_of_DRGs(:));
+  list_of_genes_to_annotate = list_of_genes(indices_of_top_DRGs(:));
   
   % Now that the chart and table reports have been obtained, we proceed to export them to files,
   % grouped by gene cluster.
@@ -240,7 +240,7 @@ function output_genes(list_of_genes, indices_of_DRGs, list_of_gene_clusters, out
     cd(strcat('M',num2str(cluster_iteration_ID)));
     
     % Then output all genes in the current cluster, for reference.
-    ids_of_genes_in_current_cluster = list_of_genes(indices_of_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    ids_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
     write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,strcat('Genes_in_M', num2str(cluster_iteration_ID), '.txt'));
       
     cd('..');

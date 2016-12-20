@@ -242,6 +242,10 @@ H3N1\_005 \\
 
 \par \texttt{integrated\_analisis.m}: input is a macrocondition file. See Subsection~\ref{subsection:macrocondition}.
 
+\section{\texttt{annotate.m}}
+
+\par \texttt{annotate.m}: input is a condition file. See Subsection~\ref{section:condition_files}.
+
 \section{\texttt{compare.m}}
 
 \par \texttt{compare.m}: input is a macrocondition file. See Subsection~\ref{subsection:macrocondition}.
@@ -252,8 +256,6 @@ H3N1\_005 \\
 \par This is a script that calculates the between-replicate noise for all genes across a number of replicates, as shown in Subsection~\ref{subsection:replicates}. Its input is a macrocondition file, as defined in Subsection~\ref{subsection:macrocondition}. Results will be output in folder \texttt{Pipeline\_HOME/Output/[GSE Series]/Comparison\_of\_replicates/[Macrocondition]/}.
 
 \par This folder contains a file named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES.csv}. Each line of this file corresponds to a probe in the GSE matrix and contains three values separated by commas (,). The first field is the probe ID, the second is the gene name, and the third is the gene's between-replicate noise. The probes are listed in this file in the same order they appear in the GSE matrix. A secondary file, named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES\_SORTED\_BY\_NOISE.csv}, provides the same information with the probes listed by their between-replicate noise in decreasing order. That is to say, probes that appear on top are the ones whose expression is most consistent across the probes provided in the macrocondition file whereas those at the bottom are the ones exhibiting the most discrepancy in expression across these replicates.
-
-
 
 \bibliographystyle{myapalike}
 \bibliography{bibliography}

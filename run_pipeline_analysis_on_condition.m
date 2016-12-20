@@ -19,7 +19,7 @@ function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_
 
   [network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, true);
 
-  [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type);
+%    [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type);
   
   path_to_results_file = ['Results.mat'];
   

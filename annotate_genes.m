@@ -14,6 +14,8 @@ function [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, 
   chartReport = [];
   tableReport = [];
   header = [];
+  
+  display(['The species is ' Species]);
 
   if not(strcmp(Species, 'None'))
     % The following four lines are in preparation for the chart report.
@@ -33,6 +35,7 @@ function [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, 
       maximum_number_of_genes_per_ws_call = 1000;
       number_of_genes_processed = 0;
       while number_of_genes_processed < length(list_of_genes_to_annotate)
+	display(['number_of_genes_processed = ' num2str(number_of_genes_processed)]);
 	start_index = number_of_genes_processed + 1;
 	end_index = length(list_of_genes_to_annotate);
 	
