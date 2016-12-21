@@ -126,6 +126,9 @@ function annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_typ
     end%for gene_iteration_ID = 1:length(ids_of_genes_in_current_cluster)
       
     if includeChartReport && ~isempty(chartReport)
+    
+      chart_report_of_current_cluster = [chart_report_of_current_cluster(:,1:5) chart_report_of_current_cluster(:,19) chart_report_of_current_cluster(:,6:18)];
+    
       [number_of_entries_in_chart_report_of_current_cluster uselessVariable] = size(chart_report_of_current_cluster);
       if number_of_entries_in_chart_report_of_current_cluster > 1
   

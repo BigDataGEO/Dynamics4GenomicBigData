@@ -32,8 +32,9 @@ function [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, 
       % that follows.
       maximum_number_of_genes_per_ws_call = 1000;
       number_of_genes_processed = 0;
+      display(['A total of ' num2str(number_of_genes_processed) ' genes (out of ' num2str(length(list_of_genes_to_annotate)) ') have been processed so far.']);
       while number_of_genes_processed < length(list_of_genes_to_annotate)
-	display(['A total of ' num2str(number_of_genes_processed) ' genes (out of ' num2str(length(list_of_genes_to_annotate)) ') have been processed so far.']);
+	
 	start_index = number_of_genes_processed + 1;
 	end_index = length(list_of_genes_to_annotate);
 	
@@ -56,6 +57,7 @@ function [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, 
 	if number_of_genes_processed < length(list_of_genes_to_annotate)
 	  pause(10);
 	end
+	display(['A total of ' num2str(number_of_genes_processed) ' genes (out of ' num2str(length(list_of_genes_to_annotate)) ') have been processed so far.']);
       end
     end
   end
