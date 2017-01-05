@@ -257,6 +257,48 @@ H3N1\_005 \\
 
 \par This folder contains a file named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES.csv}. Each line of this file corresponds to a probe in the GSE matrix and contains three values separated by commas (,). The first field is the probe ID, the second is the gene name, and the third is the gene's between-replicate noise. The probes are listed in this file in the same order they appear in the GSE matrix. A secondary file, named \texttt{[Macrocondition]\_noise\_per\_gene\_ALL\_GENES\_SORTED\_BY\_NOISE.csv}, provides the same information with the probes listed by their between-replicate noise in decreasing order. That is to say, probes that appear on top are the ones whose expression is most consistent across the probes provided in the macrocondition file whereas those at the bottom are the ones exhibiting the most discrepancy in expression across these replicates.
 
+
+\section{Simulation of time course data}
+\label{section:simulation}
+
+\par The robustness of the pipeline process can be validated by simulating gene expression data and verifying if the pipeline returns the same model the simulated data originate from. More specifically, expression data can be simulated from given a GRN and set of GRMs and given as input to the pipeline in order to verify that the algorithm approximates the original GRN and GRMs. In order to achieve this, two types of the gene expression curves need to be generated: those from DRGs and those from non-DRGs. First, the expression curves of the DRGs are simulated from the mean curves of the GRMs as follows. Let $K$ be the matrix representing the expression of one gene response module composed of $n$ genes over $t$ time points, given by
+
+\begin{equation*}
+K = 
+ \begin{pmatrix}
+  X_{1,1} & X_{1,2} & \cdots & X_{1,t} \\
+  X_{2,1} & X_{2,2} & \cdots & X_{2,t} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  X_{n,1} & X_{n,2} & \cdots & X_{n,t} 
+ \end{pmatrix}.
+
+\end{equation*}
+ 
+\par Also let $M$ be the tuple of per-column means of $K$, given by
+
+\begin{equation*}
+M = 
+ \begin{pmatrix}
+  \mu_{1} & \mu_{2} & \cdots & \mu_{t}
+ \end{pmatrix},
+\end{equation*}
+
+and let $S$ be the per-column standard deviation of $K$, given by
+
+\begin{equation*}
+S = 
+ \begin{pmatrix}
+  \sigma_{1} & \sigma_{2} & \cdots & \sigma_{t}
+ \end{pmatrix}.
+\end{equation*}
+
+Then $n$ simulated curves are obtained where the $i$-th element is a normal deviate of $\mu_{i}$ with standard deviation $\sigma_{i}$. This process is repeated for all the GRMs until obtaining the simulated expression curves of all the DRGs. Thereafter, the non-DRG curves are simulated as normal deviates of the per-time point means of all the DRG curves, with standard deviation $1.0$. The simulated DRG and non-DRG expression curves can then be passed as arguments to the pipeline and see if the GRMs and GRN obtained approximate the originals.
+
+\par The procedure described above is performed by script \texttt{run\_simulation.m}, which reads the results of a previously-completed analysis from folder \texttt{Output}, constructs the simulated data and runs the pipeline in folder \texttt{Output/[Condition]\_simulated}, where \texttt{[Condition]} is the name of the original experimental condition.
+
+
+
+
 \bibliographystyle{myapalike}
 \bibliography{bibliography}
 \end{document}
