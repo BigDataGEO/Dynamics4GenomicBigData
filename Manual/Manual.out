@@ -1,0 +1,16 @@
+\BOOKMARK [1][-]{section.1}{Summary}{}% 1
+\BOOKMARK [1][-]{section.2}{Theoretical basis and terminology}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Experimental conditions}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Experimental macroconditions}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Replicates}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Genes' between-replicate noise}{section.2}% 6
+\BOOKMARK [1][-]{section.3}{The pipeline analysis}{}% 7
+\BOOKMARK [1][-]{section.4}{Input files}{}% 8
+\BOOKMARK [2][-]{subsection.4.1}{Condition files}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.2}{Macrocondition files}{section.4}% 10
+\BOOKMARK [1][-]{section.5}{create\137input\137files.m}{}% 11
+\BOOKMARK [1][-]{section.6}{integrated\137analisis.m}{}% 12
+\BOOKMARK [1][-]{section.7}{annotate.m}{}% 13
+\BOOKMARK [1][-]{section.8}{compare.m}{}% 14
+\BOOKMARK [1][-]{section.9}{measure\137fit\137of\137replicates.m}{}% 15
+\BOOKMARK [1][-]{section.10}{Simulation of time course data}{}% 16

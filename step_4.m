@@ -228,8 +228,12 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
       ribbon(smal_ts{1}');
 
       ylim([1,size(smal_ts{1},2)]);
+      
+      if size(smal_ts{1},1) > 1
+	xlim([1,size(smal_ts{1},1)]);
+      end
 
-      xlim([1,size(smal_ts{1},1)]);
+%        xlim([1,size(smal_ts{1},1)]);
 
       zlim([min(min(smal_ts{1})),max(max(smal_ts{1}))]);
 
