@@ -316,3 +316,10 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
   end
   
 end
+
+
+function [rx] = round2(x)
+%% Round to two decimal places
+ 
+rx = round(x.*100)./100;
+end

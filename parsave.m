@@ -1,3 +1,0 @@
-function parsave(fname, GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, Dynamics4GenomicBigData_HOME, path)
-  save(fname, 'GEO_number', 'list_of_genes', 'raw_gene_expression', 'raw_time_points', 'subject_name', 'condition', 'gene_ID_type', 'number_of_top_DRGs_considered', 'Dynamics4GenomicBigData_HOME', 'path');
-end
