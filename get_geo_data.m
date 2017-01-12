@@ -23,7 +23,7 @@ function [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_d
       
     else
       [list_of_genes, list_of_probe_ids] = get_list_of_gene_ids(geoStruct);
-      gene_ID_type = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
+%        gene_ID_type = capture_type_of_gene_ID(geoStruct.Header.Series.geo_accession);
       
       save(path_to_cached_file_2, 'list_of_genes', 'gene_ID_type', 'list_of_probe_ids');
       

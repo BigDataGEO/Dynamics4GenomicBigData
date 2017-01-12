@@ -78,9 +78,9 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
     matrix_of_files_descs = [matrix_of_files_descs; [{'raw_gene_expression.csv'} {'Non-normalized gene expression in matrix form. Rows are probes and columns are time points.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'raw_time_points.csv'} {'Time points as they appear in series matrix.'}]];
     
-    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+    writetable(cell2table(matrix_of_files_descs), 'List_and_description_of_output.csv', 'WriteVariableNames', false);
 
-    movefile('List_and_description_of_output.xls', outputFolder);
+    movefile('List_and_description_of_output.csv', outputFolder);
     
     cd(outputFolder);
     

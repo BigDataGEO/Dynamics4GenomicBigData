@@ -50,7 +50,8 @@ function compare()
 	    
 	    common_DRG_genes = gene_expression_sorted_by_F_value(indices_of_common_DRGs,2);
 	    
-	    create_exel_file('Common_statistically_significant_DRGs.xls',[[{'Probe IDs'} {'Gene names'}]; [common_DRG_probes common_DRG_genes]],1,[],Dynamics4GenomicBigData_HOME);
+	    writetable(cell2table([[{'Probe IDs'} {'Gene names'}]; [common_DRG_probes common_DRG_genes]]), 'Common_statistically_significant_DRGs.csv', 'WriteVariableNames', false);
+	    
 	    cd(Dynamics4GenomicBigData_HOME);
 	    
 	    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,7 +93,7 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
       [sorted_values sorted_indices] = sort(z(current_cluster,:), 'descend');
       correlations_of_current_cluster = [{['Modules from ' name_of_second_subject]} {['Spearman correlation with ' name_of_first_subject '''s M' num2str(current_cluster)]}];
       correlations_of_current_cluster = [correlations_of_current_cluster; [strcat('M', strread(num2str(sorted_indices),'%s')')' strread(num2str(sorted_values),'%s')]];
-      create_exel_file(['M' num2str(current_cluster) '.xls'],correlations_of_current_cluster,1,[],Dynamics4GenomicBigData_HOME);
+      writetable(cell2table(correlations_of_current_cluster), ['M' num2str(current_cluster) '.csv'], 'WriteVariableNames', false);
     
       % The following lines plot the current module against the second individual's modules with the lowest and highest correlation.
       module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
@@ -270,7 +271,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  correlations_of_current_cluster = correlations_of_current_cluster(indices,:);
 	  correlations_of_current_cluster = [correlations_of_current_cluster_header; correlations_of_current_cluster];
 	  
-	  create_exel_file(['M' num2str(currentClusterIndex) '.xls'],correlations_of_current_cluster,1,[],Dynamics4GenomicBigData_HOME);
+	  writetable(cell2table(correlations_of_current_cluster), ['M' num2str(currentClusterIndex) '.csv'], 'WriteVariableNames', false);
 
 	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	  
@@ -354,7 +355,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	close all;
       end
       
-      create_exel_file('p-values_control_vs_stimulus.xls',p_value_output_matrix,1,[],Dynamics4GenomicBigData_HOME);
+      writetable(cell2table(p_value_output_matrix), 'values_control_vs_stimulus.csv', 'WriteVariableNames', false);
       
       cd('..');
 end

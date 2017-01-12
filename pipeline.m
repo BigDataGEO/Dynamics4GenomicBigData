@@ -215,11 +215,11 @@ function write_study_report(GEO_number)
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Study/bibliography.bib'], output_folder);
   copyfile([Dynamics4GenomicBigData_HOME, '/latex/Study/plos2015.bst'], output_folder);
   
-  if isunix()
-    % The following line compiles the .tex file into a .pdf.
-    % Two output arguments (x and y) are used simply to prevent the output from being printed onscreen.
-    [x, y]=system([Dynamics4GenomicBigData_HOME 'latex/Study/compile.sh ' output_folder]);
-  end
+%    if isunix()
+%      % The following line compiles the .tex file into a .pdf.
+%      % Two output arguments (x and y) are used simply to prevent the output from being printed onscreen.
+%      [x, y]=system([Dynamics4GenomicBigData_HOME 'latex/Study/compile.sh ' output_folder]);
+%    end
   
   delete('Part1.tex');
   delete('Part2.tex');

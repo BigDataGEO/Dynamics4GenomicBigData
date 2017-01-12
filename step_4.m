@@ -285,9 +285,9 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     matrix_of_files_descs = [matrix_of_files_descs; [{'Clusters_X.pdf'} {'Cluster plots.'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'GRMs.pdf'} {'Clusters plotted by size.'}]];
     
-    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+    writetable(cell2table(matrix_of_files_descs), 'List_and_description_of_output.csv', 'WriteVariableNames', false);
 
-    movefile('List_and_description_of_output.xls', outputFolder);
+    movefile('List_and_description_of_output.csv', outputFolder);
     
     cluster_iteration_ID = 1;
     probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));

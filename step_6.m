@@ -53,11 +53,12 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     movefile('Network_plot_MATLAB.pdf', outputFolder);
     
     graphStatsFileName = 'Graph_Statistics.xls';
-    create_exel_file(graphStatsFileName,graph_statistics,1,[],Dynamics4GenomicBigData_HOME);
+    
+    writetable(cell2table(graph_statistics), graphStatsFileName, 'WriteVariableNames', false);
     movefile(graphStatsFileName, outputFolder);
     
     nodeStatsFileName = 'Node_Statistics.xls';
-    create_exel_file(nodeStatsFileName,node_statistics,1,[],Dynamics4GenomicBigData_HOME);
+    writetable(cell2table(node_statistics), nodeStatsFileName, 'WriteVariableNames', false);
     movefile(nodeStatsFileName, outputFolder);
 
     matrix_to_save = [column_labels; [row_labels dependency_matrix]];
@@ -119,9 +120,9 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     matrix_of_files_descs = [matrix_of_files_descs; [{'Network_plot_MATLAB.pdf'} {'Plot of the gene regulatory network (GRN).'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'Network_plot_R.pdf'} {'Plot of the gene regulatory network (GRN).'}]];
     
-    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+    writetable(cell2table(matrix_of_files_descs), 'List_and_description_of_output.csv', 'WriteVariableNames', false);
 
-    movefile('List_and_description_of_output.xls', outputFolder);
+    movefile('List_and_description_of_output.csv', outputFolder);
   end
 end
 

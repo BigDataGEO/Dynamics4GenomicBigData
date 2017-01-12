@@ -1,4 +1,4 @@
-function create_input_files()
+function create_condition_files()
 
 set_paths_and_imports;
 
@@ -21,7 +21,7 @@ catch
   fprintf('\n');
   display(['This is possibly because the GEO refused the FTP connection or because the dataset does not exist.']);
   fprintf('\n');
-  display(['Please download manually ' GEO_number '''s matrix to ' pwd '/GEO_cache/' GEO_number '.soft and try again.']);
+  display(['Please download manually ' GEO_number '''s matrix to ' pwd '/GEO_cache/' GEO_number '.txt and try again.']);
   return;
 end
 

@@ -1,3 +1,3 @@
-create_input_files;
+create_condition_files;
 
 pipeline;

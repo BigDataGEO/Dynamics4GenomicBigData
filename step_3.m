@@ -192,9 +192,9 @@ function [gene_expression_sorted_by_F_value, number_of_statistically_significant
     matrix_of_files_descs = [matrix_of_files_descs; [{'smooth_gene_expression.csv'} {['Smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{'derivatives_of_smooth_gene_expression_curves.csv'} {['Derivatives of the smooth expression curves of the top ' num2str(number_of_top_DRGs_considered) ' DRGs.']}]];
     
-    create_exel_file('List_and_description_of_output.xls', matrix_of_files_descs, 1, [], Dynamics4GenomicBigData_HOME);
+    writetable(cell2table(matrix_of_files_descs), 'List_and_description_of_output.csv', 'WriteVariableNames', false);
 
-    movefile('List_and_description_of_output.xls', outputFolder);
+    movefile('List_and_description_of_output.csv', outputFolder);
   end
   
 end
