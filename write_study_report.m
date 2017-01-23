@@ -1,50 +1,8 @@
-function pipeline()
-
-  set_paths_and_imports;
-
-  cd('Input');
-  s = dir('*.csv');
-  file_list = {s.name}';
-
-  GEO_number={};
-  condition = {};
-  samples = {};
-  time_points = {};
-  number_of_top_DRGs = {};
-
-  for i=1:length(file_list)
-    [GEO_number{i}, condition{i}, samples{i}, time_points{i}, number_of_top_DRGs{i}] = read_input(file_list{i});
-  end
-
-  cd('..');
-
-  for i=1:length(file_list)
-    run_condition(GEO_number{i}, condition{i}, samples{i}, time_points{i}, number_of_top_DRGs{i});
-  end
-
-  fprintf('\n');
-  display('The analysis is complete for all the subjects/conditions.');
-
-  unique_GEO_numbers = unique(GEO_number);
-
-  for i=1:length(unique_GEO_numbers)
-
-    fprintf('\n');
-    display(['All results from dataset ' unique_GEO_numbers{i} ' have been output to folder ' Dynamics4GenomicBigData_HOME 'Output/' unique_GEO_numbers{i} '/Conditions/']);
-
-    write_study_report(unique_GEO_numbers{i});
-
-    fprintf('\n');
-    display(['A consolidated report on all conditions from dataset ' unique_GEO_numbers{i} ' can be found in ' Dynamics4GenomicBigData_HOME 'Output/' unique_GEO_numbers{i} '/paper.pdf']);
-
-  end
-end
-
 function write_study_report(GEO_number)
 
   global Dynamics4GenomicBigData_HOME;
   
-  geoStruct = get_geo_data(GEO_number);
+%    geoStruct = get_geo_data(GEO_number);
   
   GEO_number_folder_path = [Dynamics4GenomicBigData_HOME, 'Output/', GEO_number];
   conditions_folder_path = [GEO_number_folder_path, '/', 'Conditions'];
@@ -75,6 +33,8 @@ function write_study_report(GEO_number)
   standardized_gene_expression = {};
   
   list_of_statistically_significant_DRGs = {};
+  
+  save('F.mat')
   
   for i = 1:size(conditions,1)  
     [gene_expression{i}, time_points{i}, list_of_top_DRGs{i}, list_of_gene_clusters{i}, gene_expression_by_cluster{i}, list_of_cluster_means{i}, coefficients{i}, adjacency_matrix_of_gene_regulatory_network{i}, network_graph{i}, graph_statistics{i}, node_statistics{i}, subject_name{i}, gene_ID_type{i}, indices_of_top_DRGs{i}, number_of_statistically_significant_DRGs{i}, list_of_genes{i}, gene_expression_sorted_by_F_value{i}, list_of_probe_ids{i}, indices_of_genes_sorted_by_F_value{i}, standardized_gene_expression{i}] = load_analysis(GEO_number, conditions{i}); 
@@ -116,14 +76,14 @@ function write_study_report(GEO_number)
 
   fprintf(draft,'%s', ['\par The conditions in this study have at least ' num2str(min(cellfun(@length,time_points))) ' time points. ']);
   
-  if(isfield(geoStruct.Header.Series, 'title'))
-    fprintf(draft,'%s', ['The original study associated to dataset ' GEO_number ' is titled: \textit{``' geoStruct.Header.Series.title '''''}. ']);
-  end
-  
-  if(isfield(geoStruct.Header.Series, 'summary'))
-    fprintf(draft,'%s\n\n', ['The authors summarize this study as follows.']);
-    fprintf(draft,'%s\n\n', ['\textit{' geoStruct.Header.Series.summary '}']);
-  end
+%    if(isfield(geoStruct.Header.Series, 'title'))
+%      fprintf(draft,'%s', ['The original study associated to dataset ' GEO_number ' is titled: \textit{``' geoStruct.Header.Series.title '''''}. ']);
+%    end
+%    
+%    if(isfield(geoStruct.Header.Series, 'summary'))
+%      fprintf(draft,'%s\n\n', ['The authors summarize this study as follows.']);
+%      fprintf(draft,'%s\n\n', ['\textit{' geoStruct.Header.Series.summary '}']);
+%    end
   
   fprintf(draft,'%s', ['The pipeline analysis used in this article (Carey et al., 2016) is composed of a sequence of steps where the data is obtained, preprocessed and analyzed for the identification of dynamic response genes (\textit{i.e.}, genes that exhibit significant changes across time), the clustering of these and the discovery of a gene regulatory network between these clusters. ']);
   
@@ -229,6 +189,45 @@ function write_study_report(GEO_number)
 
 end
 
+function subdirs = get_subdirs(folder_name)
+  d = dir(folder_name);
+  isub = [d(:).isdir];
+  subdirs = {d(isub).name}';
+  subdirs(ismember(subdirs,{'.','..'})) = [];
+end
+
+function [frequency_of_DRGs, common_probes] =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs)
+  
+  intersection_of_probes = list_of_statistically_significant_DRGs{1}(:,1);
+  
+  for k=1:length(list_of_statistically_significant_DRGs)
+    intersection_of_probes = intersect(intersection_of_probes, list_of_statistically_significant_DRGs{k}(:,1));
+  end
+  
+  A = list_of_statistically_significant_DRGs{1}(:,1);
+  
+  B = intersection_of_probes;
+  
+  common_probes = intersection_of_probes;
+  
+  intersection_of_probes_and_genes = list_of_statistically_significant_DRGs{1}(find(ismember(A,B)),:);
+  
+  frequency_of_DRGs = get_frequency_of_each_array_element(intersection_of_probes_and_genes(:,2));
+  
+  frequency_of_probes = get_frequency_of_each_array_element(intersection_of_probes_and_genes(:,1));
+  
+end
+
+function frequency_per_element = get_frequency_of_each_array_element(the_array)
+
+  [a b c] = unique(the_array);
+  d = hist(c,length(a));
+  P = [a num2cell(d')];
+  
+  [B I] = sort(cell2mat(P(:,2)), 'descend');
+  
+  frequency_per_element = P(I,:);  
+end
 
 function write_condition_section(draft, GEO_number, condition, gene_expression, time_points, list_of_top_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, subject_name, gene_ID_type, indices_of_top_DRGs, number_of_statistically_significant_DRGs, gene_expression_sorted_by_F_value)
 
@@ -344,154 +343,4 @@ function write_condition_section(draft, GEO_number, condition, gene_expression, 
   
 %    cd(Dynamics4GenomicBigData_HOME);
   
-end
-
-
-function run_condition(GEO_number, condition, samples, time_points, number_of_top_DRGs)
-
-  global Dynamics4GenomicBigData_HOME;
-
-  try
-    fprintf('\n');
-    display(['Loading dataset. This can take some time, please wait...']);
-    [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_data(GEO_number);
-  catch
-    fprintf('\n');
-    display(['Could not retrieve dataset ' GEO_number ' from the Gene Expression Omnibus.']);
-    fprintf('\n');
-    display(['This is possibly because the GEO refused the FTP connection or because the dataset does not exist.']);
-    fprintf('\n');
-    display(['Please download manually ' GEO_number '''s matrix to ' pwd '/GEO_cache/' GEO_number '.txt and try again.']);
-    return;
-  end
-
-  [raw_gene_expression_array, raw_time_points_array] = step_1(geoStruct, samples, time_points);
-
-  fprintf('\n');
-  display(['The analysis of condition "' condition '" is starting.']);
-
-  run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression_array, raw_time_points_array, condition, condition, gene_ID_type, number_of_top_DRGs, list_of_probe_ids, geoStruct);
-    
-  fprintf('\n');
-  display(['The analysis of condition "' condition '" has been completed.']);
-    
-  fprintf('\n');
-  display(['Results have been output to folder ' Dynamics4GenomicBigData_HOME 'Results/' GEO_number '/Conditions/' condition '/']);
-
-end
-
-function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, list_of_probe_ids, geoStruct)
-
-  global Dynamics4GenomicBigData_HOME;
-  
-  global pipeline_version;
-  
-  output_folder = strcat(Dynamics4GenomicBigData_HOME,'Output/',GEO_number,'/Conditions/',condition);
-      
-  mkdir(output_folder);
-  cd(output_folder);
-    
-  [gene_expression, time_points, smooth_gene_trajectories, standardized_gene_expression] = step_2(raw_gene_expression, raw_time_points, true);
-
-  [gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, standardized_gene_expression, true);
-
-  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, standardized_gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, true);
-
-  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_top_DRGs, fd_smooth_coefficients, true);
-
-  [network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, true);
-
-  [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type);
-  
-  path_to_results_file = ['Results.mat'];
-  
-  save(path_to_results_file, 'gene_expression', 'time_points', 'list_of_top_DRGs', 'list_of_gene_clusters', 'gene_expression_by_cluster', 'list_of_cluster_means', 'coefficients', 'adjacency_matrix_of_gene_regulatory_network', 'network_graph', 'graph_statistics', 'node_statistics', 'subject_name', 'gene_ID_type', 'indices_of_top_DRGs', 'number_of_statistically_significant_DRGs', 'list_of_genes', 'gene_expression_sorted_by_F_value', 'list_of_probe_ids', 'indices_of_genes_sorted_by_F_value', 'standardized_gene_expression');
-  
-  writetable(cell2table({pipeline_version}), 'VERSION.txt', 'WriteVariableNames', false);
-  
-  close all;
-  
-  cd(Dynamics4GenomicBigData_HOME);
-end
-
-% This function finds the intersection of probe ids in the list of DRGs provided.
-
-% This intersection of (DRG) probe ids is returned in variable common_probes.
-
-% The list of gene names associated with each one of the common probes is returned in frequency_of_DRGs along with the number of (common) probes where the gene appears (which could be more than one).
-
-% Example: Suppose the input is composed of the following two matrices.
-
-% | Probe | Gene |		| Probe | Gene |
-%     A      G1  		   X        G25
-%     B      G52 		   B       G52
-%     C      G41   		   D       G12
-%     H      G15                   C       G41
-%     F      G52                   F       G52
-
-% The common probes are B, C, and F.
-
-% The common DRGs are G52 (frequency 1), G41 (frequency 1), and G52 (frequency 2).
-
-% Input:
-
-% list_of_statistically_significant_DRGs is a cell array. Each element is a cell array of size Mx2 where the first column is the (DRG) probe ids and the second column the corresponding gene name, listing the DRGs of a subject/condition. M is the number of (DRG) probes.
-
-% Output:
-
-% frequency_of_DRGs is a Nx2 cell array, where the first column is the gene names (as strings) and the second column is the frequency, as numbers.
-% common_probes is a Mx1 cell array with the probe ids of that are DRGs across all the subject/conditions.
-
-function [frequency_of_DRGs, common_probes] =  get_frequency_of_DRGs(list_of_statistically_significant_DRGs)
-  
-  intersection_of_probes = list_of_statistically_significant_DRGs{1}(:,1);
-  
-  for k=1:length(list_of_statistically_significant_DRGs)
-    intersection_of_probes = intersect(intersection_of_probes, list_of_statistically_significant_DRGs{k}(:,1));
-  end
-  
-  A = list_of_statistically_significant_DRGs{1}(:,1);
-  
-  B = intersection_of_probes;
-  
-  common_probes = intersection_of_probes;
-  
-  intersection_of_probes_and_genes = list_of_statistically_significant_DRGs{1}(find(ismember(A,B)),:);
-  
-  frequency_of_DRGs = get_frequency_of_each_array_element(intersection_of_probes_and_genes(:,2));
-  
-  frequency_of_probes = get_frequency_of_each_array_element(intersection_of_probes_and_genes(:,1));
-  
-end
-
-
-
-% Receives a cell array of strings of size Nx1 and returns an Nx2 cell array where the first column is the elements in the input array and the second column is the frequency of each element.
-
-%  the_array = [{'a'}; {'s'}; {'a'}; {'e'}; {'q'}];
-
-% Returns 
-%  frequency_per_element = 
-%  
-%      'a'    [2]
-%      'e'    [1]
-%      'q'    [1]
-%      's'    [1]
-
-function frequency_per_element = get_frequency_of_each_array_element(the_array)
-
-  [a b c] = unique(the_array);
-  d = hist(c,length(a));
-  P = [a num2cell(d')];
-  
-  [B I] = sort(cell2mat(P(:,2)), 'descend');
-  
-  frequency_per_element = P(I,:);  
-end
-
-function subdirs = get_subdirs(folder_name)
-  d = dir(folder_name);
-  isub = [d(:).isdir];
-  subdirs = {d(isub).name}';
-  subdirs(ismember(subdirs,{'.','..'})) = [];
 end
