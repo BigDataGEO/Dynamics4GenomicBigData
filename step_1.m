@@ -28,7 +28,7 @@ function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, tim
   
   end
   
-  raw_gene_expression_2 = cell2mat(raw_gene_expression_at_time_point);
+  raw_gene_expression = cell2mat(raw_gene_expression_at_time_point);
 
   raw_time_points = ExtractTimePoints(time_points');
   
