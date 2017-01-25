@@ -1,6 +1,0 @@
-
-get_geo_data.m
-
-Function get_list_of_gene_ids() was modified so that variable platform_id was set as follows. This change was ad hoc for dataset GSE4301 (Nan's).
-
-platform_id = 'GPL3486';
