@@ -18,26 +18,17 @@ function [raw_gene_expression, raw_time_points] = step_1(geoStruct, samples, tim
   
   raw_gene_expression = [];
   
-  for replicate_index = 1:size(samples,2)
-    samples_of_current_replicate = samples(:,replicate_index);
+  for time_point_index = 1:size(samples,1)
+  
+    samples_at_current_time_point = samples(time_point_index,:);
     
-    [indices_of_samples_in_matrix, not_found] = find_in_cell_array_of_strings(geoStruct.Header.Samples.geo_accession, samples_of_current_replicate);
+    [indices_of_samples_in_matrix, not_found] = find_in_cell_array_of_strings(geoStruct.Header.Samples.geo_accession, samples_at_current_time_point);
     
-    raw_gene_expression_of_replicate{replicate_index} = GSE_matrix(:,indices_of_samples_in_matrix);
-    
-    raw_gene_expression = cat(3, raw_gene_expression, raw_gene_expression_of_replicate{replicate_index});
+    raw_gene_expression_at_time_point{time_point_index} = median(GSE_matrix(:,indices_of_samples_in_matrix),2);
+  
   end
   
-  % Method 1: mean
-%    raw_gene_expression = mean(raw_gene_expression,3);
-  
-  % Method 2: median
-  raw_gene_expression = median(raw_gene_expression,3);
-  
-  % Method 3: Vahed's
-  % The following two lines incorporate Vahed's method.
-%    mean_per_time_point = mean(raw_gene_expression);
-%    raw_gene_expression = raw_gene_expression - repmat(mean_per_time_point, size(raw_gene_expression,1), 1);  
+  raw_gene_expression_2 = cell2mat(raw_gene_expression_at_time_point);
 
   raw_time_points = ExtractTimePoints(time_points');
   
