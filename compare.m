@@ -62,7 +62,7 @@ function compare()
 	    mkdir(one_to_one_comparison_folder);
 	    cd(one_to_one_comparison_folder);
 	    
-	    output_comparison_plots(subject_name_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, zscore(gene_expression_2')', indices_of_top_DRGs_1, list_of_genes);
+	    output_comparison_plots(subject_name_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, zscore(gene_expression_2')', indices_of_top_DRGs_1, list_of_genes, list_of_probe_ids);
 
 	    plot_cluster_matches(subject_name_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
 	    
@@ -191,7 +191,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
       hold off;
 end
 
-function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes)
+function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes, list_of_probe_ids)
 
       global Dynamics4GenomicBigData_HOME;
   
@@ -251,8 +251,9 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  % The information is output to a spreadsheet.
 	  
 	  genes_in_current_cluster = list_of_genes(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}));
+	  probes_in_current_cluster = list_of_probe_ids(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}));
 	  
-	  correlations_of_current_cluster_header = [{['Gene']} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
+	  correlations_of_current_cluster_header = [{['Probe ID']} {['Gene ID']} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
 	  correlations_of_current_cluster = [];
 	  scores = [];
 	  
@@ -262,7 +263,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	    
 	    z = corr(exp1, exp2, 'type', 'Spearman');
 	    
-	    correlations_of_current_cluster = [correlations_of_current_cluster; [ {genes_in_current_cluster{index_of_genes_in_current_cluster}} {num2str(z)} ]];
+	    correlations_of_current_cluster = [correlations_of_current_cluster; [ strtrim({probes_in_current_cluster{index_of_genes_in_current_cluster}}) strtrim({genes_in_current_cluster{index_of_genes_in_current_cluster}}) {num2str(z)} ]];
 	    
 	    scores = [scores; {z}];
 	  end
