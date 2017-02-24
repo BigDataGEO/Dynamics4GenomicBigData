@@ -110,7 +110,7 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 	    number_of_plots_in_current_page = number_of_plots_in_last_page;
 	  end
 
-	  h8=figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
+	  figure('units', 'centimeters', 'position', [0, 0, 85, 50]);
 	  axisLabelFontSize = 9;
 	  
 	  set(gcf, 'PaperPositionMode', 'manual');
@@ -157,8 +157,13 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
 	      cluster_number = cluster_number + 1;
 
 	  end
-
-	  print(h8,'-dpdf', ['GRMs_' num2str(b) '.pdf']);
+	  
+	  % The following line is necessary because otherwise MATLAB inexplicably trims the plot
+	  % printing to PDF format.
+	  pause(5);
+	  
+	  print(gcf,'-dpdf', ['GRMs_' num2str(b) '.pdf']);
+	  close all;
 	  movefile(['GRMs_' num2str(b) '.pdf'], outputFolder);
       end
       
