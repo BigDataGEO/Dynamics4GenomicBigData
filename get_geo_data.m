@@ -297,6 +297,7 @@ end
 % see
 %    http://www.ncbi.nlm.nih.gov/entrez/query/static/linking.html
 % for more information
+% JCR: Changed URL to https, which is not included in MATLAB's native function.
 searchurl = sprintf('https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?form=text&acc=%s&view=full',accessnum);
 
 % get the html file that is returned as a string
@@ -364,6 +365,12 @@ if gseFlag ~= 0
     mkdir(tempDirName);
     % open FTP connection to NCBI and CD to GDS directory and get the file
     ftpConnection = ftp('ftp.ncbi.nih.gov');
+
+	% JCR: The following lines set the 'pasive' mode that is required to allow downloads
+	% through a firewall.
+	if exist('pasv')
+		pasv(ftpConnection);
+	end
     try
         cd(ftpConnection,sprintf('pub/geo/DATA/SeriesMatrix/%s',accessnum)); %#ok<MCCD>
         mget(ftpConnection,seriesFileGZName,tempDirName);

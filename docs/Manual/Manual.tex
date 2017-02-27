@@ -17,7 +17,7 @@
 
 \usepackage{attachfile}
 
-\title{Manual of the \texttt{MATLAB} pipeline for the analysis of genomic time course data from the \textit{Gene Expression Omnibus} (Version 1.53)}
+\title{Manual of the \texttt{MATLAB} pipeline for the analysis of genomic time course data from the \textit{Gene Expression Omnibus} (Version 1.54)}
 
 %\author{Juan Camilo Ram\'{i}rez}
 
@@ -100,11 +100,17 @@
 
 \par The sources of \texttt{Pipeline4DGEData} are available on its official \href{https://github.com/j142857z/Pipeline4DGEData}{\texttt{GitHub} repository}. The latest version is always availabe for download from \href{https://github.com/j142857z/Pipeline4DGEData/archive/master.zip}{here} as a compressed folder. Once downloaded, this folder must be decompressed. By default, the decompressed folder is named \texttt{Pipeline4DGEData-master/}. In this manual it will be assumed that this folder has been renamed \texttt{Pipeline4DGEData/} and so it will be referred to as such throughout this document. This folder is the home directory of \texttt{Pipeline4DGEData}.\footnote{Care should be taken in order not to confuse \texttt{Pipeline4DGEData} (the tool) and \texttt{Pipeline4DGEData/} (the home folder of the tool).} User-defined input for new analyses to be run must be provided in subfolder \texttt{Input} (details in Section~\ref{section:input_files}) and the program returns the results in subfolder \texttt{Output} (details in Section~\ref{section:pipelineoutput}).
 
-\par \texttt{Pipeline4DGEData} uses the \textit{Functional Data Analysis for \texttt{MATLAB}} library, which is available from its official \href{http://www.psych.mcgill.ca/misc/fda/}{site online}. The library can be downloaded from this \href{http://www.psych.mcgill.ca/misc/fda/downloads/FDAfuns/Matlab/fdaMatlab.zip}{direct link} as a compressed folder. Once downloaded, the decompressed folder (named \texttt{fdaM/}) must be copied to \texttt{Pipeline4DGEData/}. That is to say, all the sources of the library must be in path \texttt{Pipeline4DGEData/fdaM/}. After this, attached file \textattachfile[mimetype=text/html,color=0 0 0.5]{mean_grouped.m}{\texttt{mean\_grouped.m}}  must be copied into \texttt{Pipeline4DGEData/fdaM/@fd/}.
+\par \texttt{Pipeline4DGEData} uses the \textit{Functional Data Analysis for \texttt{MATLAB}} library, which is available from its official \href{http://www.psych.mcgill.ca/misc/fda/}{site online}. The library can be downloaded from this \href{http://www.psych.mcgill.ca/misc/fda/downloads/FDAfuns/Matlab/fdaMatlab.zip}{direct link} as a compressed folder. Once downloaded, the decompressed folder (named \texttt{fdaM/}) must be copied to \texttt{Pipeline4DGEData/lib/}. That is to say, all the sources of the library must be in path \texttt{Pipeline4DGEData/fdaM/lib/}. After this, attached file \textattachfile[mimetype=text/html,color=0 0 0.5]{mean_grouped.m}{\texttt{mean\_grouped.m}}  must be copied into \texttt{Pipeline4DGEData/lib/fdaM/@fd/}.
 
-\par \texttt{Pipeline4DGEData} also requires the \textit{\texttt{SBEToolbox} (A Matlab Toolbox for Biological Network Analysis)} library \citep{konganti2013sbetoolbox} (Version \texttt{1.3.3} or later). This library is available from its official \href{https://github.com/biocoder/SBEToolbox/releases}{\texttt{GitHub} repository}. It can be downloaded from this \href{https://github.com/biocoder/SBEToolbox/archive/v1.3.3.zip}{direct link} as a compressed folder. Once downloaded, the decompressed folder (named \texttt{SBEToolbox-1.3.3/}) must be copied to \texttt{Pipeline4DGEData/}. That is to say, all the sources of the library must be in path \texttt{Pipeline4DGEData/SBEToolbox-1.3.3/}.
+\par \texttt{Pipeline4DGEData} also requires the \textit{\texttt{SBEToolbox} (A Matlab Toolbox for Biological Network Analysis)} library \citep{konganti2013sbetoolbox} (Version \texttt{1.3.3} or later). This library is available from its official \href{https://github.com/biocoder/SBEToolbox/releases}{\texttt{GitHub} repository}. It can be downloaded from this \href{https://github.com/biocoder/SBEToolbox/archive/v1.3.3.zip}{direct link} as a compressed folder. Once downloaded, the decompressed folder (named \texttt{SBEToolbox-1.3.3/}) must be copied to \texttt{Pipeline4DGEData/lib/}. That is to say, all the sources of the library must be in path \texttt{Pipeline4DGEData/lib/SBEToolbox-1.3.3/}.
 
 \par Once all the above is done, \texttt{Pipeline4DGEData} will be ready for use. Details in Section~\ref{section:daExample}.
+
+\subsection{Passive mode for FTP downloads}
+
+\par \texttt{MATLAB}'s native libraries do not include a passive mode for FTP connections. This may prevent \texttt{Pipeline4DGEData} from being able to download series from the \texttt{GEO} when running behind a firewall. For this reason, passive mode is enabled by default by using the community-contributed solution available \href{https://www.mathworks.com/matlabcentral/fileexchange/6626-passive-mode-ftp-in-matlab}{here}. These sources are included by default in \texttt{Pipeline4DGEData/lib/FTP/}. All credits and acknowledgements go to the original authors of these.
+
+
 
 \section{Usage of \texttt{Pipeline4DGEData}}
 \label{section:daExample}
@@ -294,6 +300,24 @@
 \end{center}
 
 \par The condition files can be written manually, following strictly the format described above. Optionally, this task can be carried out more easily by using script \texttt{create\_input\_files.m}. In order to do this, \texttt{create\_input\_files.m} must be run and the instructions provided thereafter by the program must be followed. More details in Section~\ref{section:user_functions}.
+
+\par Condition files can contain different number of replicates at each time point. In these cases, each line of the condition file must contain the blank fields corresponding to the missing time points so that all lines in the file have the same number of comma-separated values. Suppose that in the previous example Replicate 2 and Replicate 3 do not have a sample at time point \texttt{``1 hours''} and that Replicate 1 does not have a sample at time point \texttt{``10 hours''}. Thus the condition file should look as follows.
+
+\begin{center}
+\begin{tabular}{ c }
+
+0 hours,GSM1008154,GSM1008162,GSM1008170 \\
+1 hours,GSM1008155,, \\
+2 hours,GSM1008156,GSM1008164,GSM1008172 \\
+4 hours,GSM1008157,GSM1008165,GSM1008173 \\
+6 hours,GSM1008158,GSM1008166,GSM1008174 \\
+8 hours,GSM1008159,GSM1008167,GSM1008175 \\
+10 hours,,GSM1008168,GSM1008176 \\
+12 hours,GSM1008161,GSM1008169,GSM1008177 \\
+
+
+\end{tabular}
+\end{center}
 
 \subsection{Macrocondition files}
 \label{subsection:macrocondition}
