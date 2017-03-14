@@ -52,7 +52,7 @@ function compare()
 	    cd(one_to_one_comparison_folder);
 	    
 	    output_comparison_plots(results_1.condition, results_1.step_4.list_of_gene_clusters, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, zscore(results_2.step_2.gene_expression')', results_1.step_3.indices_of_top_DRGs, results_1.list_of_genes, results_1.list_of_probe_ids);
-
+			
 	    plot_cluster_matches(results_1.condition, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, results_2.step_4.gene_expression_by_cluster, results_2.step_4.list_of_cluster_means, results_2.step_2.time_points);
 	    
 	    cd(Dynamics4GenomicBigData_HOME);
@@ -115,6 +115,25 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  
 	  expression_of_first_subject = gene_expression_by_cluster{currentClusterIndex};
 	  expression_of_second_subject = gene_expression_2(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}),:);
+	  
+	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  
+	  % This section calculates the Spearman correlation between the mean expression of the first
+	  % subject's module and the mean expression of the same genes from the second subject.
+	  
+	  mean_exp1 = mean(expression_of_first_subject);
+	  mean_exp2 = mean(expression_of_second_subject);
+	  
+	  correlation_between_mean_expressions = corr(mean_exp1', mean_exp2', 'type', 'Spearman');
+	  
+	  % The method above only works if there are more than one gene in the module, i.e., if the
+	  % expression matrices have more than one row.
+	  % Therefore, if there is only one gene, then some extra manipulation is required.
+	  if(size(expression_of_first_subject,1) < 2)
+	  	correlation_between_mean_expressions = corr(expression_of_first_subject', expression_of_second_subject', 'type', 'Spearman');
+	  end
+	  
+	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	  
 	  
 	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,7 +221,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 
 	  v = axis;
 
-	  handle=title(['Expression of the same genes in ', name_of_second_subject, '']);
+	  handle=title(['Expression of the same genes in ', name_of_second_subject, ' (\rho = ' num2str(correlation_between_mean_expressions) ')']);
 
 	  set(handle,'Position',[2.815 v(4)*1.03 0]);
 
@@ -257,6 +276,9 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
       module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
       module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
       
+      highest_correlation = max(z(current_cluster,:));
+			lowest_correlation = min(z(current_cluster,:));
+      
       expression_of_first_subjects_current_cluster = gene_expression_by_cluster{current_cluster};      
       expression_of_second_subjects_1st_cluster = gene_expression_by_cluster_2{module_with_lowest_correlation};      
       expression_of_second_subjects_2nd_cluster = gene_expression_by_cluster_2{module_with_highest_correlation};
@@ -271,17 +293,17 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
       
       y_limits = [min([min(expression_of_first_subjects_current_cluster), min(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])-.05,max([max(expression_of_first_subjects_current_cluster), max(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])+.05];
       
-      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
+      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, [name_of_second_subject ' (\rho = ' num2str(lowest_correlation) ')'], name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
       
-      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
+      print('-dpdf', [name_of_first_subjects_cluster '_(lowest_correlation).pdf']);
       
       name_of_second_subjects_cluster = ['M' num2str(module_with_highest_correlation)];
       expression_of_second_subjects_cluster = expression_of_second_subjects_2nd_cluster;
       mean_of_second_subjects_cluster = list_of_cluster_means_2(module_with_highest_correlation,:);
       
-      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
+      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, [name_of_second_subject ' (\rho = ' num2str(highest_correlation) ')'], name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
       
-      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
+      print('-dpdf', [name_of_first_subjects_cluster '_(highest_correlation).pdf']);
       
       close all;
     end
@@ -289,7 +311,7 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
 end
 
 function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_axis_limits)
-      h8=figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
+			mainFig = figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
       axisLabelFontSize = 9;
 	    
       set(gcf, 'PaperPositionMode', 'manual');
