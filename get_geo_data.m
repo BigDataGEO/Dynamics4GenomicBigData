@@ -146,7 +146,21 @@ function index_of_gpl_column_with_gene_ids = capture_index_of_gpl_column_with_ge
 end
 
 
+% This function attempts to find the gene names from the GPL record.
 
+% This is by finding which rows in the GPL record have the same row identifiers as the GSE table
+% (the latter are given as input).
+
+% If all the row identifiers from the GSE table are matched as row identifiers in the GPL table,
+% then the function returns the values of those rows at the column index provided as argument.
+
+% If not all the row identifiers from the GSE table are matched as row identifiers in the GPL
+% table, then the function returns the same list of row identifiers from the GSE table.
+
+% The latter case can ocassionally occur with some platform records. The assumption (i.e., the GSE
+% matrix row identifiers can be used as gene names) made by the function in these cases (i.e., the
+% GSE matrix rows cannot be found in the GPL record) is necessary in order not to abort the flow of
+% program and is usually correct.
 function list_of_genes = get_list_of_genes_from_gpl(platform_struct, index_of_gpl_column_with_gene_ids, row_identifiers_of_gse_matrix)
 
   row_identifiers_in_platform_record = [];
@@ -164,18 +178,21 @@ function list_of_genes = get_list_of_genes_from_gpl(platform_struct, index_of_gp
   % Under normal circumstances, variable not_found should be EMPTY after the following line.
   [indices, not_found] = find_matrix_rows_in_gpl_record(row_identifiers_in_platform_record, row_identifiers_of_gse_matrix);
   
-  if ~isempty(not_found)
-    msgID = 'MATLAB:rmpath:DirNotFound3';
-    msg = ['There are ' num2str(size(not_found,1)) ' genes that could not be mapped from GSE matrix to the GPL record.'];
-    baseException = MException(msgID,msg);
-    
-    dlmwrite('UnmappedGenes.csv', not_found, '');
-    
-    throw(baseException);
-  end
-
-  list_of_genes = platform_struct.Data(indices, index_of_gpl_column_with_gene_ids);
+  list_of_genes = [];
   
+  if isempty(not_found)
+    % This is the 'good' case. All identifiers from the GSE matrix could be mapped to the GPL
+    % record, thus the list of genes obtained from the GPL record is reliable.
+    list_of_genes = platform_struct.Data(indices, index_of_gpl_column_with_gene_ids);
+  else
+    % This is the 'bad' case. Not all identifiers from the GSE matrix could be mapped to the GPL
+    % record, thus the list of genes obtained from the GPL record is not reliable.
+    % In order not to abort the program, then simply assume that gene identifiers in the GSE matrix
+    % can be used as gene names. And display a warning.
+    msg = ['There were ' num2str(size(not_found,1)) ' genes that could not be mapped from GSE matrix to the GPL record.'];
+    warning(msg);
+    list_of_genes = row_identifiers_of_gse_matrix;
+  end
 end
 
 function [indices, not_found] = find_matrix_rows_in_gpl_record(cell_array_to_search, cell_array_to_search_for)

@@ -25,46 +25,35 @@ function compare()
       % One to one analyses, that are perfomed only between conditions belonging to the same series.
       for j = 1:size(inputData,1)
 	if (i~=j)
-	
-	  % Get the condition's analysis data.
-	  [gene_expression_1, time_points_1, list_of_top_DRGs_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, coefficients_1, adjacency_matrix_of_gene_regulatory_network_1, network_graph_1, graph_statistics_1, node_statistics_1, subject_name_1, gene_ID_type_1, indices_of_top_DRGs_1, number_of_statistically_significant_DRGs, list_of_genes, gene_expression_sorted_by_F_value, list_of_probe_ids, indices_of_genes_sorted_by_F_value] = load_analysis(GEO_number, inputData{i,1});
-      
-	  % Get the second condition's analysis data.
-	  [gene_expression_2, time_points_2, list_of_top_DRGs_2, list_of_gene_clusters_2, gene_expression_by_cluster_2, list_of_cluster_means_2, coefficients_2, adjacency_matrix_of_gene_regulatory_network_2, network_graph_2, graph_statistics_2, node_statistics_2, subject_name_2, gene_ID_type_2, indices_of_top_DRGs_2, number_of_statistically_significant_DRGs_2, list_of_genes_2, gene_expression_sorted_by_F_value_2, list_of_probe_ids, indices_of_genes_sorted_by_F_value] = load_analysis(GEO_number, inputData{j,1});
- 
-%  	  one_to_one_comparison_folder = [general_comparison_folder, '/', GEO_number, '_vs_', GEO_number '/', inputData{i,1}, '_vs_', inputData{j,1}];
-	  
+	  results_1 = load_analysis(GEO_number, inputData{i,1});
+	  results_2 = load_analysis(GEO_number, inputData{j,1});
+
 	  if(strcmp(GEO_number, GEO_number))
-	  
-	    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	    
-	    % This section finds and outputs the list of common statistically significant DRGs.
-	    
+	    % The following lines find and output the list of common statistically significant DRGs.
 	    cd(general_comparison_folder);
 	 
-	    probes1 = strtrim(gene_expression_sorted_by_F_value(1:number_of_statistically_significant_DRGs,1));
-	    probes2 = strtrim(gene_expression_sorted_by_F_value_2(1:number_of_statistically_significant_DRGs_2,1));
+	    probes1 = strtrim(results_1.step_3.gene_expression_sorted_by_F_value(1:results_1.step_3.number_of_statistically_significant_DRGs,1));
+	    probes2 = strtrim(results_2.step_3.gene_expression_sorted_by_F_value(1:results_2.step_3.number_of_statistically_significant_DRGs,1));
 	    common_DRG_probes = intersect(probes1,probes2);
 	    
 	    [indices_of_common_DRGs, not_found] = find_strings_in_cell_array(probes1, common_DRG_probes);
 	    
-	    common_DRG_genes = gene_expression_sorted_by_F_value(indices_of_common_DRGs,2);
+	    common_DRG_genes = results_1.step_3.gene_expression_sorted_by_F_value(indices_of_common_DRGs,2);
 	    
 	    writetable(cell2table([[{'Probe IDs'} {'Gene names'}]; [common_DRG_probes common_DRG_genes]]), 'Common_statistically_significant_DRGs.csv', 'WriteVariableNames', false);
 	    
 	    cd(Dynamics4GenomicBigData_HOME);
-	    
-	    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	  
-%  	    one_to_one_comparison_folder = [general_comparison_folder, '/', GEO_number, '/', inputData{i,1}, '_vs_', inputData{j,1}];
+
+	    % The following lines perform and output the actual comparisons.
 	    one_to_one_comparison_folder = [general_comparison_folder, '/', inputData{i,1}, '_vs_', inputData{j,1}];
 	    
 	    mkdir(one_to_one_comparison_folder);
 	    cd(one_to_one_comparison_folder);
 	    
-	    output_comparison_plots(subject_name_1, list_of_gene_clusters_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, zscore(gene_expression_2')', indices_of_top_DRGs_1, list_of_genes, list_of_probe_ids);
+	    output_comparison_plots(results_1.condition, results_1.step_4.list_of_gene_clusters, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, zscore(results_2.step_2.gene_expression')', results_1.step_3.indices_of_top_DRGs, results_1.list_of_genes, results_1.list_of_probe_ids);
 
-	    plot_cluster_matches(subject_name_1, gene_expression_by_cluster_1, list_of_cluster_means_1, time_points_1, subject_name_2, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2);
+	    plot_cluster_matches(results_1.condition, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, results_2.step_4.gene_expression_by_cluster, results_2.step_4.list_of_cluster_means, results_2.step_2.time_points);
 	    
 	    cd(Dynamics4GenomicBigData_HOME);
 	  end
@@ -72,123 +61,6 @@ function compare()
       end
     end
   end
-end
-
-
-function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2)
-
-    global Dynamics4GenomicBigData_HOME;
-
-    x = list_of_cluster_means;
-    y = list_of_cluster_means_2;
-    
-    z = corr(x', y', 'type', 'Spearman');
-    
-    output_folder = 'GRM_matching';
-    mkdir(output_folder);
-    cd(output_folder);
-    
-    for current_cluster = 1:size(z,1)
-      % The following lines output the correlation of the current module (from the first subject) against all the modules from the second subject.
-      [sorted_values sorted_indices] = sort(z(current_cluster,:), 'descend');
-      correlations_of_current_cluster = [{['Modules from ' name_of_second_subject]} {['Spearman correlation with ' name_of_first_subject '''s M' num2str(current_cluster)]}];
-      correlations_of_current_cluster = [correlations_of_current_cluster; [strcat('M', strread(num2str(sorted_indices),'%s')')' strread(num2str(sorted_values),'%s')]];
-      writetable(cell2table(correlations_of_current_cluster), ['M' num2str(current_cluster) '.csv'], 'WriteVariableNames', false);
-    
-      % The following lines plot the current module against the second individual's modules with the lowest and highest correlation.
-      module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
-      module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
-      
-      expression_of_first_subjects_current_cluster = gene_expression_by_cluster{current_cluster};      
-      expression_of_second_subjects_1st_cluster = gene_expression_by_cluster_2{module_with_lowest_correlation};      
-      expression_of_second_subjects_2nd_cluster = gene_expression_by_cluster_2{module_with_highest_correlation};
-      
-      expression_of_first_subjects_cluster = expression_of_first_subjects_current_cluster;
-      name_of_first_subjects_cluster = ['M' num2str(current_cluster)];
-      mean_of_first_subjects_cluster = list_of_cluster_means(current_cluster,:);
-      
-      name_of_second_subjects_cluster = ['M' num2str(module_with_lowest_correlation)];
-      expression_of_second_subjects_cluster = expression_of_second_subjects_1st_cluster;
-      mean_of_second_subjects_cluster = list_of_cluster_means_2(module_with_lowest_correlation,:);
-      
-      y_limits = [min([min(expression_of_first_subjects_current_cluster), min(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])-.05,max([max(expression_of_first_subjects_current_cluster), max(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])+.05];
-      
-      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
-      
-      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
-      
-      name_of_second_subjects_cluster = ['M' num2str(module_with_highest_correlation)];
-      expression_of_second_subjects_cluster = expression_of_second_subjects_2nd_cluster;
-      mean_of_second_subjects_cluster = list_of_cluster_means_2(module_with_highest_correlation,:);
-      
-      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
-      
-      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
-      
-      close all;
-    end
-    cd('..');
-end
-
-function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_axis_limits)
-      h8=figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
-      axisLabelFontSize = 9;
-	    
-      set(gcf, 'PaperPositionMode', 'manual');
-      set(gcf, 'PaperUnits', 'centimeters');
-      set(gcf, 'PaperPosition', [0 0 45 20]);
-      set(gcf, 'PaperUnits', 'centimeters');
-      set(gcf, 'PaperSize', [45 20]);
-      
-      % First subplot      
-      subplot(1,2,1);
-      
-      plot(expression_of_first_subjects_cluster','-*b');
-	  
-      set(gca,'XTick', 1:size(time_points));
-      set(gca,'XTickLabel', time_points);
-
-      xlabel('Time', 'FontSize', axisLabelFontSize);
-      ylabel('Expression', 'FontSize', axisLabelFontSize);
-      
-      hold on;
-
-      plot(mean_of_first_subjects_cluster,'o-r','LineWidth',1.5);
-
-      ylim(y_axis_limits);
-
-      v = axis;
-
-      handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
-
-      set(handle,'Position',[2.6 v(4)*1.03 0]);
-
-      hold off;
-      
-      % Second subplot
-      subplot(1,2,2);
-      
-      plot(expression_of_second_subjects_cluster','-*b');
-	  
-      set(gca,'XTick', 1:size(time_points_2));
-      set(gca,'XTickLabel', time_points_2);
-
-      xlabel('Time', 'FontSize', axisLabelFontSize);
-      ylabel('Expression', 'FontSize', axisLabelFontSize);
-      
-      hold on;
-
-      plot(mean_of_second_subjects_cluster,'o-r','LineWidth',1.5);
-
-      ylim(y_axis_limits);
-
-      v = axis;
-      
-      handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
-
-      set(handle,'Position',[2.35 v(4)*1.03 0]);
-
-      hold off;
 end
 
 function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes, list_of_probe_ids)
@@ -361,6 +233,123 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
       cd('..');
 end
 
+function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2)
+
+    global Dynamics4GenomicBigData_HOME;
+
+    x = list_of_cluster_means;
+    y = list_of_cluster_means_2;
+    
+    z = corr(x', y', 'type', 'Spearman');
+    
+    output_folder = 'GRM_matching';
+    mkdir(output_folder);
+    cd(output_folder);
+    
+    for current_cluster = 1:size(z,1)
+      % The following lines output the correlation of the current module (from the first subject) against all the modules from the second subject.
+      [sorted_values sorted_indices] = sort(z(current_cluster,:), 'descend');
+      correlations_of_current_cluster = [{['Modules from ' name_of_second_subject]} {['Spearman correlation with ' name_of_first_subject '''s M' num2str(current_cluster)]}];
+      correlations_of_current_cluster = [correlations_of_current_cluster; [strcat('M', strread(num2str(sorted_indices),'%s')')' strread(num2str(sorted_values),'%s')]];
+      writetable(cell2table(correlations_of_current_cluster), ['M' num2str(current_cluster) '.csv'], 'WriteVariableNames', false);
+    
+      % The following lines plot the current module against the second individual's modules with the lowest and highest correlation.
+      module_with_highest_correlation = find(z(current_cluster,:) == max(z(current_cluster,:)), 1, 'first');
+      module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
+      
+      expression_of_first_subjects_current_cluster = gene_expression_by_cluster{current_cluster};      
+      expression_of_second_subjects_1st_cluster = gene_expression_by_cluster_2{module_with_lowest_correlation};      
+      expression_of_second_subjects_2nd_cluster = gene_expression_by_cluster_2{module_with_highest_correlation};
+      
+      expression_of_first_subjects_cluster = expression_of_first_subjects_current_cluster;
+      name_of_first_subjects_cluster = ['M' num2str(current_cluster)];
+      mean_of_first_subjects_cluster = list_of_cluster_means(current_cluster,:);
+      
+      name_of_second_subjects_cluster = ['M' num2str(module_with_lowest_correlation)];
+      expression_of_second_subjects_cluster = expression_of_second_subjects_1st_cluster;
+      mean_of_second_subjects_cluster = list_of_cluster_means_2(module_with_lowest_correlation,:);
+      
+      y_limits = [min([min(expression_of_first_subjects_current_cluster), min(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])-.05,max([max(expression_of_first_subjects_current_cluster), max(expression_of_second_subjects_1st_cluster), min(expression_of_second_subjects_2nd_cluster)])+.05];
+      
+      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
+      
+      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
+      
+      name_of_second_subjects_cluster = ['M' num2str(module_with_highest_correlation)];
+      expression_of_second_subjects_cluster = expression_of_second_subjects_2nd_cluster;
+      mean_of_second_subjects_cluster = list_of_cluster_means_2(module_with_highest_correlation,:);
+      
+      plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_limits);
+      
+      print('-dpsc2', '-append', [name_of_first_subjects_cluster '.ps']);
+      
+      close all;
+    end
+    cd('..');
+end
+
+function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_subjects_cluster, expression_of_first_subjects_cluster, mean_of_first_subjects_cluster, time_points, name_of_second_subject, name_of_second_subjects_cluster, expression_of_second_subjects_cluster, mean_of_second_subjects_cluster, time_points_2, y_axis_limits)
+      h8=figure('units', 'centimeters', 'position', [0, 0, 45, 20]);
+      axisLabelFontSize = 9;
+	    
+      set(gcf, 'PaperPositionMode', 'manual');
+      set(gcf, 'PaperUnits', 'centimeters');
+      set(gcf, 'PaperPosition', [0 0 45 20]);
+      set(gcf, 'PaperUnits', 'centimeters');
+      set(gcf, 'PaperSize', [45 20]);
+      
+      % First subplot      
+      subplot(1,2,1);
+      
+      plot(expression_of_first_subjects_cluster','-*b');
+	  
+      set(gca,'XTick', 1:size(time_points));
+      set(gca,'XTickLabel', time_points);
+
+      xlabel('Time', 'FontSize', axisLabelFontSize);
+      ylabel('Expression', 'FontSize', axisLabelFontSize);
+      
+      hold on;
+
+      plot(mean_of_first_subjects_cluster,'o-r','LineWidth',1.5);
+
+      ylim(y_axis_limits);
+
+      v = axis;
+
+      handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
+
+      set(handle,'Position',[2.6 v(4)*1.03 0]);
+
+      hold off;
+      
+      % Second subplot
+      subplot(1,2,2);
+      
+      plot(expression_of_second_subjects_cluster','-*b');
+	  
+      set(gca,'XTick', 1:size(time_points_2));
+      set(gca,'XTickLabel', time_points_2);
+
+      xlabel('Time', 'FontSize', axisLabelFontSize);
+      ylabel('Expression', 'FontSize', axisLabelFontSize);
+      
+      hold on;
+
+      plot(mean_of_second_subjects_cluster,'o-r','LineWidth',1.5);
+
+      ylim(y_axis_limits);
+
+      v = axis;
+      
+      handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
+
+      set(handle,'Position',[2.35 v(4)*1.03 0]);
+
+      hold off;
+end
+
+
 
 function [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation, spearman_correlation_coefficient] = compare_gene_expression(expression_of_first_subject, expression_of_second_subject, time_points)
   
@@ -460,7 +449,6 @@ function p_value = compare_curves_permutation(first_data_set, second_data_set, t
 
 end
 
-
 function [indices, not_found] = find_strings_in_cell_array(cell_array_to_search, cell_array_to_search_for)
 
   indices = [];
@@ -470,10 +458,6 @@ function [indices, not_found] = find_strings_in_cell_array(cell_array_to_search,
 
     idx = find(strcmp([cell_array_to_search(:)], strtrim(cell_array_to_search_for{i})));
       
-%      if(mod(i,1000)==0)
-%        display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
-%      end
-      
     if(isempty(idx))
       not_found = [not_found; {cell_array_to_search_for{i}}];
       not_found_idx = [not_found_idx; i];
@@ -481,5 +465,4 @@ function [indices, not_found] = find_strings_in_cell_array(cell_array_to_search,
       indices = [indices; idx];
     end
   end
-%    display(['Read ' num2str(i) ' gene IDs/names out of ' num2str(length(cell_array_to_search_for)) '.']);
 end
