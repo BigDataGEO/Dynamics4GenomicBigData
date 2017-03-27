@@ -31,11 +31,13 @@ function measure_fit_of_replicates()
   % The results are stored in variable list_of_probes_genes_noise, which is a cell array where the first column is the probe ids, the second column is the gene names and the third column is the noise measurements across the replicates.
   % The order of the probe ids/gene names is the same as in the original GEO matrix.
   noise_per_gene = measure_noise_between_replicates(standardized_gene_expression);  
-  list_of_probes_genes_noise = [list_of_probe_ids{1} list_of_genes{1} num2cell(noise_per_gene)];
-    
+  list_of_probes_genes_noise = [strtrim(list_of_probe_ids{1}) strtrim(list_of_genes{1}) num2cell(noise_per_gene)];
+  
+  list_of_probes_genes_noise = [[{'Probe IDs'} {'Gene names'} {'Noise'}]; list_of_probes_genes_noise];
+  
   % The following lines perform the same function, but the resulting cell array lists probe ids/gene names sorted by noise, from lower to higher noise.
-  [B,I] = sort(noise_per_gene);  
-  list_of_probes_genes_noise_sorted_by_noise = [num2cell(I) list_of_probe_ids{1}(I) list_of_genes{1}(I) num2cell(noise_per_gene(I))];
+  [B,I] = sort(noise_per_gene);
+  list_of_probes_genes_noise_sorted_by_noise = [num2cell(I) strtrim(list_of_probe_ids{1}(I)) strtrim(list_of_genes{1}(I)) num2cell(noise_per_gene(I))];
     
   list_of_probes_genes_noise_sorted_by_noise = [[{'Row in GSE matrix'} {'Probe IDs'} {'Gene names'} {'Noise'}]; list_of_probes_genes_noise_sorted_by_noise];
 
@@ -53,7 +55,7 @@ function measure_fit_of_replicates()
     for condition_index = 1:number_of_replicates
       gene_expression_to_plot = [gene_expression_to_plot; standardized_gene_expression{condition_index}(probe_id_index,:)];
     end
-    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Genes', 'Expression');
+    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Expression level', 'Expression');
       
     print(gcf,'-dpdf', [num2str(probe_id_index_seq) '_Probe_' list_of_probe_ids{1}{probe_id_index}]);
     close all;
@@ -67,7 +69,7 @@ function measure_fit_of_replicates()
     for condition_index = 1:number_of_replicates
       gene_expression_to_plot = [gene_expression_to_plot; standardized_gene_expression{condition_index}(probe_id_index,:)];
     end
-    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Genes', 'Expression');
+    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Expression level', 'Expression');
       
     print(gcf,'-dpdf', [num2str(probe_id_index_seq) '_Probe_' list_of_probe_ids{1}{probe_id_index}]);
     close all;
@@ -80,7 +82,7 @@ function measure_fit_of_replicates()
     for condition_index = 1:number_of_replicates
       gene_expression_to_plot = [gene_expression_to_plot; standardized_gene_expression{condition_index}(probe_id_index,:)];
     end
-    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Genes', 'Expression');
+    gene_expression_plot(gene_expression_to_plot, time_points, ['Probe ' list_of_probe_ids{1}(probe_id_index)], 'Time', 'Expression level', 'Expression');
     
     print(gcf,'-dpdf', [num2str(probe_id_index_seq) '_Probe_' list_of_probe_ids{1}{probe_id_index}]);
     close all;
