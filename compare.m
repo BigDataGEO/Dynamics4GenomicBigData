@@ -51,6 +51,8 @@ function compare()
 	    mkdir(one_to_one_comparison_folder);
 	    cd(one_to_one_comparison_folder);
 	    
+	    output_gene_correlations(results_1, results_2);
+	    
 	    output_comparison_plots(results_1.condition, results_1.step_4.list_of_gene_clusters, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, zscore(results_2.step_2.gene_expression')', results_1.step_3.indices_of_top_DRGs, results_1.list_of_genes, results_1.list_of_probe_ids);
 			
 	    plot_cluster_matches(results_1.condition, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, results_2.step_4.gene_expression_by_cluster, results_2.step_4.list_of_cluster_means, results_2.step_2.time_points);
@@ -61,6 +63,45 @@ function compare()
       end
     end
   end
+end
+
+function output_gene_correlations(results_1, results_2)
+
+  name_of_first_subject = results_1.condition;
+  name_of_second_subject = results_2.condition;
+  
+  number_of_DRGs = min(size(results_1.step_3.list_of_top_DRGs,1), size(results_2.step_3.list_of_top_DRGs,1));
+  
+  
+  matrix_of_correlations_sorted_by_F_value = [];
+  
+  for drg_index=1:number_of_DRGs
+    probe_id_of_current_drg_in_first_subject = results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,1);
+    
+    [indices, not_found] = find_strings_in_cell_array(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,1), probe_id_of_current_drg_in_first_subject);
+    
+    expression_of_current_drg_in_first_subject = cell2mat(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+    
+    expression_of_current_drg_in_second_subject = cell2mat(results_2.step_3.standardized_gene_expression_sorted_by_F_value(indices(1),4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+    
+    correlation_index = corr(expression_of_current_drg_in_first_subject', expression_of_current_drg_in_second_subject', 'type', 'Spearman');
+    
+    matrix_of_correlations_sorted_by_F_value = [matrix_of_correlations_sorted_by_F_value; {results_1.step_3.standardized_gene_expression_sorted_by_F_value{drg_index,1} results_1.step_3.standardized_gene_expression_sorted_by_F_value{drg_index,2}  correlation_index}];
+  end
+  
+  [useless_variable, indices_of_sorted_correlations] = sort(cell2mat(matrix_of_correlations_sorted_by_F_value(:,3)), 'descend');
+  
+  matrix_of_correlations_sorted_by_correlations = matrix_of_correlations_sorted_by_F_value(indices_of_sorted_correlations,:);
+  
+  correlations_matrix_header = [{'Probe ID'} {'Gene ID'} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
+  
+  matrix_of_correlations_sorted_by_F_value = [correlations_matrix_header; matrix_of_correlations_sorted_by_F_value];
+  
+  matrix_of_correlations_sorted_by_correlations = [correlations_matrix_header; matrix_of_correlations_sorted_by_correlations];
+  
+  writetable(cell2table(matrix_of_correlations_sorted_by_F_value), ['Expression_level_correlation_(sorted_by_F_value).csv'], 'WriteVariableNames', false);
+  writetable(cell2table(matrix_of_correlations_sorted_by_correlations), ['Expression_level_correlation_(sorted_by_correlation).csv'], 'WriteVariableNames', false);
+  
 end
 
 function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes, list_of_probe_ids)
@@ -469,22 +510,4 @@ function p_value = compare_curves_permutation(first_data_set, second_data_set, t
   
   delete(time_points_filename);
 
-end
-
-function [indices, not_found] = find_strings_in_cell_array(cell_array_to_search, cell_array_to_search_for)
-
-  indices = [];
-  not_found = [];
-  not_found_idx = [];
-  for i=1:length(cell_array_to_search_for)
-
-    idx = find(strcmp([cell_array_to_search(:)], strtrim(cell_array_to_search_for{i})));
-      
-    if(isempty(idx))
-      not_found = [not_found; {cell_array_to_search_for{i}}];
-      not_found_idx = [not_found_idx; i];
-    else
-      indices = [indices; idx];
-    end
-  end
 end
