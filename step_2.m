@@ -14,15 +14,26 @@
 
 % smooth_gene_trajectories : This is the expression of genes with smooth trajectories. Also a matrix analogous to gene_expression, although possibly with less rows.
 
-function [gene_expression, time_points, smooth_gene_trajectories, standardized_gene_expression] = step_2(raw_gene_expression, raw_time_points, output)
+function [gene_expression, standardized_gene_expression, time_points, gene_ID_type, smooth_gene_trajectories] = step_2(GEO_number, samples, preprocessed_time_points, output)
 
-  [gene_expression, time_points] = get_preprocessed_data(raw_gene_expression, raw_time_points);
+  [raw_gene_expression, raw_time_points, gene_ID_type] = step_1(GEO_number, samples, preprocessed_time_points);
+
+  [gene_expression, time_points] = get_preprocessed_data(cell2mat(table2cell(raw_gene_expression(:,3:size(raw_gene_expression,2)))), raw_time_points);
   
   smooth_gene_trajectories = Est_Sub_Sel(time_points, gene_expression, 1);
   
   smooth_gene_trajectories = smooth_gene_trajectories{1};
   
   standardized_gene_expression = zscore(gene_expression')';
+  
+  A = time_points';
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T_', A);
+  
+  gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} A]);
+  
+  standardized_gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(standardized_gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} A]);
   
   if(output)
   
@@ -42,7 +53,7 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
     set(gcf, 'PaperSize', [30 24]);
     axisLabelFontSize = 30;
     
-    surf(gene_expression,'FaceColor','interp','EdgeColor','none');
+    surf(cell2mat(table2cell(gene_expression(:,3:size(gene_expression,2)))), 'FaceColor', 'interp', 'EdgeColor', 'none');
 
     xlim([1,length(time_points)]);
 
@@ -51,7 +62,7 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
 
     ylim([1,size(raw_gene_expression,1)]);
 
-    zlim([min(min(gene_expression)),max(max(gene_expression))]);
+    zlim([min(min(cell2mat(table2cell(gene_expression(:,3:size(gene_expression,2)))))),max(max(cell2mat(table2cell(gene_expression(:,3:size(gene_expression,2))))))]);
 
     xlabel('Time', 'FontSize', axisLabelFontSize);
 
@@ -85,11 +96,11 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
     cd(outputFolder);
     
     
-    writetable(cell2table(num2cell(gene_expression)), ['gene_expression.csv'], 'WriteVariableNames', false);
+    writetable(gene_expression, ['gene_expression.csv'], 'WriteVariableNames', true);
     
-    writetable(cell2table(num2cell(standardized_gene_expression)), ['standardized_gene_expression.csv'], 'WriteVariableNames', false);
+    writetable(standardized_gene_expression, ['standardized_gene_expression.csv'], 'WriteVariableNames', true);
     
-    writetable(cell2table(num2cell(raw_gene_expression)), ['raw_gene_expression.csv'], 'WriteVariableNames', false);
+    writetable(raw_gene_expression, ['raw_gene_expression.csv'], 'WriteVariableNames', true);
     
     writetable(cell2table(num2cell(raw_time_points)), ['raw_time_points.csv'], 'WriteVariableNames', false);
     
@@ -97,7 +108,54 @@ function [gene_expression, time_points, smooth_gene_trajectories, standardized_g
     
     cd('..');
     
+    close all;
+    
   end
+  
+end
+
+% Input
+% Parameter samples is an MxN cell array of strings where each element is the accession number of a
+% GEO sample. In other words, each element must start with the prefix 'GSM'. M is the number of
+% time points and N is the number of replicates that comprise the experimental condition. If N>1
+% then the raw gene expression returned is the average of the N replicates. The expression of each
+% gene, each time point is averaged across the N replicates. In other words, the N matrices are
+% averaged, element-wise.
+
+% Parameter preprocessed_time_points is a Mx1 cell array of strings where each element is a time point expressed
+% with units, e.g., '2 hours'. The dimension of this array must be consistent with that of
+% parameter samples.
+
+% Output
+function [raw_gene_expression, raw_time_points, gene_ID_type] = step_1(GEO_number, samples, preprocessed_time_points)
+
+  [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_data(GEO_number);
+  
+  GSE_matrix = double(geoStruct.Data);
+  
+  raw_gene_expression = [];
+  
+  for time_point_index = 1:size(samples,1)
+  
+    samples_at_current_time_point = samples(time_point_index,:);
+    
+    [indices_of_samples_in_matrix, not_found] = find_strings_in_cell_array(geoStruct.Header.Samples.geo_accession, samples_at_current_time_point);
+    
+    raw_gene_expression_at_time_point{time_point_index} = median(GSE_matrix(:,indices_of_samples_in_matrix),2);
+  
+  end
+  
+  raw_gene_expression = cell2mat(raw_gene_expression_at_time_point);
+
+  raw_time_points = ExtractTimePoints(preprocessed_time_points');
+  
+  raw_time_points = cell2mat(raw_time_points(:,1));
+  
+  A = 1:size(raw_gene_expression,2);
+  A = A';
+  A = cellstr(num2str(A))';
+  
+  raw_gene_expression = cell2table([strtrim(list_of_probe_ids) strtrim(list_of_genes) num2cell(raw_gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} strcat('T', A)]);
   
 end
 

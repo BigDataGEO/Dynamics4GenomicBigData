@@ -27,21 +27,31 @@ function compare()
 	if (i~=j)
 	  results_1 = load_analysis(GEO_number, inputData{i,1});
 	  results_2 = load_analysis(GEO_number, inputData{j,1});
-
+	  
+	  % In the following lines we make sure that the two conditions have the same time points
+	  % and complete where any are missing.	  
+	  % This condition simply checks if the list of time points in both conditions are exactly
+	  % the same. That is to say, it verifies that the time points are the same and in the same
+	  % order. If the values are the same then they should also appear in the same order
+	  % because the pipeline sorts them.
+	  if ~isequal(results_1.step_2.time_points, results_2.step_2.time_points)
+	    [results_1, results_2] = equalizeConditions(results_1, results_2);
+	  end
+	  
 	  if(strcmp(GEO_number, GEO_number))
 	    
 	    % The following lines find and output the list of common statistically significant DRGs.
 	    cd(general_comparison_folder);
 	 
-	    probes1 = strtrim(results_1.step_3.gene_expression_sorted_by_F_value(1:results_1.step_3.number_of_statistically_significant_DRGs,1));
-	    probes2 = strtrim(results_2.step_3.gene_expression_sorted_by_F_value(1:results_2.step_3.number_of_statistically_significant_DRGs,1));
+	    probes1 = strtrim(table2cell(results_1.step_3.gene_expression_sorted_by_F_value(1:results_1.step_3.number_of_statistically_significant_DRGs,2)));
+	    probes2 = strtrim(table2cell(results_2.step_3.gene_expression_sorted_by_F_value(1:results_2.step_3.number_of_statistically_significant_DRGs,2)));
 	    common_DRG_probes = intersect(probes1,probes2);
 	    
 	    [indices_of_common_DRGs, not_found] = find_strings_in_cell_array(probes1, common_DRG_probes);
 	    
-	    common_DRG_genes = results_1.step_3.gene_expression_sorted_by_F_value(indices_of_common_DRGs,2);
+	    common_DRGs = results_1.step_3.gene_expression_sorted_by_F_value(indices_of_common_DRGs,2:3);
 	    
-	    writetable(cell2table([[{'Probe IDs'} {'Gene names'}]; [common_DRG_probes common_DRG_genes]]), 'Common_statistically_significant_DRGs.csv', 'WriteVariableNames', false);
+	    writetable(common_DRGs, 'Common_statistically_significant_DRGs.csv', 'WriteVariableNames', true);
 	    
 	    cd(Dynamics4GenomicBigData_HOME);
 
@@ -53,9 +63,9 @@ function compare()
 	    
 	    output_gene_correlations(results_1, results_2);
 	    
-	    output_comparison_plots(results_1.condition, results_1.step_4.list_of_gene_clusters, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, zscore(results_2.step_2.gene_expression')', results_1.step_3.indices_of_top_DRGs, results_1.list_of_genes, results_1.list_of_probe_ids);
-			
-	    plot_cluster_matches(results_1.condition, results_1.step_4.gene_expression_by_cluster, results_1.step_4.list_of_cluster_means, results_1.step_2.time_points, results_2.condition, results_2.step_4.gene_expression_by_cluster, results_2.step_4.list_of_cluster_means, results_2.step_2.time_points);
+	    output_comparison_plots(results_1.condition, results_1.step_4.list_of_grms, results_1.step_2.time_points, results_2.condition, cell2mat(table2cell(results_2.step_3.standardized_gene_expression(:,3:size(results_2.step_3.standardized_gene_expression, 2)))), results_1.step_3.indices_of_top_DRGs, results_1.list_of_genes, results_1.list_of_probe_ids);
+	    
+	    plot_cluster_matches(results_1.condition, results_1.step_4.list_of_grms, results_1.step_2.time_points, results_2.condition, results_2.step_4.list_of_grms, results_2.step_2.time_points);
 	    
 	    cd(Dynamics4GenomicBigData_HOME);
 	  end
@@ -65,46 +75,142 @@ function compare()
   end
 end
 
+function [equalized_results_1, equalized_results_2] = equalizeConditions(results_1, results_2)
+
+  old_results_1 = results_1;
+  old_results_2 = results_2;
+  
+  new_time_points = sort(union(results_1.step_2.time_points, results_2.step_2.time_points));
+  
+  results_1.step_2.original_time_points = results_1.step_2.time_points;
+  results_2.step_2.original_time_points = results_2.step_2.time_points;
+  
+  results_1.step_2.time_points = new_time_points;
+  results_2.step_2.time_points = new_time_points;
+  
+  % The following are the fields where the interpolation will be required.
+  % results_1.step_4.gene_expression_by_cluster
+  % results_2.step_2.gene_expression  
+  % results_1.step_4.list_of_cluster_means
+  % results_2.step_4.list_of_cluster_means  
+  
+  % Interpolating in the clusters of the first condition
+  for cluster_index=1:size(results_1.step_4.gene_expression_by_cluster, 1)
+    expression_in_current_cluster = results_1.step_4.gene_expression_by_cluster{cluster_index};    
+    results_1.step_4.gene_expression_by_cluster{cluster_index} = interpolate(results_1.step_2.original_time_points', expression_in_current_cluster, results_1.step_2.time_points');
+  end
+  
+  % Interpolating in the clusters of the second condition
+  for cluster_index=1:size(results_2.step_4.gene_expression_by_cluster, 1)
+    expression_in_current_cluster = results_2.step_4.gene_expression_by_cluster{cluster_index};    
+    results_2.step_4.gene_expression_by_cluster{cluster_index} = interpolate(results_2.step_2.original_time_points', expression_in_current_cluster, results_2.step_2.time_points');
+  end
+  
+  % Interpolating in the expression level matrix of the first condition
+  results_1.step_2.gene_expression = interpolate(results_1.step_2.original_time_points', results_1.step_2.gene_expression, results_1.step_2.time_points');
+  
+  % Interpolating in the expression level matrix of the second condition
+  results_2.step_2.gene_expression = interpolate(results_2.step_2.original_time_points', results_2.step_2.gene_expression, results_2.step_2.time_points');
+  
+  % Interpolating in the mean expression level of the modules in the first condition
+  results_1.step_4.list_of_cluster_means = interpolate(results_1.step_2.original_time_points', results_1.step_4.list_of_cluster_means, results_1.step_2.time_points');
+  
+  % Interpolating in the mean expression level of the modules in the second condition
+  results_2.step_4.list_of_cluster_means = interpolate(results_2.step_2.original_time_points', results_2.step_4.list_of_cluster_means, results_2.step_2.time_points');
+  
+  % Interpolating in the std expression level of the modules in the first condition
+  expression_as_matrix = cell2mat(results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+  interpolated_expression_as_matrix = interpolate(results_1.step_2.original_time_points', expression_as_matrix, results_1.step_2.time_points');
+  results_1.step_3.standardized_gene_expression_sorted_by_F_value=[results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,1:3) num2cell(interpolated_expression_as_matrix)];
+  
+  % Interpolating in the std expression level of the modules in the second condition
+  expression_as_matrix = cell2mat(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,4:size(results_2.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+  interpolated_expression_as_matrix = interpolate(results_2.step_2.original_time_points', expression_as_matrix, results_2.step_2.time_points');
+  results_2.step_3.standardized_gene_expression_sorted_by_F_value=[results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,1:3) num2cell(interpolated_expression_as_matrix)];
+  
+  equalized_results_1 = results_1;
+  equalized_results_2 = results_2;
+  
+end
+
+% This function calculates the splines (x,y) for each row of y_matrix and returns the interpolated
+% values (yq_matrix) for each element in xq.
+% x is a horizontal vector.
+% y_matrix is a matrix. Number of columns is the same as the number of elements in x.
+% xq is a horizontal vector.
+function yq_matrix = interpolate(x, y_matrix, xq)
+
+%    x = [1 2 3 4 5 6];
+%    y_matrix = [[1 4 9 16 25 36]; [1 8 27 64 125 216]];
+%    xq = [1.5 2.5];
+
+  yq_matrix = [];
+
+  for i=1:size(y_matrix, 1)
+    y = y_matrix(i,:);
+    
+    % The following condition checks that none of the values in y is NaN.
+    % If any of the values of y is Nan then the interpolation cannot be performed and a vector of
+    % only Nan values will be used instead of the interpolated values.
+    % This check is necessary because the expression data in some GEO series inexplicably come with
+    % NaN values.
+    if ~isempty(find(isnan(y)))
+      yq_matrix = [yq_matrix; repmat(nan, 1, length(xq))];
+    else
+      yq_matrix = [yq_matrix; spline(x, y, xq)];
+    end
+  end
+end
+
 function output_gene_correlations(results_1, results_2)
 
   name_of_first_subject = results_1.condition;
   name_of_second_subject = results_2.condition;
-  
-  number_of_DRGs = min(size(results_1.step_3.list_of_top_DRGs,1), size(results_2.step_3.list_of_top_DRGs,1));
-  
-  
+
   matrix_of_correlations_sorted_by_F_value = [];
   
-  for drg_index=1:number_of_DRGs
-    probe_id_of_current_drg_in_first_subject = results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,1);
+  for drg_index=1:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value, 1)
+    probe_id_of_current_drg_in_first_subject = table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index, 2));
     
-    [indices, not_found] = find_strings_in_cell_array(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,1), probe_id_of_current_drg_in_first_subject);
+    [indices, not_found] = find_strings_in_cell_array(table2cell(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,2)), probe_id_of_current_drg_in_first_subject);
     
-    expression_of_current_drg_in_first_subject = cell2mat(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
-    
-    expression_of_current_drg_in_second_subject = cell2mat(results_2.step_3.standardized_gene_expression_sorted_by_F_value(indices(1),4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
-    
-    correlation_index = corr(expression_of_current_drg_in_first_subject', expression_of_current_drg_in_second_subject', 'type', 'Spearman');
-    
-    matrix_of_correlations_sorted_by_F_value = [matrix_of_correlations_sorted_by_F_value; {results_1.step_3.standardized_gene_expression_sorted_by_F_value{drg_index,1} results_1.step_3.standardized_gene_expression_sorted_by_F_value{drg_index,2}  correlation_index}];
+    if isempty(indices)
+      matrix_of_correlations_sorted_by_F_value = [matrix_of_correlations_sorted_by_F_value; [table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,1:4)) {nan}]];
+    else
+      expression_of_current_drg_in_first_subject = cell2mat(table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,5:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2))));
+      
+      expression_of_current_drg_in_second_subject = cell2mat(table2cell(results_2.step_3.standardized_gene_expression_sorted_by_F_value(indices(1),5:size(results_2.step_3.standardized_gene_expression_sorted_by_F_value,2))));
+      
+      correlation_index = corr(expression_of_current_drg_in_first_subject', expression_of_current_drg_in_second_subject', 'type', 'Spearman');
+      
+      matrix_of_correlations_sorted_by_F_value = [matrix_of_correlations_sorted_by_F_value; [table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(drg_index,1:4)) {correlation_index}]];
+    end
   end
   
-  [useless_variable, indices_of_sorted_correlations] = sort(cell2mat(matrix_of_correlations_sorted_by_F_value(:,3)), 'descend');
+  [useless_variable, indices_of_sorted_correlations] = sort(cell2mat(matrix_of_correlations_sorted_by_F_value(1:size(results_1.step_3.list_of_top_DRGs,1),5)), 'descend');
+  
+  matrix_of_drgs_correlations_sorted_by_correlations = matrix_of_correlations_sorted_by_F_value(indices_of_sorted_correlations,:);
+  
+  [useless_variable, indices_of_sorted_correlations] = sort(cell2mat(matrix_of_correlations_sorted_by_F_value(:,5)), 'descend');
   
   matrix_of_correlations_sorted_by_correlations = matrix_of_correlations_sorted_by_F_value(indices_of_sorted_correlations,:);
   
-  correlations_matrix_header = [{'Probe ID'} {'Gene ID'} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
+  correlations_matrix_header = [{'Row in GSE matrix'} {'Probe ID'} {'Gene ID'} {'F value'} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
   
   matrix_of_correlations_sorted_by_F_value = [correlations_matrix_header; matrix_of_correlations_sorted_by_F_value];
   
   matrix_of_correlations_sorted_by_correlations = [correlations_matrix_header; matrix_of_correlations_sorted_by_correlations];
   
-  writetable(cell2table(matrix_of_correlations_sorted_by_F_value), ['Expression_level_correlation_(sorted_by_F_value).csv'], 'WriteVariableNames', false);
-  writetable(cell2table(matrix_of_correlations_sorted_by_correlations), ['Expression_level_correlation_(sorted_by_correlation).csv'], 'WriteVariableNames', false);
+  matrix_of_drgs_correlations_sorted_by_correlations = [correlations_matrix_header; matrix_of_drgs_correlations_sorted_by_correlations];
+  
+  writetable(cell2table(matrix_of_drgs_correlations_sorted_by_correlations), ['Expression_level_correlation_of_DRGs_(sorted_by_correlation).csv'], 'WriteVariableNames', false);
+  writetable(cell2table(matrix_of_correlations_sorted_by_F_value(1:size(results_1.step_3.list_of_top_DRGs,1),:)), ['Expression_level_correlation_of_DRGs(sorted_by_F_value).csv'], 'WriteVariableNames', false);
+  writetable(cell2table(matrix_of_correlations_sorted_by_F_value), ['Expression_level_correlation_of_all_genes(sorted_by_F_value).csv'], 'WriteVariableNames', false);
+  writetable(cell2table(matrix_of_correlations_sorted_by_correlations), ['Expression_level_correlation__of_all_genes(sorted_by_correlation).csv'], 'WriteVariableNames', false);
   
 end
 
-function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes, list_of_probe_ids)
+function output_comparison_plots(name_of_first_subject, list_of_grms, time_points, name_of_second_subject, gene_expression_2, indices_of_DRGs, list_of_genes, list_of_probe_ids)
 
       global Dynamics4GenomicBigData_HOME;
   
@@ -117,7 +223,7 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
       p_value_output_matrix = {'GRM number', 'p-value (Wilcoxon)', 'p-value (KS)', 'p-value (KW)', 'p-value (correlation with mean)', 'p-value (bootstrap)', 'p-value (permutation)', ['p-value < ' num2str(alpha_threshold)], '', 'Spearman correlation coefficient', 'Coefficient < 0.75?'};
 
       
-      number_of_clusters = size(list_of_cluster_means,1);
+      number_of_clusters = size(list_of_grms,1);
 
       number_of_subplots = 2 * number_of_clusters;
       
@@ -154,8 +260,8 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	    
 	while gen <= number_of_plots_in_current_page
 	  
-	  expression_of_first_subject = gene_expression_by_cluster{currentClusterIndex};
-	  expression_of_second_subject = gene_expression_2(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}),:);
+	  expression_of_first_subject = cell2mat(table2cell(list_of_grms{currentClusterIndex}(:, 4:size(list_of_grms{currentClusterIndex}, 2))));
+	  expression_of_second_subject = gene_expression_2(cell2mat(table2cell(list_of_grms{currentClusterIndex}(:,1))), :);
 	  
 	  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	  
@@ -182,8 +288,8 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 	  % This section calculates the Spearman correlation between each gene's expression in the first individual and the expression in the second individual.
 	  % The information is output to a spreadsheet.
 	  
-	  genes_in_current_cluster = list_of_genes(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}));
-	  probes_in_current_cluster = list_of_probe_ids(indices_of_DRGs(list_of_gene_clusters{currentClusterIndex}));
+	  genes_in_current_cluster = table2cell(list_of_grms{currentClusterIndex}(:,3));
+	  probes_in_current_cluster = table2cell(list_of_grms{currentClusterIndex}(:,2));
 	  
 	  correlations_of_current_cluster_header = [{['Probe ID']} {['Gene ID']} {['Spearman correlation between expression in ' name_of_first_subject ' and ' name_of_second_subject]}];
 	  correlations_of_current_cluster = [];
@@ -223,7 +329,12 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
 
 	  hold on;
 
-	  plot(list_of_cluster_means(currentClusterIndex,:),'o-r','LineWidth',1.5);
+	  if size(expression_of_first_subject, 1) == 1
+	    plot(mean(cell2mat(table2cell(list_of_grms{currentClusterIndex}(:, 4:size(list_of_grms{currentClusterIndex}, 2)))), 1),'o-r','LineWidth',1.5);
+	  else
+	    plot(mean(cell2mat(table2cell(list_of_grms{currentClusterIndex}(:, 4:size(list_of_grms{currentClusterIndex}, 2))))),'o-r','LineWidth',1.5);
+	  end
+	  
 
 	  y_axis_limits = [min([min(expression_of_first_subject), min(expression_of_second_subject)])-.05,max([max(expression_of_first_subject), max(expression_of_second_subject)])+.05];
 	  ylim(y_axis_limits);
@@ -293,10 +404,35 @@ function output_comparison_plots(name_of_first_subject, list_of_gene_clusters, g
       cd('..');
 end
 
-function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster, list_of_cluster_means, time_points, name_of_second_subject, gene_expression_by_cluster_2, list_of_cluster_means_2, time_points_2)
+function plot_cluster_matches(name_of_first_subject, list_of_grms, time_points, name_of_second_subject, list_of_grms_2, time_points_2)
 
     global Dynamics4GenomicBigData_HOME;
 
+    list_of_cluster_means = [];
+    for i = 1:length(list_of_grms)    
+      if size(list_of_grms{i}(:, 4:size(list_of_grms{i}, 2)), 1) == 1
+	cluster_mean = mean(cell2mat(table2cell(list_of_grms{i}(:, 4:size(list_of_grms{i}, 2)))),1);
+	list_of_cluster_means = [list_of_cluster_means; {cluster_mean}];
+      else
+	cluster_mean = mean(cell2mat(table2cell(list_of_grms{i}(:, 4:size(list_of_grms{i}, 2)))));
+	list_of_cluster_means = [list_of_cluster_means; {cluster_mean}];
+      end
+    end
+    
+    list_of_cluster_means_2 = [];
+    for i = 1:length(list_of_grms_2)    
+      if size(list_of_grms_2{i}(:, 4:size(list_of_grms_2{i}, 2)), 1) == 1
+	cluster_mean = mean(cell2mat(table2cell(list_of_grms_2{i}(:, 4:size(list_of_grms_2{i}, 2)))),1);
+	list_of_cluster_means_2 = [list_of_cluster_means_2; {cluster_mean}];
+      else
+	cluster_mean = mean(cell2mat(table2cell(list_of_grms_2{i}(:, 4:size(list_of_grms_2{i}, 2)))));
+	list_of_cluster_means_2 = [list_of_cluster_means_2; {cluster_mean}];
+      end
+    end
+    
+    list_of_cluster_means = cell2mat(list_of_cluster_means);
+    list_of_cluster_means_2 = cell2mat(list_of_cluster_means_2);
+    
     x = list_of_cluster_means;
     y = list_of_cluster_means_2;
     
@@ -318,11 +454,12 @@ function plot_cluster_matches(name_of_first_subject, gene_expression_by_cluster,
       module_with_lowest_correlation = find(z(current_cluster,:) == min(z(current_cluster,:)), 1, 'first');
       
       highest_correlation = max(z(current_cluster,:));
-			lowest_correlation = min(z(current_cluster,:));
+      lowest_correlation = min(z(current_cluster,:));
       
-      expression_of_first_subjects_current_cluster = gene_expression_by_cluster{current_cluster};      
-      expression_of_second_subjects_1st_cluster = gene_expression_by_cluster_2{module_with_lowest_correlation};      
-      expression_of_second_subjects_2nd_cluster = gene_expression_by_cluster_2{module_with_highest_correlation};
+      
+      expression_of_first_subjects_current_cluster = cell2mat(table2cell(list_of_grms{current_cluster}(:, 4:size(list_of_grms{current_cluster}, 2))));
+      expression_of_second_subjects_1st_cluster = cell2mat(table2cell(list_of_grms_2{module_with_lowest_correlation}(:, 4:size(list_of_grms_2{module_with_lowest_correlation}, 2))));
+      expression_of_second_subjects_2nd_cluster = cell2mat(table2cell(list_of_grms_2{module_with_highest_correlation}(:, 4:size(list_of_grms_2{module_with_highest_correlation}, 2))));
       
       expression_of_first_subjects_cluster = expression_of_first_subjects_current_cluster;
       name_of_first_subjects_cluster = ['M' num2str(current_cluster)];

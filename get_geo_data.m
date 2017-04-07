@@ -1,5 +1,11 @@
 function [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_data(GEO_number)
 
+  global Dynamics4GenomicBigData_HOME;
+  
+  current_folder = pwd;
+  
+  cd(Dynamics4GenomicBigData_HOME);
+
   cache_folder_name = 'GEO_cache';
   path_to_cached_file = [cache_folder_name '/' GEO_number '.txt'];
   
@@ -36,6 +42,8 @@ function [geoStruct, list_of_genes, gene_ID_type, list_of_probe_ids] = get_geo_d
     if isnumeric(list_of_probe_ids{1})
       list_of_probe_ids = strtrim(cellstr(num2str(cell2mat(list_of_probe_ids))));
     end
+    
+    cd(current_folder);
     
   catch causeException
     msgID = 'MATLAB:rmpath:DirNotFound1';

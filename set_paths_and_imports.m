@@ -6,7 +6,7 @@ global Dynamics4GenomicBigData_HOME;
 Dynamics4GenomicBigData_HOME = strcat(pwd,'/');
 
 global pipeline_version;
-pipeline_version = 'Pipeline Version 1.58';
+pipeline_version = 'Pipeline Version 1.59';
 
 %Add Paths
 addpath(Dynamics4GenomicBigData_HOME);

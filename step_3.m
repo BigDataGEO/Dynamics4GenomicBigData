@@ -1,10 +1,16 @@
-function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs_in_series_matrix, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, standardized_gene_expression, output)
+function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients] = step_3(gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, output)
 
   global Dynamics4GenomicBigData_HOME;
 
   flder = pwd;
   
-  total_number_of_genes_in_geo_record = size(gene_expression,1);
+  gene_expression_mat = cell2mat(table2cell(gene_expression(:,3:size(gene_expression,2))));
+  standardized_gene_expression_mat = zscore(gene_expression_mat')';
+  
+  list_of_probe_ids = strtrim(table2cell(gene_expression(:,1)));
+  list_of_genes = strtrim(table2cell(gene_expression(:,2)));
+  
+  total_number_of_genes_in_geo_record = size(gene_expression_mat,1);
   
   %  -----------------------------------------------------------------------
 
@@ -33,32 +39,36 @@ function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted
   R = eval_penalty(basisobj,2);
   lambdagenes = fminbnd(@multiple_GCV_fun, 10.^-6, 10^6, options, B, smooth_gene_trajectories', R);
   fdParobj = fdPar(basisobj, 2, lambdagenes);
-  [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression', fdParobj);
+  [fd_smooth_coefficients, degrees_of_freedom, gcvgenens,~,SSE]  = smooth_basis(time_points, gene_expression_mat', fdParobj);
     
   % The F test requires the degrees of freedom as an integer value. And the smooth_basis function does not always return integer values.
   % It is safe to round down to the nearest integer.
   degrees_of_freedom = floor(degrees_of_freedom);
     
   smooth_gene_expression = eval_fd(time_points, fd_smooth_coefficients);
-  smooth_gene_expression = smooth_gene_expression';
+  smooth_gene_expression = smooth_gene_expression';  
+  smooth_gene_expression = cell2table([list_of_probe_ids list_of_genes num2cell(smooth_gene_expression)], 'VariableNames', gene_expression.Properties.VariableNames);
+  
+  
   derivatives_of_smooth_gene_expression_curves = eval_fd(time_points, fd_smooth_coefficients,1);
   derivatives_of_smooth_gene_expression_curves = derivatives_of_smooth_gene_expression_curves';
   STDERR = sqrt(sum(SSE)/(total_number_of_genes_in_geo_record*(length(time_points)-degrees_of_freedom)));
 
-  [F, F_critic] = Ftest(gene_expression, time_points,  fd_smooth_coefficients, degrees_of_freedom);
+  [F, F_critic] = Ftest(gene_expression_mat, time_points,  fd_smooth_coefficients, degrees_of_freedom);
   
   [SF, indices_of_genes_sorted_by_F_value] = sort(F,'descend');
   indices_of_top_DRGs_in_series_matrix = indices_of_genes_sorted_by_F_value(1:number_of_top_DRGs_considered);
   list_of_top_DRGs = list_of_genes(indices_of_top_DRGs_in_series_matrix);
   list_of_probe_ids_sorted_by_F_value = strtrim(list_of_probe_ids(indices_of_genes_sorted_by_F_value));
   list_of_genes_sorted_by_F_value = strtrim(list_of_genes(indices_of_genes_sorted_by_F_value));
-  gene_expression_sorted_by_F_value = gene_expression(indices_of_genes_sorted_by_F_value,:);
-  standardized_gene_expression_sorted_by_F_value = standardized_gene_expression(indices_of_genes_sorted_by_F_value,:);
-  smooth_gene_expression_sorted_by_F_value = smooth_gene_expression(indices_of_genes_sorted_by_F_value,:);
+  gene_expression_sorted_by_F_value = gene_expression_mat(indices_of_genes_sorted_by_F_value,:);
+  standardized_gene_expression_sorted_by_F_value = standardized_gene_expression_mat(indices_of_genes_sorted_by_F_value,:);
+  smooth_gene_expression_sorted_by_F_value = cell2mat(table2cell(smooth_gene_expression(indices_of_genes_sorted_by_F_value,3:size(smooth_gene_expression,2))));
   
-  gene_expression_sorted_by_F_value = [list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)];
+  gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
   
-  standardized_gene_expression_sorted_by_F_value = [list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(standardized_gene_expression_sorted_by_F_value)];
+  standardized_gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(standardized_gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
+  
   
   % The DRGs will be determined through an upper one-tailed F test.
   % The DRGs will be those whose F statistics are greater than the F_critic (F_{0.05, numerator_df, denominator_df})
@@ -84,14 +94,14 @@ function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted
 
     for sub = 1:1
 
-	surf(smooth_gene_expression,'FaceColor','interp','EdgeColor','none');
+	surf(cell2mat(table2cell(smooth_gene_expression(:,3:size(smooth_gene_expression,2)))),'FaceColor','interp','EdgeColor','none');
 	xlim([1,length(time_points)]);
 	
 	set(gca,'XTick',1:length(time_points),'Xticklabel',time_points);
 	set(gca,'FontSize',11);
 
-	ylim([1,size(smooth_gene_expression',2)]);
-	zlim([min(min(smooth_gene_expression')),max(max(smooth_gene_expression'))]);
+	ylim([1,size(cell2mat(table2cell(smooth_gene_expression(:,3:size(smooth_gene_expression,2))))',2)]);
+	zlim([min(min(cell2mat(table2cell(smooth_gene_expression(:,3:size(smooth_gene_expression,2))))')),max(max(cell2mat(table2cell(smooth_gene_expression(:,3:size(smooth_gene_expression,2))))'))]);
 
 	xlabel('Time', 'FontSize', axisLabelFontSize);
 	ylabel('All genes', 'FontSize', axisLabelFontSize);
@@ -172,11 +182,11 @@ function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted
     
     cd(outputFolder);
     
-    writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} {'F score'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_genes_sorted_by_F_value) gene_expression_sorted_by_F_value]]), ['gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', false);
+    writetable(gene_expression_sorted_by_F_value, ['gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', true);
     
-    writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} {'F score'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_genes_sorted_by_F_value) standardized_gene_expression_sorted_by_F_value]]), ['standardized_gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', false);
+    writetable(standardized_gene_expression_sorted_by_F_value, ['standardized_gene_expression_sorted_by_F_value.csv'], 'WriteVariableNames', true);
     
-    writetable(cell2table(num2cell(smooth_gene_expression)), ['smooth_gene_expression.csv'], 'WriteVariableNames', false);
+    writetable(smooth_gene_expression, ['smooth_gene_expression.csv'], 'WriteVariableNames', true);
     writetable(cell2table(num2cell(derivatives_of_smooth_gene_expression_curves)), ['derivatives_of_smooth_gene_expression_curves.csv'], 'WriteVariableNames', false);
     writetable(cell2table({number_of_statistically_significant_DRGs}), ['number_of_statistically_significant_DRGs.csv'], 'WriteVariableNames', false);
     

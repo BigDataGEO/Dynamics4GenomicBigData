@@ -33,8 +33,11 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
   end
   
   network_graph=digraph(adjacency_matrix_of_gene_regulatory_network, row_labels);
-  graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
-  node_statistics = calculate_node_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
+%    graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
+%    node_statistics = calculate_node_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
+  
+  graph_statistics = [];
+  node_statistics = [];
   
   if(output)
     outputFolder = 'Step_6';
@@ -52,14 +55,13 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     print('Network_plot_MATLAB.pdf','-dpdf');
     movefile('Network_plot_MATLAB.pdf', outputFolder);
     
-    graphStatsFileName = 'Graph_Statistics.xls';
-    
-    writetable(cell2table(graph_statistics), graphStatsFileName, 'WriteVariableNames', false);
-    movefile(graphStatsFileName, outputFolder);
-    
-    nodeStatsFileName = 'Node_Statistics.xls';
-    writetable(cell2table(node_statistics), nodeStatsFileName, 'WriteVariableNames', false);
-    movefile(nodeStatsFileName, outputFolder);
+%      graphStatsFileName = 'Graph_Statistics.xls';    
+%      writetable(cell2table(graph_statistics), graphStatsFileName, 'WriteVariableNames', false);
+%      movefile(graphStatsFileName, outputFolder);
+%      
+%      nodeStatsFileName = 'Node_Statistics.xls';
+%      writetable(cell2table(node_statistics), nodeStatsFileName, 'WriteVariableNames', false);
+%      movefile(nodeStatsFileName, outputFolder);
 
     matrix_to_save = [column_labels; [row_labels dependency_matrix]];
     matrix_to_save = cell2table(matrix_to_save);
@@ -110,8 +112,8 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{adjacencyMatrixFilename} {'Adjacency matrix of the gene regulatory network (GRN) in Excel format.'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
-    matrix_of_files_descs = [matrix_of_files_descs; [{nodeStatsFileName} {'Node metrics of the gene regulatory network (GRN).'}]];
+%      matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
+%      matrix_of_files_descs = [matrix_of_files_descs; [{nodeStatsFileName} {'Node metrics of the gene regulatory network (GRN).'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{depMatrixFilename} {'Matrix of dependencies between the gene response modules (GRM) in the gene regulatory network (GRN).'}]];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{networkSIF} {'Gene regulatory network in .sif format for import into Cytoscape.'}]];
@@ -124,6 +126,9 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
 
     movefile('List_and_description_of_output.csv', outputFolder);
   end
+  
+  close all;
+  
 end
 
 function graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network)

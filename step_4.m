@@ -1,28 +1,39 @@
-function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, standardized_gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, output)
+function list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, time_points, number_of_top_DRGs_considered, output)
 
   global Dynamics4GenomicBigData_HOME;
   
   flder=pwd;
- 
   
-  %  -----------------------------------------------------------------------
+  list_of_probe_ids = table2cell(standardized_gene_expression_sorted_by_F_value(:,2));
+  list_of_genes = table2cell(standardized_gene_expression_sorted_by_F_value(:,3));
+  list_of_top_DRGs = table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,3));  
+  indices_of_top_DRGs_in_sd_matrix_sorted_by_F = 1:size(standardized_gene_expression_sorted_by_F_value,1)';
+  
+  indices_of_top_DRGs = cell2mat(table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,1)));
 
-  %                       Cluster (IHC)
-
-  %  -----------------------------------------------------------------------
-
-
-
+  
+  
   %Theshold
   alpha = 0.75;
 
-  std_data = zscore(standardized_gene_expression(indices_of_top_DRGs,:)')';
+  std_data = zscore(cell2mat(table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,5:size(standardized_gene_expression_sorted_by_F_value,2))))')';
 
   [list_of_gene_clusters, rmclusters, c, list_of_cluster_means, gene_expression_by_cluster] = IHC(std_data, alpha);
-      
-      
+  
+  list_of_grms = [];  
+  for cluster_iteration_ID=1:length(list_of_gene_clusters)
+    probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs_in_sd_matrix_sorted_by_F(list_of_gene_clusters{cluster_iteration_ID}));
+    names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs_in_sd_matrix_sorted_by_F(list_of_gene_clusters{cluster_iteration_ID}));
+    
+    group = indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID});
+    
+    grm = cell2table([num2cell(group) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
+    list_of_grms = [list_of_grms; {grm}];
+  end
+
   % The following four lines sort the clusters by size.
   [uselessVariable, cluster_indexes_by_size] = sort(cellfun('size', list_of_gene_clusters, 1), 'descend');
+  list_of_grms = list_of_grms(cluster_indexes_by_size);
   list_of_gene_clusters = list_of_gene_clusters(cluster_indexes_by_size);
   gene_expression_by_cluster = gene_expression_by_cluster(cluster_indexes_by_size);
   list_of_cluster_means = list_of_cluster_means(cluster_indexes_by_size,:);
@@ -295,17 +306,14 @@ function [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_mea
     movefile('List_and_description_of_output.csv', outputFolder);
     
     cluster_iteration_ID = 1;
-    probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
-    names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs_in_sd_matrix_sorted_by_F(list_of_gene_clusters{cluster_iteration_ID}));
+    names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs_in_sd_matrix_sorted_by_F(list_of_gene_clusters{cluster_iteration_ID}));
     
     mkdir([outputFolder '/GRMs']);
-    cd([outputFolder '/GRMs'])
+    cd([outputFolder '/GRMs']);
     
-    for cluster_iteration_ID=1:length(list_of_gene_clusters)
-      probe_ids_in_current_cluster = list_of_probe_ids(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
-      names_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
-      
-      writetable(cell2table([[{'Row index in GSE matrix'} {'Probe ID'} {'Gene name'} strcat({'t = '}, strtrim(cellstr(strtrim(num2str(time_points)))))']; [num2cell(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID})) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})]]), ['M' num2str(cluster_iteration_ID) '.csv'], 'WriteVariableNames', false);
+    for cluster_iteration_ID=1:length(list_of_gene_clusters)      
+      writetable(list_of_grms{cluster_iteration_ID}, ['M' num2str(cluster_iteration_ID) '.csv'], 'WriteVariableNames', true);
     end
     
     for cluster_number=1:length(list_of_cluster_means)

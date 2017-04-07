@@ -31,7 +31,7 @@ function pipeline()
 
     fprintf('\n');
     display(['All results from dataset ' unique_GEO_numbers{i} ' have been output to folder ' Dynamics4GenomicBigData_HOME 'Output/' unique_GEO_numbers{i} '/Conditions/']);
-
+    
     write_study_report(unique_GEO_numbers{i});
 
     fprintf('\n');
@@ -40,7 +40,7 @@ function pipeline()
   end
 end
 
-function run_condition(GEO_number, condition, samples, time_points, number_of_top_DRGs)
+function run_condition(GEO_number, condition, samples, preprocessed_time_points, number_of_top_DRGs)
 
   global Dynamics4GenomicBigData_HOME;
 
@@ -58,12 +58,10 @@ function run_condition(GEO_number, condition, samples, time_points, number_of_to
     return;
   end
 
-  [raw_gene_expression_array, raw_time_points_array] = step_1(geoStruct, samples, time_points);
-
   fprintf('\n');
   display(['The analysis of condition "' condition '" is starting.']);
 
-  run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression_array, raw_time_points_array, condition, condition, gene_ID_type, number_of_top_DRGs, list_of_probe_ids, geoStruct);
+  run_pipeline_analysis_on_condition(GEO_number, condition, samples, preprocessed_time_points, number_of_top_DRGs);
     
   fprintf('\n');
   display(['The analysis of condition "' condition '" has been completed.']);
@@ -74,7 +72,7 @@ function run_condition(GEO_number, condition, samples, time_points, number_of_to
 end
 
 
-function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_expression, raw_time_points, subject_name, condition, gene_ID_type, number_of_top_DRGs_considered, list_of_probe_ids, geoStruct)
+function run_pipeline_analysis_on_condition(GEO_number, condition, samples, preprocessed_time_points, number_of_top_DRGs_considered)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -84,18 +82,18 @@ function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_
       
   mkdir(output_folder);
   cd(output_folder);
-    
-  [gene_expression, time_points, smooth_gene_trajectories, standardized_gene_expression] = step_2(raw_gene_expression, raw_time_points, true);
+  
+  [gene_expression, standardized_gene_expression, time_points, gene_ID_type, smooth_gene_trajectories] = step_2(GEO_number, samples, preprocessed_time_points, true);
 
-  [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients, indices_of_top_DRGs, list_of_top_DRGs, indices_of_genes_sorted_by_F_value] = step_3(list_of_genes, gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, list_of_probe_ids, standardized_gene_expression, true);
+  [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted_by_F_value, number_of_statistically_significant_DRGs, smooth_gene_expression, fd_smooth_coefficients] = step_3(gene_expression, time_points, smooth_gene_trajectories, number_of_top_DRGs_considered, true);
 
-  [list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means] = step_4(list_of_probe_ids, list_of_genes, standardized_gene_expression, time_points, list_of_top_DRGs, indices_of_top_DRGs, smooth_gene_expression, true);
+  list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, time_points, number_of_top_DRGs_considered, true);
 
-  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_gene_clusters, time_points, indices_of_top_DRGs, fd_smooth_coefficients, true);
+  [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_grms, time_points, fd_smooth_coefficients, true);
 
   [network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, true);
 
-  [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type);
+  [chartReport, tableReport] = step_7(list_of_grms, gene_ID_type);
   
   path_to_results_file = ['Results.mat'];
 
@@ -104,23 +102,21 @@ function run_pipeline_analysis_on_condition(GEO_number, list_of_genes, raw_gene_
   results.geo_series_number = GEO_number;
   results.condition = condition;
   results.gene_ID_type = gene_ID_type;
-  results.list_of_probe_ids = list_of_probe_ids;
-  results.list_of_genes = list_of_genes;
+  results.list_of_probe_ids = table2cell(gene_expression(:,1));
+  results.list_of_genes = table2cell(gene_expression(:,2));
   
   results.step_2.gene_expression = gene_expression;
   results.step_2.time_points = time_points;
   
-  results.step_3.list_of_top_DRGs = list_of_top_DRGs;
-  results.step_3.indices_of_top_DRGs = indices_of_top_DRGs;
+  results.step_3.list_of_top_DRGs = table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,2));
+  results.step_3.indices_of_top_DRGs = table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,1));
   results.step_3.number_of_statistically_significant_DRGs = number_of_statistically_significant_DRGs;
   results.step_3.gene_expression_sorted_by_F_value = gene_expression_sorted_by_F_value;
-  results.step_3.indices_of_genes_sorted_by_F_value = indices_of_genes_sorted_by_F_value;
+  results.step_3.indices_of_genes_sorted_by_F_value = table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,1));
   results.step_3.standardized_gene_expression = standardized_gene_expression;
   results.step_3.standardized_gene_expression_sorted_by_F_value = standardized_gene_expression_sorted_by_F_value;
   
-  results.step_4.list_of_gene_clusters = list_of_gene_clusters;
-  results.step_4.gene_expression_by_cluster = gene_expression_by_cluster;
-  results.step_4.list_of_cluster_means = list_of_cluster_means;
+  results.step_4.list_of_grms = list_of_grms;
   
   results.step_5.coefficients = coefficients;
   results.step_5.adjacency_matrix_of_gene_regulatory_network = adjacency_matrix_of_gene_regulatory_network;
@@ -154,9 +150,7 @@ function write_study_report(GEO_number)
   gene_expression = {};
   time_points = {};
   list_of_top_DRGs = {};
-  list_of_gene_clusters = {};
-  gene_expression_by_cluster = {};
-  list_of_cluster_means = {};
+  list_of_grms = {};
   coefficients = {};
   adjacency_matrix_of_gene_regulatory_network = {};
   network_graph = {};
@@ -178,9 +172,9 @@ function write_study_report(GEO_number)
 
     results{i} = load_analysis(GEO_number, conditions{i});
     
-    list_of_statistically_significant_DRGs{i} = results{i}.step_3.gene_expression_sorted_by_F_value(1:results{i}.step_3.number_of_statistically_significant_DRGs,1:2);
+    list_of_statistically_significant_DRGs{i} = results{i}.step_3.gene_expression_sorted_by_F_value(1:results{i}.step_3.number_of_statistically_significant_DRGs,2:3);
     
-    list_of_statistically_significant_DRGs{i} = cellfun(@num2str, list_of_statistically_significant_DRGs{i}, 'UniformOutput', false);
+    list_of_statistically_significant_DRGs{i} = cellfun(@num2str, table2cell(list_of_statistically_significant_DRGs{i}), 'UniformOutput', false);
     
   end
   
@@ -249,9 +243,9 @@ function write_study_report(GEO_number)
   for condition_iter_index = 1:length(conditions)
     condition = conditions{condition_iter_index};
     
-    fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(condition, '_', '\_') '}' ' & ' num2str(length(results{condition_iter_index}.step_2.time_points)) ' & ' num2str(results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs) ' & ' num2str(length(results{condition_iter_index}.step_3.indices_of_top_DRGs)) ' & ' num2str(length(results{condition_iter_index}.step_4.list_of_gene_clusters)) ' \\ \hline']);
+    fprintf(draft,'\n\t%s\n', ['\texttt{' strrep(condition, '_', '\_') '}' ' & ' num2str(length(results{condition_iter_index}.step_2.time_points)) ' & ' num2str(results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs) ' & ' num2str(length(results{condition_iter_index}.step_3.indices_of_top_DRGs)) ' & ' num2str(length(results{condition_iter_index}.step_4.list_of_grms)) ' \\ \hline']);
     
-    statistics_of_current_analysis = {GEO_number, condition, num2str(size(results{condition_iter_index}.step_2.time_points,1)), num2str(results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs), num2str(size(results{condition_iter_index}.step_3.list_of_top_DRGs,1)), num2str(size(results{condition_iter_index}.step_4.list_of_gene_clusters,2))};    
+    statistics_of_current_analysis = {GEO_number, condition, num2str(size(results{condition_iter_index}.step_2.time_points,1)), num2str(results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs), num2str(size(results{condition_iter_index}.step_3.list_of_top_DRGs,1)), num2str(size(results{condition_iter_index}.step_4.list_of_grms,2))};    
     statistics_of_analyses = [statistics_of_analyses; statistics_of_current_analysis];
 
   end
@@ -300,7 +294,7 @@ function write_study_report(GEO_number)
   
   for condition_iter_index = 1:length(conditions)
     condition = conditions{condition_iter_index};
-    write_condition_section(draft, GEO_number, condition, results{condition_iter_index}.step_2.gene_expression, results{condition_iter_index}.step_2.time_points, results{condition_iter_index}.step_3.list_of_top_DRGs, results{condition_iter_index}.step_4.list_of_gene_clusters, results{condition_iter_index}.step_4.gene_expression_by_cluster, results{condition_iter_index}.step_4.list_of_cluster_means, results{condition_iter_index}.step_5.coefficients, results{condition_iter_index}.step_5.adjacency_matrix_of_gene_regulatory_network, results{condition_iter_index}.step_6.network_graph, results{condition_iter_index}.step_6.graph_statistics, results{condition_iter_index}.step_6.node_statistics, results{condition_iter_index}.gene_ID_type, results{condition_iter_index}.step_3.indices_of_top_DRGs, results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs, results{condition_iter_index}.step_3.gene_expression_sorted_by_F_value);
+    write_condition_section(draft, GEO_number, condition, results{condition_iter_index}.step_2.gene_expression, results{condition_iter_index}.step_2.time_points, results{condition_iter_index}.step_3.list_of_top_DRGs, results{condition_iter_index}.step_4.list_of_grms, results{condition_iter_index}.step_5.coefficients, results{condition_iter_index}.step_5.adjacency_matrix_of_gene_regulatory_network, results{condition_iter_index}.step_6.network_graph, results{condition_iter_index}.step_6.graph_statistics, results{condition_iter_index}.step_6.node_statistics, results{condition_iter_index}.gene_ID_type, results{condition_iter_index}.step_3.indices_of_top_DRGs, results{condition_iter_index}.step_3.number_of_statistically_significant_DRGs, results{condition_iter_index}.step_3.gene_expression_sorted_by_F_value);
   end
 
   fid = fopen('Part3.tex');
@@ -328,7 +322,7 @@ function write_study_report(GEO_number)
 
 end
 
-function write_condition_section(draft, GEO_number, condition, gene_expression, time_points, list_of_top_DRGs, list_of_gene_clusters, gene_expression_by_cluster, list_of_cluster_means, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, gene_ID_type, indices_of_top_DRGs, number_of_statistically_significant_DRGs, gene_expression_sorted_by_F_value)
+function write_condition_section(draft, GEO_number, condition, gene_expression, time_points, list_of_top_DRGs, list_of_grms, coefficients, adjacency_matrix_of_gene_regulatory_network, network_graph, graph_statistics, node_statistics, gene_ID_type, indices_of_top_DRGs, number_of_statistically_significant_DRGs, gene_expression_sorted_by_F_value)
 
   global Dynamics4GenomicBigData_HOME;
   
@@ -398,40 +392,40 @@ function write_condition_section(draft, GEO_number, condition, gene_expression, 
   fprintf(draft,'%s\n', ['\end{figure}']);
   
   % Graph statistics of the GRN
-  text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | l | p{5cm} |} \hline Metric & Value  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-
-  text = [graph_statistics{1,1} ' & ' num2str(graph_statistics{1,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{2,1} ' & ' num2str(graph_statistics{2,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{3,1} ' & ' num2str(graph_statistics{3,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = [graph_statistics{4,1} ' & ' num2str(graph_statistics{4,2}) '  \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  text = ['\end{tabular} \caption{Graph metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:graphstats_' condition '} \end{table} \end{center}'];
-  fprintf(draft, '%s\n\n', text);
-  
-  % Node statistics of the GRN
-  text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | c | c |} \hline Metric & Top ranking module & Bottom ranking module \\ \hline'];
-  fprintf(draft, '%s\n', text);
-    
-  for metric_index = 2:size(node_statistics,2)
-    
-    [max_value, index_of_max] = max([node_statistics{2:size(node_statistics,1),metric_index}]);
-    [min_value, index_of_min] = min([node_statistics{2:size(node_statistics,1),metric_index}]);
-      
-    text = [node_statistics{1,metric_index} ' & ' node_statistics{index_of_max+1,1} ' & ' node_statistics{index_of_min+1,1} '  \\ \hline'];
-    fprintf(draft, '%s\n', text);
-    
-  end
-  
-  text = ['\end{tabular} \caption{Node metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:nodestats_' condition '} \end{table} \end{center}'];
-  fprintf(draft, '%s\n\n', text);
+%    text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | l | p{5cm} |} \hline Metric & Value  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%  
+%    text = [graph_statistics{1,1} ' & ' num2str(graph_statistics{1,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{2,1} ' & ' num2str(graph_statistics{2,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{3,1} ' & ' num2str(graph_statistics{3,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = [graph_statistics{4,1} ' & ' num2str(graph_statistics{4,2}) '  \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    text = ['\end{tabular} \caption{Graph metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:graphstats_' condition '} \end{table} \end{center}'];
+%    fprintf(draft, '%s\n\n', text);
+%    
+%    % Node statistics of the GRN
+%    text = ['\begin{center} \begin{table} \centering \begin{tabular}{ | l | c | c |} \hline Metric & Top ranking module & Bottom ranking module \\ \hline'];
+%    fprintf(draft, '%s\n', text);
+%      
+%    for metric_index = 2:size(node_statistics,2)
+%      
+%      [max_value, index_of_max] = max([node_statistics{2:size(node_statistics,1),metric_index}]);
+%      [min_value, index_of_min] = min([node_statistics{2:size(node_statistics,1),metric_index}]);
+%        
+%      text = [node_statistics{1,metric_index} ' & ' node_statistics{index_of_max+1,1} ' & ' node_statistics{index_of_min+1,1} '  \\ \hline'];
+%      fprintf(draft, '%s\n', text);
+%      
+%    end
+%    
+%    text = ['\end{tabular} \caption{Node metrics of the gene regulatory network in condition \texttt{' strrep(condition, '_', '\_') '}.} \label{table:nodestats_' condition '} \end{table} \end{center}'];
+%    fprintf(draft, '%s\n\n', text);
   
   % Gene annotation
   text = ['In order to annotate all the dynamic response genes in condition \texttt{' strrep(condition, '_', '\_') '}, the full list of genes must be submitted to the \textit{DAVID} \href{https://david.ncifcrf.gov}{website}. This full list of genes can be found in supplementary file \href{Conditions/' condition '/Step_7/All\_DRGs.txt}{All\_DRGs.txt}.'];

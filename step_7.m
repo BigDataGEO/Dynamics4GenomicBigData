@@ -1,4 +1,4 @@
-function [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_clusters, indices_of_top_DRGs, gene_ID_type)
+function [chartReport, tableReport] = step_7(list_of_grms, gene_ID_type)
 
   global Dynamics4GenomicBigData_HOME;
 
@@ -7,17 +7,15 @@ function [chartReport, tableReport] = step_7(list_of_genes, list_of_gene_cluster
 %    py.importlib.import_module('DAVIDWS');
   
   cd(currentFolder);
-
-  list_of_genes_to_annotate = list_of_genes(indices_of_top_DRGs(:));
   
-  output_genes(list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, 'Step_7', path);
+  list_of_genes_to_annotate = output_genes(list_of_grms, 'Step_7', path);
   
   chartReport = [];
   tableReport = [];
   
 %    [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, gene_ID_type, true, true);
   
-  annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, 'Step_7', Dynamics4GenomicBigData_HOME, true, true);
+%    annotate_genes_and_output_reports(chartReport, tableReport, gene_ID_type, list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, 'Step_7', Dynamics4GenomicBigData_HOME, true, true);
 end
 
 function [chartReport, tableReport] = annotate_genes(list_of_genes_to_annotate, gene_ID_type, includeChartReport, includeTableReport)
@@ -367,26 +365,31 @@ end
 
 
 
-function output_genes(list_of_genes, indices_of_top_DRGs, list_of_gene_clusters, output_dir, path)
+function list_of_genes_to_annotate = output_genes(list_of_grms, output_dir, path)
 
-  list_of_genes_to_annotate = list_of_genes(indices_of_top_DRGs(:));
+  list_of_genes_to_annotate = [];
   
   % Now that the chart and table reports have been obtained, we proceed to export them to files,
   % grouped by gene cluster.
   % The output directory is created in the following two lines.
   mkdir(output_dir);
   cd(output_dir);
-  write_gene_cluster_to_csv_file(list_of_genes_to_annotate,strcat('All_DRGs', '.txt'));
-  for cluster_iteration_ID = 1:length(list_of_gene_clusters)
+  
+  for cluster_iteration_ID = 1:length(list_of_grms)
     % First create the subfolder for the current cluster.
     mkdir(strcat('M',num2str(cluster_iteration_ID)));
     cd(strcat('M',num2str(cluster_iteration_ID)));
     
     % Then output all genes in the current cluster, for reference.
-    ids_of_genes_in_current_cluster = list_of_genes(indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID}));
+    ids_of_genes_in_current_cluster = table2cell(list_of_grms{cluster_iteration_ID}(:,3));
     write_gene_cluster_to_csv_file(ids_of_genes_in_current_cluster,strcat('Genes_in_M', num2str(cluster_iteration_ID), '.txt'));
+    
+    list_of_genes_to_annotate = [list_of_genes_to_annotate; ids_of_genes_in_current_cluster];
       
     cd('..');
   end
+  
+  write_gene_cluster_to_csv_file(list_of_genes_to_annotate,strcat('All_DRGs', '.txt'));
+  
   cd('..');
 end
