@@ -41,5 +41,30 @@ function gene_expression_plot(gene_expression, time_points, plot_title, x_label,
   zlabel(z_label, 'FontSize', axisLabelFontSize);
 
   title(strrep(plot_title, '_', '\_'), 'FontSize', axisLabelFontSize);
+  
+  print('Figure.pdf','-dpdf');
 
 end
+
+
+%  T = readtable('gene_expression_sorted_by_F_value.csv');
+
+%  row_index = 1;
+%  
+%  gene_name = cell2mat(table2cell(T(row_index,3)));
+%  
+%  gene_expression = cell2mat(table2cell(T(row_index,5:size(T,2))));
+%  
+%  time_points = [0, 6, 12, 18, 24, 30, 36, 42];
+%  
+%  gene_expression_plot(gene_expression, time_points, ['Gene ' gene_name], 'Time', 'Expression', '');
+
+%  row_index = 14783;
+%  
+%  gene_name = cell2mat(table2cell(T(row_index,3)));
+%  
+%  gene_expression = cell2mat(table2cell(T(row_index,5:size(T,2))));
+%  
+%  time_points = [0, 6, 12, 18, 24, 30, 36, 42];
+%  
+%  gene_expression_plot(gene_expression, time_points, ['Gene ' gene_name], 'Time', 'Expression', '');

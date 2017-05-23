@@ -1,6 +1,6 @@
 close all;
-clc;
-clear;
+%  clc;
+%  clear;
 
 global Dynamics4GenomicBigData_HOME;
 Dynamics4GenomicBigData_HOME = strcat(pwd,'/');
@@ -19,5 +19,5 @@ rehash toolboxcache
 %  py.importlib.import_module('DAVIDWS');
 
 warning('off','all');
-clc;
-clc;
+%  clc;
+%  clc;
