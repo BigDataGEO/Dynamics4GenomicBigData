@@ -14,6 +14,6 @@ list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, time_point
 
 [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_grms, time_points, fd_smooth_coefficients, false);
 
-[network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, false);
+[network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, true);
 
 [chartReport, tableReport] = step_7(list_of_grms, gene_ID_type);

@@ -33,11 +33,8 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
   end
   
   network_graph=digraph(adjacency_matrix_of_gene_regulatory_network, row_labels);
-%    graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
-%    node_statistics = calculate_node_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
-  
-  graph_statistics = [];
-  node_statistics = [];
+  graph_statistics = calculate_graph_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
+  node_statistics = calculate_node_statistics_from_adjacency_matrix(adjacency_matrix_of_gene_regulatory_network);
   
   if(output)
     outputFolder = 'Step_6';
@@ -55,13 +52,13 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     print('Network_plot_MATLAB.pdf','-dpdf');
     movefile('Network_plot_MATLAB.pdf', outputFolder);
     
-%      graphStatsFileName = 'Graph_Statistics.xls';    
-%      writetable(cell2table(graph_statistics), graphStatsFileName, 'WriteVariableNames', false);
-%      movefile(graphStatsFileName, outputFolder);
-%      
-%      nodeStatsFileName = 'Node_Statistics.xls';
-%      writetable(cell2table(node_statistics), nodeStatsFileName, 'WriteVariableNames', false);
-%      movefile(nodeStatsFileName, outputFolder);
+    graphStatsFileName = 'Graph_statistics.csv';    
+    writetable(cell2table(graph_statistics), graphStatsFileName, 'WriteVariableNames', false);
+    movefile(graphStatsFileName, outputFolder);
+    
+    nodeStatsFileName = 'Node_statistics.csv';
+    writetable(cell2table(node_statistics), nodeStatsFileName, 'WriteVariableNames', false);
+    movefile(nodeStatsFileName, outputFolder);
 
     matrix_to_save = [column_labels; [row_labels dependency_matrix]];
     matrix_to_save = cell2table(matrix_to_save);
@@ -97,23 +94,12 @@ function [network_graph, graph_statistics, node_statistics] = step_6(adjacency_m
     
     movefile(networkTGF, outputFolder);
     movefile(networkSIF, outputFolder);
-
-%      if isunix()
-%        adjacencyMatrixCSVFilename = 'Network_matrix.csv';
-%        csvwrite(adjacencyMatrixCSVFilename, adjacency_matrix_of_gene_regulatory_network');
-%      
-%        networkPlotFilename = 'Network_plot_R.pdf';
-%        [x, y]=system(['Rscript ', Dynamics4GenomicBigData_HOME, 'plot_network.R', ' ', adjacencyMatrixCSVFilename, ' ', networkPlotFilename]);    
-%        movefile(networkPlotFilename, outputFolder);
-%        
-%        delete(adjacencyMatrixCSVFilename);
-%      end
     
     matrix_of_files_descs = [{'File name'} {'Description'}];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{adjacencyMatrixFilename} {'Adjacency matrix of the gene regulatory network (GRN) in Excel format.'}]];
-%      matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
-%      matrix_of_files_descs = [matrix_of_files_descs; [{nodeStatsFileName} {'Node metrics of the gene regulatory network (GRN).'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{graphStatsFileName} {'Graph metrics of the gene regulatory network (GRN).'}]];
+    matrix_of_files_descs = [matrix_of_files_descs; [{nodeStatsFileName} {'Node metrics of the gene regulatory network (GRN).'}]];
     matrix_of_files_descs = [matrix_of_files_descs; [{depMatrixFilename} {'Matrix of dependencies between the gene response modules (GRM) in the gene regulatory network (GRN).'}]];
     
     matrix_of_files_descs = [matrix_of_files_descs; [{networkSIF} {'Gene regulatory network in .sif format for import into Cytoscape.'}]];
@@ -151,7 +137,7 @@ function node_statistics = calculate_node_statistics_from_adjacency_matrix(adjac
 
   NS = [calculate_node_indegree(binary_adjacency_matrix), calculate_node_outdegree(binary_adjacency_matrix), bridging_centrality(binary_adjacency_matrix), closeness_centrality(sparse(binary_adjacency_matrix)), eccentricity_centrality(sparse(binary_adjacency_matrix))', betweenness(binary_adjacency_matrix), clusteringcoeff(binary_adjacency_matrix,1:size(binary_adjacency_matrix,1))];
   
-  labels = {'In-degree', 'Out-degree', 'Bridging centrality' 'Closeness centrality' 'Eccentricity centrality', 'Betweenness', 'Clustering coefficient'};
+  labels = {'Out-degree', 'In-degree', 'Bridging centrality' 'Closeness centrality' 'Eccentricity centrality', 'Betweenness', 'Clustering coefficient'};
   
   values = num2cell(NS);
   
