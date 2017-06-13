@@ -26,14 +26,13 @@ function [gene_expression, standardized_gene_expression, time_points, gene_ID_ty
   
   standardized_gene_expression = zscore(gene_expression')';
   
-  A = time_points';
+  A = 1:size(time_points,1);
   A = A';
   A = strtrim(cellstr(num2str(A))');
-  A = strcat('T_', A);
   
-  gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} A]);
+  gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} strcat('T', A)]);
   
-  standardized_gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(standardized_gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} A]);
+  standardized_gene_expression = cell2table([strtrim(table2cell(raw_gene_expression(:,1))) strtrim(table2cell(raw_gene_expression(:,2))) num2cell(standardized_gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} strcat('T', A)]);
   
   if(output)
   
@@ -153,7 +152,7 @@ function [raw_gene_expression, raw_time_points, gene_ID_type] = step_1(GEO_numbe
   
   A = 1:size(raw_gene_expression,2);
   A = A';
-  A = cellstr(num2str(A))';
+  A = strtrim(cellstr(num2str(A))');
   
   raw_gene_expression = cell2table([strtrim(list_of_probe_ids) strtrim(list_of_genes) num2cell(raw_gene_expression)], 'VariableNames', [{'Probe_ID'} {'Gene_ID'} strcat('T', A)]);
   

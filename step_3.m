@@ -64,10 +64,15 @@ function [gene_expression_sorted_by_F_value, standardized_gene_expression_sorted
   gene_expression_sorted_by_F_value = gene_expression_mat(indices_of_genes_sorted_by_F_value,:);
   standardized_gene_expression_sorted_by_F_value = standardized_gene_expression_mat(indices_of_genes_sorted_by_F_value,:);
   smooth_gene_expression_sorted_by_F_value = cell2mat(table2cell(smooth_gene_expression(indices_of_genes_sorted_by_F_value,3:size(smooth_gene_expression,2))));
+
+  A = 1:size(time_points,1);
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T', A);
   
-  gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
+  gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} A]);
   
-  standardized_gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(standardized_gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
+  standardized_gene_expression_sorted_by_F_value = cell2table([num2cell(indices_of_genes_sorted_by_F_value) list_of_probe_ids_sorted_by_F_value list_of_genes_sorted_by_F_value num2cell(SF) num2cell(standardized_gene_expression_sorted_by_F_value)], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} {'F_score'} A]);
   
   
   % The DRGs will be determined through an upper one-tailed F test.

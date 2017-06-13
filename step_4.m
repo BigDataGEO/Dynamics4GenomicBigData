@@ -27,7 +27,12 @@ function list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, t
     
     group = indices_of_top_DRGs(list_of_gene_clusters{cluster_iteration_ID});
     
-    grm = cell2table([num2cell(group) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} strcat({'t_'}, strtrim(cellstr(strtrim(num2str(time_points)))))']);
+    A = 1:size(time_points,1);
+    A = A';
+    A = strtrim(cellstr(num2str(A))');
+    A = strcat('T', A);
+    
+    grm = cell2table([num2cell(group) probe_ids_in_current_cluster names_of_genes_in_current_cluster num2cell(gene_expression_by_cluster{cluster_iteration_ID})], 'VariableNames', [{'Row_index_in_GSE_matrix'} {'Probe_ID'} {'Gene_name'} A]);
     list_of_grms = [list_of_grms; {grm}];
   end
 

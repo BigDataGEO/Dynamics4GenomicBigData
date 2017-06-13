@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-Condition_file = 'GSE59015_-_Wildtype_-_3000.csv';
+Condition_file = 'GSE19392_-_HBEs_infected_with_delNS1_post_trypsin_delNS1_1_-_3000.csv';
 
 cd('Input');
 [GEO_number, condition, samples, preprocessed_time_points, number_of_top_DRGs_considered] = read_input([Condition_file]);
@@ -14,6 +14,6 @@ list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, time_point
 
 [coefficients, adjacency_matrix_of_gene_regulatory_network] = step_5(list_of_grms, time_points, fd_smooth_coefficients, false);
 
-[network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, true);
+[network_graph, graph_statistics, node_statistics] = step_6(adjacency_matrix_of_gene_regulatory_network, false);
 
 [chartReport, tableReport] = step_7(list_of_grms, gene_ID_type);
