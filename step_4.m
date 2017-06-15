@@ -11,8 +11,6 @@ function list_of_grms = step_4(standardized_gene_expression_sorted_by_F_value, t
   
   indices_of_top_DRGs = cell2mat(table2cell(standardized_gene_expression_sorted_by_F_value(1:number_of_top_DRGs_considered,1)));
 
-  
-  
   %Theshold
   alpha = 0.75;
 

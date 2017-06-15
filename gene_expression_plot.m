@@ -41,8 +41,6 @@ function gene_expression_plot(gene_expression, time_points, plot_title, x_label,
   zlabel(z_label, 'FontSize', axisLabelFontSize);
 
   title(strrep(plot_title, '_', '\_'), 'FontSize', axisLabelFontSize);
-  
-  print('Figure.pdf','-dpdf');
 
 end
 

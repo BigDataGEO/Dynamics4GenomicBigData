@@ -95,39 +95,92 @@ function [equalized_results_1, equalized_results_2] = equalizeConditions(results
   % results_2.step_4.list_of_cluster_means  
   
   % Interpolating in the clusters of the first condition
-  for cluster_index=1:size(results_1.step_4.gene_expression_by_cluster, 1)
-    expression_in_current_cluster = results_1.step_4.gene_expression_by_cluster{cluster_index};    
-    results_1.step_4.gene_expression_by_cluster{cluster_index} = interpolate(results_1.step_2.original_time_points', expression_in_current_cluster, results_1.step_2.time_points');
+  for cluster_index=1:size(results_1.step_4.list_of_grms, 1)
+    expression_in_current_cluster = results_1.step_4.list_of_grms{cluster_index};
+    
+    
+    table_names = results_1.step_4.list_of_grms{cluster_index}.Properties.VariableNames(1:3);
+    A = 1:size(results_1.step_2.time_points,1);
+    A = A';
+    A = strtrim(cellstr(num2str(A))');
+    A = strcat('T', A);
+    table_names = [table_names A];
+        
+    results_1.step_4.list_of_grms{cluster_index} = cell2table([table2cell(results_1.step_4.list_of_grms{cluster_index}(:,1:3)) num2cell(interpolate(results_1.step_2.original_time_points', cell2mat(table2cell(expression_in_current_cluster(:,4:size(expression_in_current_cluster,2)))), results_1.step_2.time_points'))]);
+
+    results_1.step_4.list_of_grms{cluster_index}.Properties.VariableNames = table_names;
   end
   
   % Interpolating in the clusters of the second condition
-  for cluster_index=1:size(results_2.step_4.gene_expression_by_cluster, 1)
-    expression_in_current_cluster = results_2.step_4.gene_expression_by_cluster{cluster_index};    
-    results_2.step_4.gene_expression_by_cluster{cluster_index} = interpolate(results_2.step_2.original_time_points', expression_in_current_cluster, results_2.step_2.time_points');
+  for cluster_index=1:size(results_2.step_4.list_of_grms, 1)
+    expression_in_current_cluster = results_2.step_4.list_of_grms{cluster_index};
+    
+    table_names = results_2.step_4.list_of_grms{cluster_index}.Properties.VariableNames(1:3);
+    A = 1:size(results_2.step_2.time_points,1);
+    A = A';
+    A = strtrim(cellstr(num2str(A))');
+    A = strcat('T', A);
+    table_names = [table_names A];
+    
+    results_2.step_4.list_of_grms{cluster_index} = cell2table([table2cell(results_2.step_4.list_of_grms{cluster_index}(:,1:3)) num2cell(interpolate(results_2.step_2.original_time_points', cell2mat(table2cell(expression_in_current_cluster(:,4:size(expression_in_current_cluster,2)))), results_2.step_2.time_points'))]);
+    
+    results_2.step_4.list_of_grms{cluster_index}.Properties.VariableNames = table_names;
   end
   
   % Interpolating in the expression level matrix of the first condition
-  results_1.step_2.gene_expression = interpolate(results_1.step_2.original_time_points', results_1.step_2.gene_expression, results_1.step_2.time_points');
-  
+  results_1.step_2.gene_expression = interpolate(results_1.step_2.original_time_points', cell2mat(table2cell(results_1.step_2.gene_expression(:,3:size(results_1.step_2.gene_expression,2)))), results_1.step_2.time_points');
+
   % Interpolating in the expression level matrix of the second condition
-  results_2.step_2.gene_expression = interpolate(results_2.step_2.original_time_points', results_2.step_2.gene_expression, results_2.step_2.time_points');
-  
-  % Interpolating in the mean expression level of the modules in the first condition
-  results_1.step_4.list_of_cluster_means = interpolate(results_1.step_2.original_time_points', results_1.step_4.list_of_cluster_means, results_1.step_2.time_points');
-  
-  % Interpolating in the mean expression level of the modules in the second condition
-  results_2.step_4.list_of_cluster_means = interpolate(results_2.step_2.original_time_points', results_2.step_4.list_of_cluster_means, results_2.step_2.time_points');
+  results_2.step_2.gene_expression = interpolate(results_2.step_2.original_time_points', cell2mat(table2cell(results_2.step_2.gene_expression(:,3:size(results_2.step_2.gene_expression,2)))), results_2.step_2.time_points');
   
   % Interpolating in the std expression level of the modules in the first condition
-  expression_as_matrix = cell2mat(results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,4:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+  expression_as_matrix = cell2mat(table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,5:size(results_1.step_3.standardized_gene_expression_sorted_by_F_value,2))));
   interpolated_expression_as_matrix = interpolate(results_1.step_2.original_time_points', expression_as_matrix, results_1.step_2.time_points');
-  results_1.step_3.standardized_gene_expression_sorted_by_F_value=[results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,1:3) num2cell(interpolated_expression_as_matrix)];
+  table_names = results_1.step_3.standardized_gene_expression_sorted_by_F_value.Properties.VariableNames(1:4);
+  A = 1:size(results_1.step_2.time_points,1);
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T', A);
+  table_names = [table_names A];
+  results_1.step_3.standardized_gene_expression_sorted_by_F_value = cell2table([table2cell(results_1.step_3.standardized_gene_expression_sorted_by_F_value(:,1:4)) num2cell(interpolated_expression_as_matrix)]);
+  results_1.step_3.standardized_gene_expression_sorted_by_F_value.Properties.VariableNames = table_names;
   
   % Interpolating in the std expression level of the modules in the second condition
-  expression_as_matrix = cell2mat(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,4:size(results_2.step_3.standardized_gene_expression_sorted_by_F_value,2)));
+  expression_as_matrix = cell2mat(table2cell(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,5:size(results_2.step_3.standardized_gene_expression_sorted_by_F_value,2))));
   interpolated_expression_as_matrix = interpolate(results_2.step_2.original_time_points', expression_as_matrix, results_2.step_2.time_points');
-  results_2.step_3.standardized_gene_expression_sorted_by_F_value=[results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,1:3) num2cell(interpolated_expression_as_matrix)];
+  table_names = results_2.step_3.standardized_gene_expression_sorted_by_F_value.Properties.VariableNames(1:4);
+  A = 1:size(results_2.step_2.time_points,1);
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T', A);
+  table_names = [table_names A];  
+  results_2.step_3.standardized_gene_expression_sorted_by_F_value = cell2table([table2cell(results_2.step_3.standardized_gene_expression_sorted_by_F_value(:,1:4)) num2cell(interpolated_expression_as_matrix)]);
+  results_2.step_3.standardized_gene_expression_sorted_by_F_value.Properties.VariableNames = table_names;
   
+  % Interpolating the standardized gene expression of subject 1.  
+  expression_as_matrix = cell2mat(table2cell(results_1.step_3.standardized_gene_expression(:,3:size(results_1.step_3.standardized_gene_expression,2))));
+  interpolated_expression_as_matrix = interpolate(results_1.step_2.original_time_points', expression_as_matrix, results_1.step_2.time_points');
+  table_names = results_1.step_3.standardized_gene_expression.Properties.VariableNames(1:2);  
+  A = 1:size(results_1.step_2.time_points,1);
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T', A);
+  table_names = [table_names A];
+  results_1.step_3.standardized_gene_expression = cell2table([table2cell(results_1.step_3.standardized_gene_expression(:,1:2)) num2cell(interpolated_expression_as_matrix)]);
+  results_1.step_3.standardized_gene_expression.Properties.VariableNames = table_names;
+  
+  % Interpolating the standardized gene expression of subject 2.
+  expression_as_matrix = cell2mat(table2cell(results_2.step_3.standardized_gene_expression(:,3:size(results_2.step_3.standardized_gene_expression,2))));
+  interpolated_expression_as_matrix = interpolate(results_2.step_2.original_time_points', expression_as_matrix, results_2.step_2.time_points');
+  table_names = results_2.step_3.standardized_gene_expression.Properties.VariableNames(1:2);  
+  A = 1:size(results_2.step_2.time_points,1);
+  A = A';
+  A = strtrim(cellstr(num2str(A))');
+  A = strcat('T', A);
+  table_names = [table_names A];
+  results_2.step_3.standardized_gene_expression = cell2table([table2cell(results_2.step_3.standardized_gene_expression(:,1:2)) num2cell(interpolated_expression_as_matrix)]);
+  results_2.step_3.standardized_gene_expression.Properties.VariableNames = table_names;
+
   equalized_results_1 = results_1;
   equalized_results_2 = results_2;
   
@@ -341,7 +394,7 @@ function output_comparison_plots(name_of_first_subject, list_of_grms, time_point
 
 	  v = axis;
 
-	  handle=title(['Expression of genes in M', num2str(currentClusterIndex), ' from ', name_of_first_subject, '']);
+	  handle=title(['Expression of genes in M', num2str(currentClusterIndex), ' from ', strrep(name_of_first_subject,'_','\_'), '']);
 
 	  set(handle,'Position',[3 v(4)*1.03 0]);
 
@@ -373,7 +426,7 @@ function output_comparison_plots(name_of_first_subject, list_of_grms, time_point
 
 	  v = axis;
 
-	  handle=title(['Expression of the same genes in ', name_of_second_subject, ' (\rho = ' num2str(correlation_between_mean_expressions) ')']);
+	  handle=title(['Expression of the same genes in ', strrep(name_of_second_subject,'_','\_'), ' (\rho = ' num2str(correlation_between_mean_expressions) ')']);
 
 	  set(handle,'Position',[2.815 v(4)*1.03 0]);
 
@@ -517,7 +570,7 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       v = axis;
 
-      handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', name_of_first_subject, '']);
+      handle=title(['Expression of ', name_of_first_subjects_cluster, ' from ', strrep(name_of_first_subject,'_','\_'), '']);
 
       set(handle,'Position',[2.6 v(4)*1.03 0]);
 
@@ -542,14 +595,12 @@ function plot_expression_of_two_clusters(name_of_first_subject, name_of_first_su
 
       v = axis;
       
-      handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', name_of_second_subject, '']);
+      handle=title(['Expression of ', name_of_second_subjects_cluster, ' from ', strrep(name_of_second_subject,'_','\_'), '']);
 
       set(handle,'Position',[2.35 v(4)*1.03 0]);
 
       hold off;
 end
-
-
 
 function [p_value_wilcoxon, p_value_ks, p_value_kruskalwallis, p_value_correlation_with_mean, p_value_bootstrap, p_value_permutation, spearman_correlation_coefficient] = compare_gene_expression(expression_of_first_subject, expression_of_second_subject, time_points)
   
