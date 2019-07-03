@@ -1,6 +1,6 @@
 set_paths_and_imports;
 
-input_csv_file = 'GSE59015_-_Wildtype_-_3000.csv';
+input_csv_file = 'GSEXXXX_-_D11_-_3000.csv';
 
 cd('Input');
 [GEO_number, condition, number_of_top_DRGs_considered] = read_input_from_csv([input_csv_file]);
